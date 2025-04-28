@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+
 import com.example.backend.util.JwtUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/v1/api")
@@ -20,10 +23,12 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtUtil jwtUtil) {
         this.authService = authService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Operation(summary = "ログイン認証")
@@ -35,7 +40,7 @@ public class AuthController {
 
             // 認証成功時
             Map<String, Object> response = new HashMap<>();
-            String token = JwtUtil.generateToken(authenticatedUser.getUsername()); // トークン発行
+            String token = jwtUtil.generateToken(authenticatedUser.getUsername()); // トークン発行
             response.put("message", "Login successful.");
             response.put("token", token); // トークンをレスポンスに含める
 
@@ -49,6 +54,23 @@ public class AuthController {
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        // ユーザー名を取得
+        String username = authentication.getName();
+
+        // 必要ならrolesも取得（今回は簡単に空リストで）
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", username);
+        response.put("roles", new ArrayList<>()); // 権限取得するなら、ここを拡張できる
+
+        return ResponseEntity.ok(response);
     }
 
     // リクエストボディの受け皿クラス（内部クラス）
@@ -73,20 +95,3 @@ public class AuthController {
         }
     }
 }
-@GetMapping("/me")
-public ResponseEntity<?> getCurrentUser(Authentication authentication) {
-    if (authentication == null || !authentication.isAuthenticated()) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-    }
-
-    // ユーザー名を取得
-    String username = authentication.getName();
-
-    // 必要ならrolesも取得（今回は簡単に空リストで）
-    Map<String, Object> response = new HashMap<>();
-    response.put("username", username);
-    response.put("roles", new ArrayList<>()); // 権限取得するなら、ここを拡張できる
-
-    return ResponseEntity.ok(response);
-}
-
