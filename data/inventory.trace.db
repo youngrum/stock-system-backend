@@ -1,0 +1,16 @@
+2025-04-28 20:37:43.110535+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "STOCK_MASTER" が見つかりません
+Table "STOCK_MASTER" not found; SQL statement:
+select sm1_0.item_code,sm1_0.category,sm1_0.current_stock,sm1_0.item_name,sm1_0.last_updated from stock_master sm1_0 where sm1_0.item_code=? [42102-232]
+2025-04-28 20:39:01.854948+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "STOCK_MASTER" が見つかりません
+Table "STOCK_MASTER" not found; SQL statement:
+select sm1_0.item_code,sm1_0.category,sm1_0.current_stock,sm1_0.item_name,sm1_0.last_updated from stock_master sm1_0 where sm1_0.item_code=? [42102-232]
+2025-04-29 05:17:56.116778+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "STOCK_MASTER" が見つかりません
+Table "STOCK_MASTER" not found; SQL statement:
+select sm1_0.item_code,sm1_0.category,sm1_0.current_stock,sm1_0.item_name,sm1_0.last_updated from stock_master sm1_0 where sm1_0.item_code=? [42102-232]
+2025-04-29 05:18:54.368138+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "STOCK_MASTER" が見つかりません
+Table "STOCK_MASTER" not found; SQL statement:
+select sm1_0.item_code,sm1_0.category,sm1_0.current_stock,sm1_0.item_name,sm1_0.last_updated from stock_master sm1_0 where sm1_0.item_code=? [42102-232]
