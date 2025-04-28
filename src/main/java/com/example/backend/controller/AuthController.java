@@ -1,62 +1,92 @@
 package com.example.backend.controller;
 
+import com.example.backend.entity.User;
+import com.example.backend.service.AuthService;
+import com.example.backend.service.AuthenticationException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.backend.util.JwtUtil;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-
-// リクエストボディ用のDTO
-class LoginRequest {
-    @NotBlank
-    private String username;
-    @NotBlank
-    private String password;
-
-    // --- ゲッター・セッター ---
-    public String getUsername() {
-        return username;
-    }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-}
-
-// レスポンス用DTO
-class MessageResponse {
-    private String message;
-
-    public MessageResponse(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-}
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/api")
+@Tag(name = "認証API", description = "ログイン/ログアウト機能")
 public class AuthController {
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-        String username = loginRequest.getUsername();
-        String password = loginRequest.getPassword();
+    private final AuthService authService;
 
-        // ここは仮実装（実際はDBや認証サーバーで確認する）
-        if ("tanaka".equals(username) && "password123".equals(password)) {
-            return ResponseEntity.ok(new MessageResponse("Login successful."));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageResponse("Invalid username or password."));
+    @Autowired
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @Operation(summary = "ログイン認証")
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            // AuthServiceを使って認証チェック
+            User authenticatedUser = authService.authenticate(request.getUsername(), request.getPassword());
+
+            // 認証成功時
+            Map<String, Object> response = new HashMap<>();
+            String token = JwtUtil.generateToken(authenticatedUser.getUsername()); // トークン発行
+            response.put("message", "Login successful.");
+            response.put("token", token); // トークンをレスポンスに含める
+
+            return ResponseEntity.ok(response);
+
+        } catch (AuthenticationException e) {
+            // 認証失敗
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Unauthorized");
+            errorResponse.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+    }
+
+    // リクエストボディの受け皿クラス（内部クラス）
+    public static class LoginRequest {
+        private String username;
+        private String password;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
         }
     }
 }
+@GetMapping("/me")
+public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+    if (authentication == null || !authentication.isAuthenticated()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+    }
+
+    // ユーザー名を取得
+    String username = authentication.getName();
+
+    // 必要ならrolesも取得（今回は簡単に空リストで）
+    Map<String, Object> response = new HashMap<>();
+    response.put("username", username);
+    response.put("roles", new ArrayList<>()); // 権限取得するなら、ここを拡張できる
+
+    return ResponseEntity.ok(response);
+}
+
