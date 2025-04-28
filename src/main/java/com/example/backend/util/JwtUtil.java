@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component; // これも追加！
 @Component
 public class JwtUtil {
 
-    // ★ ここ！シンプルな秘密鍵にしておく
     private static final String SECRET_KEY = "your-super-strong-secret-key-your-super-strong-secret-key";
 
     private Key getSigningKey() {

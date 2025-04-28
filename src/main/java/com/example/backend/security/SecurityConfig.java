@@ -25,12 +25,18 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // CSRF無効化（APIは基本オフでOK）
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // セッション使わない
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/v1/api/login", "/v1/api/logout", "/h2-console/**").permitAll() // ログインAPIとH2 Consoleは認証不要
-                .anyRequest().authenticated() // その他はすべて認証必須
-            )
-            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // H2 Console表示許可（ブラウザのX-Frame制御）
-            .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class) // JWTフィルターを追加
-            .build();
+            .requestMatchers(
+                "/v1/api/login", 
+                "/v1/api/logout",
+                "/v3/api-docs/**",
+                "/swagger-ui/**", 
+                "/swagger-ui.html",
+                "/h2-console/**"
+            ).permitAll()
+            .anyRequest().authenticated()
+        ).headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // H2 Console表示許可（ブラウザのX-Frame制御）
+        .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class) // JWTフィルターを追加
+        .build();
     }
 
     @Bean

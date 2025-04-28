@@ -2,7 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.User;
 import com.example.backend.service.AuthService;
-import com.example.backend.service.AuthenticationException;
+import com.example.backend.exception.AuthenticationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,9 @@ import java.util.ArrayList;
 @Tag(name = "認証API", description = "ログイン/ログアウト機能")
 public class AuthController {
 
+    // ビジネスロジックファイル
     private final AuthService authService;
+    // トークン発行ファイル
     private final JwtUtil jwtUtil;
 
     @Autowired
@@ -64,8 +66,7 @@ public class AuthController {
 
         // ユーザー名を取得
         String username = authentication.getName();
-
-        // 必要ならrolesも取得（今回は簡単に空リストで）
+        // roleを取得
         Map<String, Object> response = new HashMap<>();
         response.put("username", username);
         response.put("roles", new ArrayList<>()); // 権限取得するなら、ここを拡張できる
