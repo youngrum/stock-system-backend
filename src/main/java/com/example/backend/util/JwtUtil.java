@@ -6,8 +6,9 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.time.Duration;
 
-import org.springframework.stereotype.Component; // これも追加！
+import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtil {
@@ -18,12 +19,13 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
-    // トークンの有効期限（30分）
-    private static final long EXPIRATION_TIME = 1000 * 60 * 30; // 30分（ミリ秒）
+    // トークンの有効期限
+    private static final long EXPIRATION_TIME = Duration.ofDays(30).toMillis();
 
     // トークン生成
     public String generateToken(String username) {
         Date now = new Date();
+        System.out.println("JWT発行時刻: " + now); // ログ出力
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
 
         return Jwts.builder()

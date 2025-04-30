@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 import com.example.backend.exception.ResourceNotFoundException;
 
 @Service
@@ -26,11 +25,17 @@ public class InventoryService {
     public Page<StockMaster> searchStock(String keyword, String category, Pageable pageable) {
         String kw = (keyword != null) ? keyword : "";
         String cat = (category != null) ? category : "";
-        return stockMasterRepository.findByItemNameContainingIgnoreCaseAndCategoryContainingIgnoreCase(kw, cat, pageable);
+        return stockMasterRepository.findByItemNameContainingIgnoreCaseAndCategoryContainingIgnoreCase(kw, cat,
+                pageable);
     }
 
     public StockMaster getStockByItemCode(String itemCode) {
         return stockMasterRepository.findById(itemCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + itemCode));
     }
+
+    public StockMaster createStock(StockMaster stockMaster) {
+        return stockMasterRepository.save(stockMaster);
+    }
+
 }

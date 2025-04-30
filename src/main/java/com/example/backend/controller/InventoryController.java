@@ -32,8 +32,7 @@ public class InventoryController {
     public Page<StockMaster> searchInventory(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category,
-            Pageable pageable
-    ) {
+            Pageable pageable) {
         return inventoryService.searchStock(keyword, category, pageable);
     }
 
@@ -41,5 +40,11 @@ public class InventoryController {
     @GetMapping("/inventory/{itemCode}")
     public StockMaster getInventoryDetail(@PathVariable String itemCode) {
         return inventoryService.getStockByItemCode(itemCode);
+    }
+
+    @Operation(summary = "在庫新規登録")
+    @PostMapping("/inventory")
+    public StockMaster createInventory(@RequestBody StockMaster stockMaster) {
+        return inventoryService.createStock(stockMaster);
     }
 }
