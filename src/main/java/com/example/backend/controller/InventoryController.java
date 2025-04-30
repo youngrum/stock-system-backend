@@ -1,5 +1,7 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.InventoryDispatchRequest;
+import com.example.backend.dto.InventoryReceiveRequest;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.service.InventoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -43,8 +46,17 @@ public class InventoryController {
     }
 
     @Operation(summary = "在庫新規登録")
-    @PostMapping("/inventory")
-    public StockMaster createInventory(@RequestBody StockMaster stockMaster) {
-        return inventoryService.createStock(stockMaster);
+    @PostMapping("/inventory/receive")
+    public ResponseEntity<String> receiveInventory(@RequestBody InventoryReceiveRequest request) {
+        inventoryService.receiveInventory(request);
+        return ResponseEntity.ok("入庫完了");
     }
+
+    @Operation(summary = "出庫登録")
+    @PostMapping("/inventory/dispatch")
+    public ResponseEntity<String> dispatchInventory(@RequestBody InventoryDispatchRequest request) {
+        inventoryService.dispatchInventory(request);
+        return ResponseEntity.ok("出庫完了");
+    }
+
 }
