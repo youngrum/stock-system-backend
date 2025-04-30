@@ -1,25 +1,31 @@
 package com.example.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
-import java.time.Instant;
+
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "stock_master")
 @Data
 public class StockMaster {
+
     @Id
-    private String itemCode; // 商品コード
-    private String itemName; // 商品名
-    private String modelNumber; // 型番
-    private String manufacturer; // メーカー
-    private String supplier; // 仕入先
-    private String category; // カテゴリ
-    private Integer currentStock; // 現在庫数
-    private String remarks; // 備考
-    @Column(updatable = false)
-    private Instant createdAt; // 登録日時（作成時のみ）
-    private Instant updatedAt; // テーブル更新日時（作成・更新時）
-    private Instant stockUpdatedAt; // 在庫更新日時
+    @Column(name = "item_code", length = 32)
+    private String itemCode;
+
+    @Column(name = "item_name", nullable = false, length = 128)
+    private String itemName;
+
+    @Column(name = "model_number", length = 64)
+    private String modelNumber;
+
+    @Column(name = "category", nullable = false, length = 32)
+    private String category;
+
+    @Column(name = "current_stock", nullable = false)
+    private Integer currentStock = 0;
+
+    @Column(name = "last_updated", insertable = false, updatable = false)
+    private LocalDateTime lastUpdated;
 }
