@@ -5,9 +5,12 @@ import com.example.backend.dto.InventoryReceiveRequest;
 import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.entity.TransactionType;
-import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.repository.InventoryTransactionRepository;
 import com.example.backend.repository.StockMasterRepository;
+import com.example.backend.repository.PurchaseOrderRepository;
+import com.example.backend.exception.ResourceNotFoundException;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,18 +20,27 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+
 
 @Service
 public class InventoryService {
 
     private final StockMasterRepository stockMasterRepository;
     private final InventoryTransactionRepository inventoryTransactionRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
 
     @Autowired
     public InventoryService(StockMasterRepository stockMasterRepository,
-            InventoryTransactionRepository inventoryTransactionRepository) {
+                            InventoryTransactionRepository inventoryTransactionRepository,
+                            PurchaseOrderRepository purchaseOrderRepository) {
         this.stockMasterRepository = stockMasterRepository;
         this.inventoryTransactionRepository = inventoryTransactionRepository;
+        this.purchaseOrderRepository = purchaseOrderRepository;
     }
 
     // 在庫一覧取得
@@ -57,30 +69,67 @@ public class InventoryService {
 
     // 入庫処理
     public void receiveInventory(InventoryReceiveRequest req) {
-        // ログインユーザー名を自動セット
+        // 1. ログインユーザー名を取得
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
-
+    
+        // 2. 該当在庫データを取得（なければエラー）
         StockMaster stock = stockMasterRepository.findById(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
-
+    
+        // 3. 自動で orderNo を発行
+        String orderNo = generateNewOrderNo();
+    
+        // 4. purchase_order を新規作成
+        PurchaseOrder order = new PurchaseOrder();
+        order.setOrderNo(orderNo);
+        order.setOrderDate(LocalDate.now());
+        order.setShippingFee(BigDecimal.ZERO);
+        order.setOperator(username);
+        order.setSupplier(req.getSupplier());
+        order.setRemarks("入庫時に自動生成");
+        order.setOrderSubtotal(BigDecimal.ZERO);
+        purchaseOrderRepository.save(order);
+    
+        // 5. 入庫トランザクション登録
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
+        tx.setPurchaseOrder(order);
         tx.setTransactionType(TransactionType.RECEIVE);
         tx.setQuantity(req.getQuantity());
-        tx.setOperator(req.getOperator());
+        tx.setOperator(username);
         tx.setTransactionTime(LocalDateTime.now());
+        tx.setManufacturer(req.getManufacturer());
+        tx.setSupplier(req.getSupplier());
+        tx.setPurchasePrice(req.getPurchasePrice());
+        tx.setRemarks(req.getRemarks());
         inventoryTransactionRepository.save(tx);
-
+    
+        // 6. 在庫数を更新
         stock.setCurrentStock(stock.getCurrentStock() + req.getQuantity());
         stockMasterRepository.save(stock);
+    
+        // 7. 発注小計を加算
+        BigDecimal lineTotal = req.getPurchasePrice().multiply(BigDecimal.valueOf(req.getQuantity()));
+        order.setOrderSubtotal(order.getOrderSubtotal().add(lineTotal));
+        purchaseOrderRepository.save(order);
     }
+
+    // 自動発番メソッド
+    private String generateNewOrderNo() {
+        return "PO-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) +
+               "-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+    }
+    
+    
+    
 
     // シンプルな出庫処理
     public void dispatchInventory(InventoryDispatchRequest req) {
         // ログインユーザー名を自動セット
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
+        System.out.println("ログイン中のユーザー名: " + username);
 
         StockMaster stock = stockMasterRepository.findById(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));

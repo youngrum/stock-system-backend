@@ -657,3 +657,7 @@ The connection was not closed by the application and is garbage collected [90018
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
 	... 16 more
+2025-05-01 12:56:35.962007+09:00 jdbc[63]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: SQLステートメントに文法エラーがあります "select * from stock_master[*]:"
+Syntax error in SQL statement "select * from stock_master[*]:"; SQL statement:
+select * from stock_master: [42000-232]

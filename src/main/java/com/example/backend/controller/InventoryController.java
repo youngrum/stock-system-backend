@@ -45,7 +45,7 @@ public class InventoryController {
         return inventoryService.getStockByItemCode(itemCode);
     }
 
-    @Operation(summary = "在庫新規登録")
+    @Operation(summary = "入庫登録")
     @PostMapping("/inventory/receive")
     public ResponseEntity<String> receiveInventory(@RequestBody InventoryReceiveRequest request) {
         inventoryService.receiveInventory(request);
