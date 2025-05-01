@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import com.example.backend.dto.InventoryDispatchRequest;
 import com.example.backend.dto.InventoryReceiveRequest;
 import com.example.backend.entity.StockMaster;
+import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.service.InventoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +12,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/v1/api")
@@ -59,4 +64,12 @@ public class InventoryController {
         return ResponseEntity.ok("出庫完了");
     }
 
+    @Operation(summary = "入出庫履歴の取得（ページング対応）")
+    @GetMapping("/inventory/{itemCode}/history")
+    public Page<InventoryTransaction> getInventoryHistory(
+            @PathVariable String itemCode,
+            @PageableDefault(sort = "transactionTime", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return inventoryService.getTransactionHistory(itemCode, pageable);
+    }
 }
