@@ -23,4 +23,7 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
 
   // ページング機能
   Page<InventoryTransaction> findByStockItemItemCodeOrderByTransactionTimeDesc(String itemCode, Pageable pageable);
+
+  // 全取引履歴閲覧
+  Page<InventoryTransaction> findAllByOrderByTransactionTimeDesc(Pageable pageable);
 }

@@ -11,7 +11,6 @@ import com.example.backend.repository.StockMasterRepository;
 import com.example.backend.repository.PurchaseOrderRepository;
 import com.example.backend.exception.ResourceNotFoundException;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +27,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-
 @Service
 public class InventoryService {
 
@@ -38,8 +36,8 @@ public class InventoryService {
 
     @Autowired
     public InventoryService(StockMasterRepository stockMasterRepository,
-                            InventoryTransactionRepository inventoryTransactionRepository,
-                            PurchaseOrderRepository purchaseOrderRepository) {
+            InventoryTransactionRepository inventoryTransactionRepository,
+            PurchaseOrderRepository purchaseOrderRepository) {
         this.stockMasterRepository = stockMasterRepository;
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
@@ -74,14 +72,14 @@ public class InventoryService {
         // 1. ログインユーザー名を取得
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
-    
+
         // 2. 該当在庫データを取得（なければエラー）
         StockMaster stock = stockMasterRepository.findById(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
-    
+
         // 3. 自動で orderNo を発行
         String orderNo = generateNewOrderNo();
-    
+
         // 4. purchase_order を新規作成
         PurchaseOrder order = new PurchaseOrder();
         order.setOrderNo(orderNo);
@@ -92,7 +90,7 @@ public class InventoryService {
         order.setRemarks("入庫時に自動生成");
         order.setOrderSubtotal(BigDecimal.ZERO);
         purchaseOrderRepository.save(order);
-    
+
         // 5. 入庫トランザクション登録
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
@@ -106,11 +104,11 @@ public class InventoryService {
         tx.setPurchasePrice(req.getPurchasePrice());
         tx.setRemarks(req.getRemarks());
         inventoryTransactionRepository.save(tx);
-    
+
         // 6. 在庫数を更新
         stock.setCurrentStock(stock.getCurrentStock() + req.getQuantity());
         stockMasterRepository.save(stock);
-    
+
         // 7. 発注小計を加算
         BigDecimal lineTotal = req.getPurchasePrice().multiply(BigDecimal.valueOf(req.getQuantity()));
         order.setOrderSubtotal(order.getOrderSubtotal().add(lineTotal));
@@ -120,11 +118,8 @@ public class InventoryService {
     // 自動発番メソッド
     private String generateNewOrderNo() {
         return "PO-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) +
-               "-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+                "-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
     }
-    
-    
-    
 
     // シンプルな出庫処理
     public void dispatchInventory(InventoryDispatchRequest req) {
@@ -155,5 +150,10 @@ public class InventoryService {
     // ページング機能
     public Page<InventoryTransaction> getTransactionHistory(String itemCode, Pageable pageable) {
         return inventoryTransactionRepository.findByStockItemItemCodeOrderByTransactionTimeDesc(itemCode, pageable);
+    }
+
+    // 全取引履歴閲覧
+    public Page<InventoryTransaction> getAllTransactionHistory(Pageable pageable) {
+        return inventoryTransactionRepository.findAllByOrderByTransactionTimeDesc(pageable);
     }
 }

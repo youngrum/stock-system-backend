@@ -14,8 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/v1/api")
@@ -68,8 +68,14 @@ public class InventoryController {
     @GetMapping("/inventory/{itemCode}/history")
     public Page<InventoryTransaction> getInventoryHistory(
             @PathVariable String itemCode,
-            @PageableDefault(sort = "transactionTime", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
+            @PageableDefault(sort = "transactionTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return inventoryService.getTransactionHistory(itemCode, pageable);
+    }
+
+    @Operation(summary = "全トランザクション履歴の取得（ページング対応）")
+    @GetMapping("/transactions")
+    public Page<InventoryTransaction> getAllTransactions(
+            @PageableDefault(sort = "transactionTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        return inventoryService.getAllTransactionHistory(pageable);
     }
 }
