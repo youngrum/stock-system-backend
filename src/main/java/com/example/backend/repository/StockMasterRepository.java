@@ -13,9 +13,11 @@ public interface StockMasterRepository extends JpaRepository<StockMaster, String
 
     // Spring Data JPAの継承で対応するクエリが以下を生成・実装
     // SELECT * FROM stock_master
-    // WHERE LOWER(item_name) LIKE LOWER('%keyword%')
+    // WHERE LOWER(itemName) LIKE LOWER('%itemName%')
+    // AND LOWER(modelNumber) LIKE LOWER('%modelNumber%')
     // AND LOWER(category) LIKE LOWER('%category%')
 
-    Page<StockMaster> findByItemNameContainingIgnoreCaseAndCategoryContainingIgnoreCase(
-            String itemName, String category, Pageable pageable);
+    Page<StockMaster> findByItemNameContainingIgnoreCaseAndModelNumberContainingIgnoreCaseAndCategoryContainingIgnoreCase(
+            String itemName, String modelNumber, String category, Pageable pageable);
+
 }

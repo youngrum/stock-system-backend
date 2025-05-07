@@ -43,12 +43,15 @@ public class InventoryService {
         this.purchaseOrderRepository = purchaseOrderRepository;
     }
 
-    // 在庫検索
-    public Page<StockMaster> searchStock(String keyword, String category, Pageable pageable) {
-        String kw = (keyword != null) ? keyword : "";
-        String cat = (category != null) ? category : "";
-        return stockMasterRepository.findByItemNameContainingIgnoreCaseAndCategoryContainingIgnoreCase(kw, cat,
-                pageable);
+    // パラメーター付在庫検索
+    public Page<StockMaster> searchStock(String itemName, String modelNumber, String category, Pageable pageable) {
+        // 空の場合は空文字に変換（部分一致検索に対応）
+        String nameKeyword = (itemName != null) ? itemName : "";
+        String modelKeyword = (modelNumber != null) ? modelNumber : "";
+        String categoryKeyword = (category != null) ? category : "";
+        return stockMasterRepository
+                .findByItemNameContainingIgnoreCaseAndModelNumberContainingIgnoreCaseAndCategoryContainingIgnoreCase(
+                        nameKeyword, modelKeyword, categoryKeyword, pageable);
     }
 
     // 単一在庫取得

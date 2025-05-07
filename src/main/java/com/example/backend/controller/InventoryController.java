@@ -7,6 +7,7 @@ import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.service.InventoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,14 +30,15 @@ public class InventoryController {
         this.inventoryService = inventoryService;
     }
 
-    @Operation(summary = "在庫検索 全件取得時は keyword, category を空にする")
+    @Operation(summary = "在庫検索 全件取得時は 品名, カテゴリー, 型番を空にする")
     @GetMapping("/inventory/search")
     public ResponseEntity<?> searchInventory(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String category,
-            Pageable pageable) {
+            @Parameter(description = "品名") @RequestParam(required = false) String item_name,
+            @Parameter(description = "カテゴリー") @RequestParam(required = false) String category,
+            @Parameter(description = "型番") @RequestParam(required = false) String model_number,
+            @PageableDefault(sort = "itemCode", direction = Sort.Direction.ASC) Pageable pageable) {
 
-        Page<StockMaster> results = inventoryService.searchStock(keyword, category, pageable);
+        Page<StockMaster> results = inventoryService.searchStock(item_name, model_number, category, pageable);
 
         return ResponseEntity.ok(
                 Map.of(
