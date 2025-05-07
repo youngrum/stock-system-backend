@@ -43,11 +43,6 @@ public class InventoryService {
         this.purchaseOrderRepository = purchaseOrderRepository;
     }
 
-    // 在庫一覧取得
-    public Page<StockMaster> getAllStock(Pageable pageable) {
-        return stockMasterRepository.findAll(pageable);
-    }
-
     // 在庫検索
     public Page<StockMaster> searchStock(String keyword, String category, Pageable pageable) {
         String kw = (keyword != null) ? keyword : "";
@@ -128,14 +123,14 @@ public class InventoryService {
     public Long dispatchInventory(InventoryDispatchRequest req) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
-    
+
         StockMaster stock = stockMasterRepository.findById(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
-    
+
         if (stock.getCurrentStock() < req.getQuantity()) {
             throw new RuntimeException("在庫が不足しています");
         }
-    
+
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
         tx.setTransactionType(TransactionType.DISPATCH);
@@ -143,10 +138,10 @@ public class InventoryService {
         tx.setOperator(username);
         tx.setTransactionTime(LocalDateTime.now());
         inventoryTransactionRepository.save(tx);
-    
+
         stock.setCurrentStock(stock.getCurrentStock() - req.getQuantity());
         stockMasterRepository.save(stock);
-    
+
         return tx.getTransactionId();
     }
 
