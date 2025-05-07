@@ -22,9 +22,7 @@ import java.util.ArrayList;
 @Tag(name = "認証API", description = "ログイン/ログアウト機能")
 public class AuthController {
 
-    // ビジネスロジックファイル
     private final AuthService authService;
-    // トークン発行ファイル
     private final JwtUtil jwtUtil;
 
     @Autowired
@@ -37,44 +35,53 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            // AuthServiceを使って認証チェック
             User authenticatedUser = authService.authenticate(request.getUsername(), request.getPassword());
+            String token = jwtUtil.generateToken(authenticatedUser.getUsername());
 
-            // 認証成功時
+            Map<String, Object> data = new HashMap<>();
+            data.put("token", token);
+
             Map<String, Object> response = new HashMap<>();
-            String token = jwtUtil.generateToken(authenticatedUser.getUsername()); // トークン発行
+            response.put("status", 200);
             response.put("message", "Login successful.");
-            response.put("token", token); // トークンをレスポンスに含める
+            response.put("data", data);
 
             return ResponseEntity.ok(response);
 
         } catch (AuthenticationException e) {
-            // 認証失敗
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Unauthorized");
-            errorResponse.put("message", e.getMessage());
+            Map<String, Object> error = new HashMap<>();
+            error.put("status", 401);
+            error.put("message", "Login failed.");
+            error.put("data", Map.of("error", e.getMessage()));
 
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
     }
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            Map<String, Object> error = new HashMap<>();
+            error.put("status", 401);
+            error.put("message", "Unauthorized");
+            error.put("data", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
 
-        // ユーザー名を取得
         String username = authentication.getName();
-        // roleを取得
+
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("username", username);
+        userData.put("roles", new ArrayList<>()); // 今後必要ならロールも取得可能
+
         Map<String, Object> response = new HashMap<>();
-        response.put("username", username);
-        response.put("roles", new ArrayList<>()); // 権限取得するなら、ここを拡張できる
+        response.put("status", 200);
+        response.put("message", "User fetched successfully.");
+        response.put("data", userData);
 
         return ResponseEntity.ok(response);
     }
 
-    // リクエストボディの受け皿クラス（内部クラス）
     public static class LoginRequest {
         private String username;
         private String password;
@@ -82,17 +89,16 @@ public class AuthController {
         public String getUsername() {
             return username;
         }
-
         public void setUsername(String username) {
             this.username = username;
         }
-
         public String getPassword() {
             return password;
         }
-
         public void setPassword(String password) {
             this.password = password;
         }
     }
 }
+
+
