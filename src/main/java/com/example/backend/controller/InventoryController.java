@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/v1/api")
 @Tag(name = "在庫管理API", description = "在庫情報取得・管理")
@@ -52,17 +54,34 @@ public class InventoryController {
 
     @Operation(summary = "入庫登録")
     @PostMapping("/inventory/receive")
-    public ResponseEntity<String> receiveInventory(@RequestBody InventoryReceiveRequest request) {
-        inventoryService.receiveInventory(request);
-        return ResponseEntity.ok("入庫完了");
+    public ResponseEntity<?> receiveInventory(@RequestBody InventoryReceiveRequest request) {
+        long transactionId = inventoryService.receiveInventory(request);
+        return ResponseEntity.ok(
+            Map.of(
+                "status", 200,
+                "message", "Stock received successfully.",
+                "data", Map.of(
+                    "transactionId", transactionId
+                )
+            )
+        );
     }
 
     @Operation(summary = "出庫登録")
     @PostMapping("/inventory/dispatch")
-    public ResponseEntity<String> dispatchInventory(@RequestBody InventoryDispatchRequest request) {
-        inventoryService.dispatchInventory(request);
-        return ResponseEntity.ok("出庫完了");
+    public ResponseEntity<?> dispatchInventory(@RequestBody InventoryDispatchRequest request) {
+        long transactionId = inventoryService.dispatchInventory(request);
+        return ResponseEntity.ok(
+            Map.of(
+                "status", 200,
+                "message", "Stock dispatched successfully.",
+                "data", Map.of(
+                    "transactionId", transactionId
+                )
+            )
+        );
     }
+    
 
     @Operation(summary = "入出庫履歴の取得（ページング対応）")
     @GetMapping("/inventory/{itemCode}/history")

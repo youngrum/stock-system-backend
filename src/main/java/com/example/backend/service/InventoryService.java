@@ -68,7 +68,7 @@ public class InventoryService {
     }
 
     // 入庫処理
-    public void receiveInventory(InventoryReceiveRequest req) {
+    public Long receiveInventory(InventoryReceiveRequest req) {
         // 1. ログインユーザー名を取得
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
@@ -113,6 +113,9 @@ public class InventoryService {
         BigDecimal lineTotal = req.getPurchasePrice().multiply(BigDecimal.valueOf(req.getQuantity()));
         order.setOrderSubtotal(order.getOrderSubtotal().add(lineTotal));
         purchaseOrderRepository.save(order);
+
+        // 発行されたトランザクションIDを返す
+        return tx.getTransactionId();
     }
 
     // 自動発番メソッド
@@ -122,29 +125,29 @@ public class InventoryService {
     }
 
     // シンプルな出庫処理
-    public void dispatchInventory(InventoryDispatchRequest req) {
-        // ログインユーザー名を自動セット
+    public Long dispatchInventory(InventoryDispatchRequest req) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
-        System.out.println("ログイン中のユーザー名: " + username);
-
+    
         StockMaster stock = stockMasterRepository.findById(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
-
+    
         if (stock.getCurrentStock() < req.getQuantity()) {
             throw new RuntimeException("在庫が不足しています");
         }
-
+    
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
         tx.setTransactionType(TransactionType.DISPATCH);
         tx.setQuantity(req.getQuantity());
-        tx.setOperator(req.getOperator());
+        tx.setOperator(username);
         tx.setTransactionTime(LocalDateTime.now());
         inventoryTransactionRepository.save(tx);
-
+    
         stock.setCurrentStock(stock.getCurrentStock() - req.getQuantity());
         stockMasterRepository.save(stock);
+    
+        return tx.getTransactionId();
     }
 
     // ページング機能
