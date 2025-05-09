@@ -3,9 +3,11 @@ package com.example.backend.controller;
 import com.example.backend.dto.InventoryDispatchRequest;
 import com.example.backend.dto.InventoryReceiveFromOrderRequest;
 import com.example.backend.dto.InventoryReceiveRequest;
+import com.example.backend.dto.PurchaseOrderRequest;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.service.InventoryService;
+import com.example.backend.service.PurchaseOrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,10 +28,12 @@ import java.util.Map;
 public class InventoryController {
 
   private final InventoryService inventoryService;
+  private final PurchaseOrderService purchaseOrderService;
 
   @Autowired
-  public InventoryController(InventoryService inventoryService) {
+  public InventoryController(InventoryService inventoryService, PurchaseOrderService purchaseOrderService) {
     this.inventoryService = inventoryService;
+    this.purchaseOrderService = purchaseOrderService;
   }
 
   @Operation(summary = "在庫検索 全件取得時は 品名, カテゴリー, 型番を空にする")
@@ -111,6 +115,17 @@ public class InventoryController {
             "status", 200,
             "message", "All inventory transactions fetched successfully.",
             "data", allTransactions));
+  }
+
+  @Operation(summary = "発注登録（新商品含む）")
+  @PostMapping("/orders")
+  public ResponseEntity<Map<String, Object>> registerOrder(@RequestBody PurchaseOrderRequest request) {
+    String orderNo = purchaseOrderService.registerOrder(request);
+    return ResponseEntity.ok(
+        Map.of(
+            "status", 200,
+            "message", "発注が完了しました",
+            "data", Map.of("orderNo", orderNo)));
   }
 
   @PostMapping("/receive-from-order")

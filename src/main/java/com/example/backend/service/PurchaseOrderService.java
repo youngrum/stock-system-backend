@@ -48,14 +48,17 @@ public class PurchaseOrderService {
     BigDecimal total = BigDecimal.ZERO;
 
     for (PurchaseOrderRequest.Detail d : req.getDetails()) {
+      System.out.println("▶ 処理中 item: " + d.getItemName());
       StockMaster stock;
 
       // ---------- 柔軟対応の在庫判定 ----------
       if (d.getItemCode() != null && !d.getItemCode().isBlank()) {
+        System.out.println("▶ itemCode指定あり → 在庫確認中: " + d.getItemCode());
         // 既存の itemCode を直接指定された場合（既存在庫）
         stock = stockMasterRepository.findById(d.getItemCode())
             .orElseThrow(() -> new ResourceNotFoundException("itemCodeが存在しません: " + d.getItemCode()));
       } else {
+        System.out.println("▶ itemCodeなし → 型番＋品名で検索: " + d.getModelNumber() + " / " + d.getItemName());
         // 型番 + 品名で既存在庫を検索（完全一致）
         stock = stockMasterRepository
             .findByModelNumberAndItemName(d.getModelNumber(), d.getItemName())
@@ -67,9 +70,13 @@ public class PurchaseOrderService {
               s.setModelNumber(d.getModelNumber());
               s.setCategory(d.getCategory());
               s.setCurrentStock(0);
-              return stockMasterRepository.save(s);
+              StockMaster saved = stockMasterRepository.save(s);
+              System.out.println("▶ 新規登録 itemCode: " + saved.getItemCode());
+              return saved;
             });
       }
+
+      System.out.println("▶ 明細登録準備完了 → " + stock.getItemCode());
 
       // ---------- 発注明細の登録 ----------
       PurchaseOrderDetail detail = new PurchaseOrderDetail();
@@ -87,6 +94,9 @@ public class PurchaseOrderService {
 
       total = total.add(d.getQuantity().multiply(d.getPurchasePrice()));
     }
+
+    header.setOrderSubtotal(total);
+    purchaseOrderRepository.save(header);
     return orderNo;
   }
 
