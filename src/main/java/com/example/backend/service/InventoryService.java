@@ -1,12 +1,15 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.InventoryDispatchRequest;
+import com.example.backend.dto.InventoryReceiveFromOrderRequest;
 import com.example.backend.dto.InventoryReceiveRequest;
 import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.entity.TransactionType;
 import com.example.backend.entity.PurchaseOrder;
+import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.repository.InventoryTransactionRepository;
+import com.example.backend.repository.PurchaseOrderDetailRepository;
 import com.example.backend.repository.StockMasterRepository;
 import com.example.backend.repository.PurchaseOrderRepository;
 import com.example.backend.exception.ResourceNotFoundException;
@@ -17,13 +20,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
@@ -33,14 +34,17 @@ public class InventoryService {
     private final StockMasterRepository stockMasterRepository;
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
+    private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
 
     @Autowired
     public InventoryService(StockMasterRepository stockMasterRepository,
             InventoryTransactionRepository inventoryTransactionRepository,
-            PurchaseOrderRepository purchaseOrderRepository) {
+            PurchaseOrderRepository purchaseOrderRepository,
+            PurchaseOrderDetailRepository purchaseOrderDetailRepository) {
         this.stockMasterRepository = stockMasterRepository;
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
+        this.purchaseOrderDetailRepository = purchaseOrderDetailRepository;
     }
 
     // パラメーター付在庫検索
@@ -157,4 +161,67 @@ public class InventoryService {
     public Page<InventoryTransaction> getAllTransactionHistory(Pageable pageable) {
         return inventoryTransactionRepository.findAllByOrderByTransactionTimeDesc(pageable);
     }
+
+    @Transactional
+    public void receiveFromOrder(InventoryReceiveFromOrderRequest req) {
+        PurchaseOrder order = purchaseOrderRepository.findById(req.getOrderNo())
+                .orElseThrow(() -> new ResourceNotFoundException("発注が見つかりません"));
+
+        for (InventoryReceiveFromOrderRequest.Item item : req.getItems()) {
+            String itemCode = item.getItemCode();
+
+            // 発注明細を取得
+            PurchaseOrderDetail detail = purchaseOrderDetailRepository
+                    .findByOrderNoAndItemCode(req.getOrderNo(), itemCode)
+                    .orElseThrow(() -> new ResourceNotFoundException("発注明細が見つかりません"));
+
+            // 在庫マスタを取得
+            StockMaster stock = stockMasterRepository.findById(itemCode)
+                    .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
+
+            // 入庫数チェック
+            BigDecimal totalReceived = detail.getReceivedQuantity()
+                    .add(BigDecimal.valueOf(item.getReceivedQuantity()));
+
+            if (totalReceived.compareTo(detail.getQuantity()) > 0) {
+                throw new IllegalArgumentException("受領数が発注数を超えています: " + itemCode);
+            }
+
+            // 在庫数更新
+            stock.setCurrentStock(stock.getCurrentStock() + item.getReceivedQuantity());
+            stockMasterRepository.save(stock);
+
+            // 明細更新
+            detail.setReceivedQuantity(totalReceived);
+            if (totalReceived == detail.getQuantity()) {
+                detail.setStatus("完了");
+            } else {
+                detail.setStatus("一部入庫");
+            }
+            purchaseOrderDetailRepository.save(detail);
+
+            // トランザクション登録
+            InventoryTransaction tx = new InventoryTransaction();
+            tx.setPurchaseOrder(order);
+            tx.setStockItem(stock);
+            tx.setQuantity(item.getReceivedQuantity());
+            tx.setPurchasePrice(BigDecimal.valueOf(item.getPurchasePrice()));
+            tx.setTransactionType(TransactionType.RECEIVE);
+            tx.setOperator(req.getOperator());
+            tx.setTransactionTime(LocalDateTime.now());
+            tx.setRemarks(item.getRemarks());
+            inventoryTransactionRepository.save(tx);
+        }
+
+        // 全明細が完了か判定してヘッダーに反映
+        boolean allDone = purchaseOrderDetailRepository.findByOrderNo(req.getOrderNo())
+                .stream()
+                .allMatch(d -> "完了".equals(d.getStatus()));
+
+        if (allDone) {
+            order.setStatus("完了");
+            purchaseOrderRepository.save(order);
+        }
+    }
+
 }

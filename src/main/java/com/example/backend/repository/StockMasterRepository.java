@@ -2,11 +2,12 @@ package com.example.backend.repository;
 
 import com.example.backend.entity.StockMaster;
 
-import org.antlr.v4.runtime.atn.SemanticContext.AND;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public interface StockMasterRepository extends JpaRepository<StockMaster, String> {
@@ -20,4 +21,6 @@ public interface StockMasterRepository extends JpaRepository<StockMaster, String
     Page<StockMaster> findByItemNameContainingIgnoreCaseAndModelNumberContainingIgnoreCaseAndCategoryContainingIgnoreCase(
             String itemName, String modelNumber, String category, Pageable pageable);
 
+    // 型番と品名の完全一致で検索（発注登録用）
+    Optional<StockMaster> findByModelNumberAndItemName(String modelNumber, String itemName);
 }

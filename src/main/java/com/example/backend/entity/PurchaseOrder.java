@@ -30,6 +30,9 @@ public class PurchaseOrder {
   @Column(name = "operator", nullable = false, length = 64)
   private String operator;
 
+  @Column(name = "status", nullable = false)
+  private String status = "未完納";
+
   @Column(name = "remarks", length = 255)
   private String remarks;
 }
