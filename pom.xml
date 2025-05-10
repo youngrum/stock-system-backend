@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.5</version>
+    <version>3.1.12</version> <!-- ✅ ここが 3.x であること -->
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
@@ -42,6 +42,7 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<version>2.2.224</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -50,9 +51,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		<groupId>org.springdoc</groupId>
-		<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-		<version>2.5.0</version> <!-- ★これ最新。古かったら2.x系ならOK -->
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.5.0</version> <!-- ★これ最新。古かったら2.x系ならOK -->
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -94,8 +95,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.30</version> <!-- 最新版（問題ない） -->
+			<artifactId>lombok</artifactId> <!-- 最新版（問題ない） -->
 			<scope>provided</scope>
 		</dependency>
 
