@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.dto.PurchaseOrderRequest;
@@ -32,6 +33,9 @@ public class PurchaseOrderService {
   public String registerOrder(PurchaseOrderRequest req) {
     // 1. 発注番号を生成
     String orderNo = generateNewOrderNo();
+    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    req.setOperator(username);
+    System.out.println(req.getOperator());
 
     // 2. 発注ヘッダー作成
     PurchaseOrder header = new PurchaseOrder();
