@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import jakarta.validation.ValidationException;
 
 @Service
 public class InventoryService {
@@ -164,16 +165,41 @@ public class InventoryService {
 
     @Transactional
     public void receiveFromOrder(InventoryReceiveFromOrderRequest req) {
+        String orderNo = req.getOrderNo();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        req.setOperator(username);
+
         PurchaseOrder order = purchaseOrderRepository.findById(req.getOrderNo())
                 .orElseThrow(() -> new ResourceNotFoundException("発注が見つかりません"));
 
         for (InventoryReceiveFromOrderRequest.Item item : req.getItems()) {
             String itemCode = item.getItemCode();
 
+            // 🔽 ここで DB から単価を取得
+            BigDecimal purchasePrice = purchaseOrderDetailRepository
+                    .findByOrderNoAndItemCode(orderNo, itemCode)
+                    .map(PurchaseOrderDetail::getPurchasePrice)
+                    .orElse(BigDecimal.ZERO); // fallback（または例外投げる）
+
             // 発注明細を取得
             PurchaseOrderDetail detail = purchaseOrderDetailRepository
                     .findByOrderNoAndItemCode(req.getOrderNo(), itemCode)
-                    .orElseThrow(() -> new ResourceNotFoundException("発注明細が見つかりません"));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "発注明細が見つかりません（orderNo: " + req.getOrderNo() + ", itemCode: " + itemCode + "）"));
+
+            // ▼ ここで受け入れ済み数量チェックを追加
+            BigDecimal receivedSoFar = detail.getReceivedQuantity() != null ? detail.getReceivedQuantity()
+                    : BigDecimal.ZERO;
+            BigDecimal orderQuantity = detail.getQuantity();
+            BigDecimal receivingNow = BigDecimal.valueOf(item.getReceivedQuantity());
+
+            if (receivedSoFar.compareTo(orderQuantity) >= 0) {
+                throw new ValidationException("すでに全数が入庫済みのため、これ以上受け入れできません（itemCode: " + itemCode + "）");
+            }
+
+            if (receivedSoFar.add(receivingNow).compareTo(orderQuantity) > 0) {
+                throw new ValidationException("受け入れ数が発注数を超えています（itemCode: " + itemCode + "）");
+            }
 
             // 在庫マスタを取得
             StockMaster stock = stockMasterRepository.findById(itemCode)
@@ -193,19 +219,23 @@ public class InventoryService {
 
             // 明細更新
             detail.setReceivedQuantity(totalReceived);
-            if (totalReceived == detail.getQuantity()) {
+            // .compareTo() は 0 を返すと「等しい」、正なら「大きい」、負なら「小さい」。
+            if (totalReceived.compareTo(detail.getQuantity()) >= 0) {
                 detail.setStatus("完了");
-            } else {
+            } else if (totalReceived.compareTo(BigDecimal.ZERO) > 0) {
                 detail.setStatus("一部入庫");
+            } else {
+                detail.setStatus("未入庫");
             }
             purchaseOrderDetailRepository.save(detail);
 
             // トランザクション登録
             InventoryTransaction tx = new InventoryTransaction();
             tx.setPurchaseOrder(order);
+            tx.setOperator(req.getOperator());
             tx.setStockItem(stock);
             tx.setQuantity(item.getReceivedQuantity());
-            tx.setPurchasePrice(BigDecimal.valueOf(item.getPurchasePrice()));
+            tx.setPurchasePrice(purchasePrice);
             tx.setTransactionType(TransactionType.RECEIVE);
             tx.setOperator(req.getOperator());
             tx.setTransactionTime(LocalDateTime.now());
