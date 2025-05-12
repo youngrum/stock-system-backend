@@ -37,6 +37,10 @@ public class PurchaseOrder {
   @Column(name = "remarks", length = 255)
   private String remarks;
 
+  @Column(name = "created_at", columnDefinition = "DATE DEFAULT CURRENT_DATE", updatable = false)
+  @CreationTimestamp
+  private LocalDate createdAt = LocalDate.now();
+
   @OneToMany
   @JoinColumn(name = "order_no", referencedColumnName = "order_no", insertable = false, updatable = false)
   private List<PurchaseOrderDetail> details;

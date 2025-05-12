@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,10 +17,12 @@ import java.util.stream.Collectors;
 public class OrderHistoryResponse {
     private String orderNo;
     private String supplier;
+    private LocalDate orderDate;
     private BigDecimal shippingFee;
+    private BigDecimal orderSubtotal;
     private String operator;
     private String remarks;
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
     private List<OrderDetailResponse> details;
 
     @Builder
@@ -43,8 +45,11 @@ public class OrderHistoryResponse {
             .orderNo(order.getOrderNo())
             .supplier(order.getSupplier())
             .shippingFee(order.getShippingFee())
+            .orderDate(order.getOrderDate())
+            .orderSubtotal(order.getOrderSubtotal())
             .operator(order.getOperator())
             .remarks(order.getRemarks())
+            .createdAt(order.getCreatedAt())
             .details(
                 details.stream()
                     .map(d -> OrderDetailResponse.builder()

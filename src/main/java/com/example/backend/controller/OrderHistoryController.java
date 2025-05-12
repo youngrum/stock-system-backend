@@ -2,20 +2,28 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.OrderHistoryResponse;
 import com.example.backend.service.OrderHistoryService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/order-history")
+@RequestMapping("/v1/api")
+@Tag(name = "発注履歴閲覧API", description = "発注履歴をリストとして取得")
 @RequiredArgsConstructor
 public class OrderHistoryController {
 
     private final OrderHistoryService orderHistoryService;
 
-    @GetMapping
+    @Operation(summary = "発注履歴閲覧")
+    @GetMapping("/order-history")
     public ResponseEntity<List<OrderHistoryResponse>> getOrderHistory(@RequestParam(required = false) String orderNo) {
         List<OrderHistoryResponse> result = orderHistoryService.getOrderHistory(orderNo);
         return ResponseEntity.ok(result);
