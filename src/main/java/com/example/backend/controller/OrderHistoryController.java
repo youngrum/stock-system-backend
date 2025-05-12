@@ -4,6 +4,7 @@ import com.example.backend.dto.OrderHistoryResponse;
 import com.example.backend.service.OrderHistoryService;
 
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -28,8 +30,10 @@ public class OrderHistoryController {
     public ResponseEntity<Page<OrderHistoryResponse>> getOrderHistory(
             @RequestParam(required = false) String orderNo,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<OrderHistoryResponse> result = orderHistoryService.getOrderHistory(orderNo, page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+        Page<OrderHistoryResponse> result = orderHistoryService.getOrderHistory(orderNo, page, size, fromDate, toDate);
         return ResponseEntity.ok(result);
     }
 }
