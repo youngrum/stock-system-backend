@@ -73,7 +73,7 @@ public class PurchaseOrderService {
               s.setItemName(d.getItemName());
               s.setModelNumber(d.getModelNumber());
               s.setCategory(d.getCategory());
-              s.setCurrentStock(0);
+              s.setCurrentStock(BigDecimal.ZERO);
               StockMaster saved = stockMasterRepository.save(s);
               System.out.println("▶ 新規登録 itemCode: " + saved.getItemCode());
               return saved;

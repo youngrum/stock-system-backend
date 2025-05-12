@@ -109,11 +109,11 @@ public class InventoryService {
         inventoryTransactionRepository.save(tx);
 
         // 6. 在庫数を更新
-        stock.setCurrentStock(stock.getCurrentStock() + req.getQuantity());
+        stock.setCurrentStock(stock.getCurrentStock().add(req.getQuantity()));
         stockMasterRepository.save(stock);
 
         // 7. 発注小計を加算
-        BigDecimal lineTotal = req.getPurchasePrice().multiply(BigDecimal.valueOf(req.getQuantity()));
+        BigDecimal lineTotal = req.getPurchasePrice().multiply(req.getQuantity());
         order.setOrderSubtotal(order.getOrderSubtotal().add(lineTotal));
         purchaseOrderRepository.save(order);
 
@@ -135,7 +135,7 @@ public class InventoryService {
         StockMaster stock = stockMasterRepository.findById(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
 
-        if (stock.getCurrentStock() < req.getQuantity()) {
+        if (stock.getCurrentStock().compareTo(req.getQuantity()) < 0) {
             throw new RuntimeException("在庫が不足しています");
         }
 
@@ -147,7 +147,7 @@ public class InventoryService {
         tx.setTransactionTime(LocalDateTime.now());
         inventoryTransactionRepository.save(tx);
 
-        stock.setCurrentStock(stock.getCurrentStock() - req.getQuantity());
+        stock.setCurrentStock(stock.getCurrentStock().subtract(req.getQuantity()));
         stockMasterRepository.save(stock);
 
         return tx.getTransactionId();
@@ -170,7 +170,7 @@ public class InventoryService {
         req.setOperator(username);
 
         PurchaseOrder order = purchaseOrderRepository.findById(req.getOrderNo())
-                .orElseThrow(() -> new ResourceNotFoundException("発注が見つかりません"));
+                .orElseThrow(() -> new ResourceNotFoundException("発注先が見つかりません"));
 
         for (InventoryReceiveFromOrderRequest.Item item : req.getItems()) {
             String itemCode = item.getItemCode();
@@ -191,7 +191,7 @@ public class InventoryService {
             BigDecimal receivedSoFar = detail.getReceivedQuantity() != null ? detail.getReceivedQuantity()
                     : BigDecimal.ZERO;
             BigDecimal orderQuantity = detail.getQuantity();
-            BigDecimal receivingNow = BigDecimal.valueOf(item.getReceivedQuantity());
+            BigDecimal receivingNow =item.getReceivedQuantity();
 
             if (receivedSoFar.compareTo(orderQuantity) >= 0) {
                 throw new ValidationException("すでに全数が入庫済みのため、これ以上受け入れできません（itemCode: " + itemCode + "）");
@@ -206,15 +206,14 @@ public class InventoryService {
                     .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
 
             // 入庫数チェック
-            BigDecimal totalReceived = detail.getReceivedQuantity()
-                    .add(BigDecimal.valueOf(item.getReceivedQuantity()));
+            BigDecimal totalReceived = detail.getReceivedQuantity().add(item.getReceivedQuantity());
 
             if (totalReceived.compareTo(detail.getQuantity()) > 0) {
                 throw new IllegalArgumentException("受領数が発注数を超えています: " + itemCode);
             }
 
             // 在庫数更新
-            stock.setCurrentStock(stock.getCurrentStock() + item.getReceivedQuantity());
+            stock.setCurrentStock(stock.getCurrentStock().add(item.getReceivedQuantity()));
             stockMasterRepository.save(stock);
 
             // 明細更新

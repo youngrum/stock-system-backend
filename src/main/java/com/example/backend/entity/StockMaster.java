@@ -2,6 +2,7 @@ package com.example.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.math.BigDecimal;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +25,7 @@ public class StockMaster {
     private String category;
 
     @Column(name = "current_stock", nullable = false)
-    private Integer currentStock = 0;
+    private BigDecimal currentStock = BigDecimal.ZERO;
 
     @Column(name = "last_updated", insertable = false, updatable = false)
     private LocalDateTime lastUpdated;

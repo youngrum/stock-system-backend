@@ -10,6 +10,7 @@ import lombok.Data;
 public class PurchaseOrderDetail {
 
   @Id
+  @Column(name = "order_no", insertable = false, updatable = false)
   private String orderNo;
 
   @Id

@@ -3,6 +3,7 @@ package com.example.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -35,4 +36,8 @@ public class PurchaseOrder {
 
   @Column(name = "remarks", length = 255)
   private String remarks;
+
+  @OneToMany
+  @JoinColumn(name = "order_no", referencedColumnName = "order_no", insertable = false, updatable = false)
+  private List<PurchaseOrderDetail> details;
 }

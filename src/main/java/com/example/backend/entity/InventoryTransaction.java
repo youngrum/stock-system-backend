@@ -30,7 +30,7 @@ public class InventoryTransaction {
   private TransactionType transactionType;
 
   @Column(name = "quantity", nullable = false)
-  private Integer quantity;
+  private BigDecimal quantity;
 
   @Column(name = "operator", nullable = false, length = 64)
   private String operator;
