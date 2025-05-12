@@ -1,6 +1,9 @@
 package com.example.backend.repository;
 
 import com.example.backend.entity.PurchaseOrder;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +17,6 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, St
 
   // 過去の発注履歴一覧取得
   Optional<PurchaseOrder> findByOrderNo(String orderNo);
+
+  Page<PurchaseOrder> findAll(Pageable pageable);
 }
