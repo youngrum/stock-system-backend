@@ -1,4 +1,4 @@
-package com.example.backend.repository;
+package com.example.backend.inventory.repository;
 
 import com.example.backend.entity.StockMaster;
 

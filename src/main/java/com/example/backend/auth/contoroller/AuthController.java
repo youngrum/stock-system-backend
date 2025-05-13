@@ -1,7 +1,7 @@
-package com.example.backend.controller;
+package com.example.backend.auth.contoroller;
 
+import com.example.backend.auth.service.AuthService;
 import com.example.backend.entity.User;
-import com.example.backend.service.AuthService;
 import com.example.backend.exception.AuthenticationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

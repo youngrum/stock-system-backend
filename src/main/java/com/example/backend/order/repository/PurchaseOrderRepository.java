@@ -1,4 +1,4 @@
-package com.example.backend.repository;
+package com.example.backend.order.repository;
 
 import com.example.backend.entity.PurchaseOrder;
 
@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,14 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, St
 
   Page<PurchaseOrder> findAll(Pageable pageable);
 
-  Page<PurchaseOrder> findByCreatedAtBetween(LocalDateTime from, LocalDateTime to, Pageable pageable);
+    // 特定期間内全件取得
+    Page<PurchaseOrder> findByCreatedAtBetween(LocalDate fromDate, LocalDate toDate, Pageable pageable);
+  
+    // 特定期日以降全件取得
+    Page<PurchaseOrder> findByCreatedAtAfter(LocalDate fromDate, Pageable pageable);
+
+    // 特定期日以前全件取得
+    Page<PurchaseOrder> findByCreatedAtBefore(LocalDate toDate, Pageable pageable);
+  
 
 }

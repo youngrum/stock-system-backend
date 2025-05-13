@@ -1,4 +1,4 @@
-package com.example.backend.service;
+package com.example.backend.order.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -8,14 +8,14 @@ import java.util.UUID;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.example.backend.dto.PurchaseOrderRequest;
 import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.exception.ResourceNotFoundException;
-import com.example.backend.repository.PurchaseOrderRepository;
-import com.example.backend.repository.PurchaseOrderDetailRepository;
-import com.example.backend.repository.StockMasterRepository;
+import com.example.backend.inventory.repository.StockMasterRepository;
+import com.example.backend.order.dto.PurchaseOrderRequest;
+import com.example.backend.order.repository.PurchaseOrderDetailRepository;
+import com.example.backend.order.repository.PurchaseOrderRepository;
 
 import org.springframework.transaction.annotation.Transactional;
 

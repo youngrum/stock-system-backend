@@ -1,5 +1,5 @@
 // 在庫マスタ登録用
-package com.example.backend.dto;
+package com.example.backend.inventory.dto;
 
 import java.math.BigDecimal;
 import lombok.Data;

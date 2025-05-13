@@ -1,6 +1,6 @@
 
 // 出庫登録リクエスト
-package com.example.backend.dto;
+package com.example.backend.inventory.dto;
 
 import lombok.Data;
 import java.math.BigDecimal;

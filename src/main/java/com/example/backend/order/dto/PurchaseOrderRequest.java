@@ -1,5 +1,5 @@
 // 発注ヘッダーの登録リクエスト
-package com.example.backend.dto;
+package com.example.backend.order.dto;
 
 import lombok.Data;
 import java.math.BigDecimal;

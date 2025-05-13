@@ -1,13 +1,13 @@
-package com.example.backend.controller;
+package com.example.backend.inventory.controller;
 
-import com.example.backend.dto.InventoryDispatchRequest;
-import com.example.backend.dto.InventoryReceiveFromOrderRequest;
-import com.example.backend.dto.InventoryReceiveRequest;
-import com.example.backend.dto.PurchaseOrderRequest;
 import com.example.backend.entity.StockMaster;
+import com.example.backend.inventory.dto.InventoryDispatchRequest;
+import com.example.backend.inventory.dto.InventoryReceiveRequest;
+import com.example.backend.inventory.service.InventoryService;
+import com.example.backend.order.dto.InventoryReceiveFromOrderRequest;
+import com.example.backend.order.dto.PurchaseOrderRequest;
+import com.example.backend.order.service.PurchaseOrderService;
 import com.example.backend.entity.InventoryTransaction;
-import com.example.backend.service.InventoryService;
-import com.example.backend.service.PurchaseOrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -117,24 +117,4 @@ public class InventoryController {
             "data", allTransactions));
   }
 
-  @Operation(summary = "発注登録（新商品含む）")
-  @PostMapping("/orders")
-  public ResponseEntity<Map<String, Object>> registerOrder(@RequestBody PurchaseOrderRequest request) {
-    String orderNo = purchaseOrderService.registerOrder(request);
-    return ResponseEntity.ok(
-        Map.of(
-            "status", 200,
-            "message", "発注が完了しました",
-            "data", Map.of("orderNo", orderNo)));
-  }
-
-  @PostMapping("/receive-from-order")
-  public ResponseEntity<Map<String, Object>> receiveFromOrder(@RequestBody InventoryReceiveFromOrderRequest req) {
-    inventoryService.receiveFromOrder(req);
-
-    return ResponseEntity.ok(
-        Map.of(
-            "status", 200,
-            "message", "入庫処理が完了しました"));
-  }
 }

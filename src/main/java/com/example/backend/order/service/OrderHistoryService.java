@@ -1,12 +1,13 @@
-package com.example.backend.service;
+package com.example.backend.order.service;
 
-import com.example.backend.dto.OrderHistoryResponse;
 import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrderDetail;
-import com.example.backend.repository.OrderHistoryRepository;
-import com.example.backend.repository.PurchaseOrderDetailRepository;
-import com.example.backend.repository.PurchaseOrderRepository;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.order.dto.OrderHistoryResponse;
+import com.example.backend.order.repository.OrderHistoryRepository;
+import com.example.backend.order.repository.PurchaseOrderDetailRepository;
+import com.example.backend.order.repository.PurchaseOrderRepository;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -44,13 +45,23 @@ public class OrderHistoryService {
 
         // 条件: 日付フィルターあり
         Page<PurchaseOrder> ordersPage;
+        // if (fromDate != null && toDate != null) {
+        //     LocalDate from = fromDate;
+        //     LocalDate to = toDate;
+        //     ordersPage = purchaseOrderRepository.findByCreatedAtBetween(from, to, pageable);
+        // } else {
+        //     ordersPage = purchaseOrderRepository.findAll(pageable);
+        // }
         if (fromDate != null && toDate != null) {
-            LocalDateTime from = fromDate.atStartOfDay();
-            LocalDateTime to = toDate.atTime(LocalTime.MAX);
-            ordersPage = purchaseOrderRepository.findByCreatedAtBetween(from, to, pageable);
+            ordersPage = purchaseOrderRepository.findByCreatedAtBetween(fromDate, toDate, pageable);
+        } else if (fromDate != null) {
+            ordersPage = purchaseOrderRepository.findByCreatedAtAfter(fromDate.minusDays(1), pageable);
+        } else if (toDate != null) {
+            ordersPage = purchaseOrderRepository.findByCreatedAtBefore(toDate.plusDays(1), pageable);
         } else {
             ordersPage = purchaseOrderRepository.findAll(pageable);
         }
+        
 
         List<OrderHistoryResponse> responseList = ordersPage.stream()
                 .map(order -> {

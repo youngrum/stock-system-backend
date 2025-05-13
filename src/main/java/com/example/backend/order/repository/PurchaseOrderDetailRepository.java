@@ -1,4 +1,4 @@
-package com.example.backend.repository;
+package com.example.backend.order.repository;
 
 import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.entity.PurchaseOrderDetailId;

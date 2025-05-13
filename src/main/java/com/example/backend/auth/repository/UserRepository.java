@@ -1,4 +1,4 @@
-package com.example.backend.repository;
+package com.example.backend.auth.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.backend.entity.User;
