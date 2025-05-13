@@ -98,7 +98,7 @@ public class InventoryService {
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
         tx.setPurchaseOrder(order);
-        tx.setTransactionType(TransactionType.RECEIVE);
+        tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
         tx.setQuantity(req.getQuantity());
         tx.setOperator(username);
         tx.setTransactionTime(LocalDateTime.now());
@@ -141,7 +141,7 @@ public class InventoryService {
 
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
-        tx.setTransactionType(TransactionType.DISPATCH);
+        tx.setTransactionType(TransactionType.MANUAL_DISPATCH);
         tx.setQuantity(req.getQuantity());
         tx.setOperator(username);
         tx.setTransactionTime(LocalDateTime.now());
@@ -163,6 +163,7 @@ public class InventoryService {
         return inventoryTransactionRepository.findAllByOrderByTransactionTimeDesc(pageable);
     }
 
+    // 発注商品の納品処理
     @Transactional
     public void receiveFromOrder(InventoryReceiveFromOrderRequest req) {
         String orderNo = req.getOrderNo();
@@ -235,7 +236,7 @@ public class InventoryService {
             tx.setStockItem(stock);
             tx.setQuantity(item.getReceivedQuantity());
             tx.setPurchasePrice(purchasePrice);
-            tx.setTransactionType(TransactionType.RECEIVE);
+            tx.setTransactionType(TransactionType.PURCHASE_RECEIVE);
             tx.setOperator(req.getOperator());
             tx.setTransactionTime(LocalDateTime.now());
             tx.setRemarks(item.getRemarks());
