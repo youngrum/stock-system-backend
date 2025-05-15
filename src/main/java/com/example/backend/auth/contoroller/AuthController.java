@@ -37,9 +37,10 @@ public class AuthController {
         try {
             User authenticatedUser = authService.authenticate(request.getUsername(), request.getPassword());
             String token = jwtUtil.generateToken(authenticatedUser.getUsername());
-
+            System.out.println(authenticatedUser.getUsername());
             Map<String, Object> data = new HashMap<>();
             data.put("token", token);
+            data.put("username", authenticatedUser.getUsername());
 
             Map<String, Object> response = new HashMap<>();
             response.put("status", 200);
