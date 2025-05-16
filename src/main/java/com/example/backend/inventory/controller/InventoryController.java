@@ -36,9 +36,10 @@ public class InventoryController {
     this.purchaseOrderService = purchaseOrderService;
   }
 
-  @Operation(summary = "在庫検索 全件取得時は 品名, カテゴリー, 型番を空にする")
+  @Operation(summary = "在庫検索 全件取得時は ID, 品名, カテゴリー, 型番を空にする")
   @GetMapping("/inventory/search")
   public ResponseEntity<?> searchInventory(
+      @Parameter(description = "ID") @RequestParam(required = false) String item_code,
       @Parameter(description = "品名") @RequestParam(required = false) String item_name,
       @Parameter(description = "カテゴリー") @RequestParam(required = false) String category,
       @Parameter(description = "型番") @RequestParam(required = false) String model_number,
