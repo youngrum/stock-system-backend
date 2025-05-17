@@ -49,14 +49,29 @@ public class InventoryService {
     }
 
     // パラメーター付在庫検索
-    public Page<StockMaster> searchStock(String itemName, String modelNumber, String category, Pageable pageable) {
+    public Page<StockMaster> searchStock(String itemCode, String itemName, String category, String modelNumber,
+            Pageable pageable) {
+
         // 空の場合は空文字に変換（部分一致検索に対応）
-        String nameKeyword = (itemName != null) ? itemName : "";
-        String modelKeyword = (modelNumber != null) ? modelNumber : "";
+        String itemCodeKeyword = (itemCode != null) ? itemCode : "";
+        String itemNameKeyword = (itemName != null) ? itemName : "";
         String categoryKeyword = (category != null) ? category : "";
+        String modelNumberKeyword = (modelNumber != null) ? modelNumber : "";
+
+        System.out.printf(
+                "🔍 検索条件: itemCodeKeyword='%s', itemNameKeyword='%s', categoryKeyword='%s', modelNumberKeyword='%s'%n",
+                itemCodeKeyword, itemNameKeyword, categoryKeyword, modelNumberKeyword);
+
+        if (!isBlank(itemCode)) {
+            System.out.printf("!isBlank(itemCode)");
+            // itemCode は一意なので他の条件を無視してよい
+            return stockMasterRepository.findByItemCodeContaining(itemCode, pageable);
+        }
+        // itemCode が空の場合、他の条件で検索
         return stockMasterRepository
-                .findByItemNameContainingIgnoreCaseAndModelNumberContainingIgnoreCaseAndCategoryContainingIgnoreCase(
-                        nameKeyword, modelKeyword, categoryKeyword, pageable);
+                .findByItemCodeContainingAndItemNameContainingAndCategoryContainingAndModelNumberContaining(
+                        itemCodeKeyword, itemNameKeyword,
+                        categoryKeyword, modelNumberKeyword, pageable);
     }
 
     // 単一在庫取得
@@ -192,7 +207,7 @@ public class InventoryService {
             BigDecimal receivedSoFar = detail.getReceivedQuantity() != null ? detail.getReceivedQuantity()
                     : BigDecimal.ZERO;
             BigDecimal orderQuantity = detail.getQuantity();
-            BigDecimal receivingNow =item.getReceivedQuantity();
+            BigDecimal receivingNow = item.getReceivedQuantity();
 
             if (receivedSoFar.compareTo(orderQuantity) >= 0) {
                 throw new ValidationException("すでに全数が入庫済みのため、これ以上受け入れできません（itemCode: " + itemCode + "）");
@@ -254,4 +269,12 @@ public class InventoryService {
         }
     }
 
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    // // 空文字やnullをすべて "%" に変換
+    private String normalize(String value) {
+        return (value == null || value.isBlank()) ? "%" : value;
+    }
 }

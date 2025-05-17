@@ -39,13 +39,18 @@ public class InventoryController {
   @Operation(summary = "在庫検索 全件取得時は ID, 品名, カテゴリー, 型番を空にする")
   @GetMapping("/inventory/search")
   public ResponseEntity<?> searchInventory(
-      @Parameter(description = "ID") @RequestParam(required = false) String item_code,
-      @Parameter(description = "品名") @RequestParam(required = false) String item_name,
+      @Parameter(description = "ID") @RequestParam(required = false) String itemCode,
+      @Parameter(description = "品名") @RequestParam(required = false) String itemName,
       @Parameter(description = "カテゴリー") @RequestParam(required = false) String category,
-      @Parameter(description = "型番") @RequestParam(required = false) String model_number,
+      @Parameter(description = "型番") @RequestParam(required = false) String modelNumber,
       @PageableDefault(sort = "itemCode", direction = Sort.Direction.ASC) Pageable pageable) {
 
-    Page<StockMaster> results = inventoryService.searchStock(item_name, model_number, category, pageable);
+    System.out.println(itemCode);
+    System.out.println(itemName);
+    System.out.println(category);
+    System.out.println(modelNumber);
+
+    Page<StockMaster> results = inventoryService.searchStock(itemCode, itemName, category, modelNumber, pageable);
 
     return ResponseEntity.ok(
         Map.of(
