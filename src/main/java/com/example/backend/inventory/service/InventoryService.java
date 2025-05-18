@@ -105,7 +105,7 @@ public class InventoryService {
         order.setShippingFee(BigDecimal.ZERO);
         order.setOperator(username);
         order.setSupplier(req.getSupplier());
-        order.setRemarks("入庫時に自動生成");
+        order.setRemarks(req.getRemarks());
         order.setOrderSubtotal(BigDecimal.ZERO);
         purchaseOrderRepository.save(order);
 

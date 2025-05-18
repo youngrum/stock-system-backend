@@ -59,7 +59,7 @@ public class InventoryController {
             "data", results));
   }
 
-  @Operation(summary = "単一在庫詳細取得")
+  @Operation(summary = "単一既存在庫情報取得")
   @GetMapping("/inventory/{itemCode}")
   public ResponseEntity<?> getStockByItemCode(@PathVariable String itemCode) {
     StockMaster inventory = inventoryService.getStockByItemCode(itemCode);
@@ -71,7 +71,7 @@ public class InventoryController {
   }
 
   @Operation(summary = "入庫登録")
-  @PostMapping("/inventory/receive")
+  @PostMapping("/inventory/receive/{itemCode}")
   public ResponseEntity<?> receiveInventory(@RequestBody InventoryReceiveRequest request) {
     long transactionId = inventoryService.receiveInventory(request);
     return ResponseEntity.ok(
@@ -83,7 +83,7 @@ public class InventoryController {
   }
 
   @Operation(summary = "出庫登録")
-  @PostMapping("/inventory/dispatch")
+  @PostMapping("/inventory/dispatch/{itemCode}")
   public ResponseEntity<?> dispatchInventory(@RequestBody InventoryDispatchRequest request) {
     long transactionId = inventoryService.dispatchInventory(request);
     return ResponseEntity.ok(
