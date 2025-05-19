@@ -755,3 +755,18 @@ The object is already closed [90007-224]
 2025-05-17 21:52:19.058786+09:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
 The object is already closed [90007-224]
+2025-05-19 11:29:05.709838+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-19 12:03:22.253363+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: SQLステートメントに文法エラーがあります "ALTER TABLE stock_master\000d\000a[*]MODIFY last_update DATETIME DEFAULT CURRENT_TIMESTAMP\000d\000aON UPDATE CURRENT_TIMESTAMP"; 期待されるステートメント "., ADD, SET, RENAME, DROP, ALTER"
+Syntax error in SQL statement "ALTER TABLE stock_master\000d\000a[*]MODIFY last_update DATETIME DEFAULT CURRENT_TIMESTAMP\000d\000aON UPDATE CURRENT_TIMESTAMP"; expected "., ADD, SET, RENAME, DROP, ALTER"; SQL statement:
+ALTER TABLE stock_master
+MODIFY last_update DATETIME DEFAULT CURRENT_TIMESTAMP
+ON UPDATE CURRENT_TIMESTAMP [42001-224]
+2025-05-19 12:09:09.799314+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-19 12:10:15.150970+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]

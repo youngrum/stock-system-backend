@@ -27,6 +27,12 @@ public class StockMaster {
     @Column(name = "current_stock", nullable = false)
     private BigDecimal currentStock = BigDecimal.ZERO;
 
-    @Column(name = "last_updated", insertable = false, updatable = false)
+    @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
+
+    @PrePersist
+    @PreUpdate
+    public void updateTimestamp() {
+        this.lastUpdated = LocalDateTime.now();
+    }
 }
