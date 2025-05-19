@@ -94,7 +94,7 @@ public class InventoryController {
                 "transactionId", transactionId)));
   }
 
-  @Operation(summary = "入出庫履歴の取得（ページング対応）")
+  @Operation(summary = "いち在庫の入出庫履歴の取得（ページング対応）")
   @GetMapping("/inventory/{itemCode}/history")
   public ResponseEntity<?> getInventoryHistory(
       @PathVariable String itemCode,

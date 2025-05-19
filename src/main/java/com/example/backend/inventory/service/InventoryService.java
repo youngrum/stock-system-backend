@@ -98,7 +98,7 @@ public class InventoryService {
         // 3. 自動で orderNo を発行
         String orderNo = generateNewOrderNo();
 
-        // 4. purchase_order を新規作成
+        // 4. 発注ヘッダーをを新規作成 ※発注を飛ばした入庫だが単価や仕入れ先が分かるケースを考慮
         PurchaseOrder order = new PurchaseOrder();
         order.setOrderNo(orderNo);
         order.setOrderDate(LocalDate.now());
@@ -133,6 +133,7 @@ public class InventoryService {
         purchaseOrderRepository.save(order);
 
         // 発行されたトランザクションIDを返す
+        System.out.println(tx.getTransactionId());
         return tx.getTransactionId();
     }
 
@@ -158,6 +159,7 @@ public class InventoryService {
         tx.setStockItem(stock);
         tx.setTransactionType(TransactionType.MANUAL_DISPATCH);
         tx.setQuantity(req.getQuantity());
+        tx.setRemarks(req.getRemarks());
         tx.setOperator(username);
         tx.setTransactionTime(LocalDateTime.now());
         inventoryTransactionRepository.save(tx);
