@@ -2,6 +2,7 @@ package com.example.backend.order.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
@@ -11,8 +12,11 @@ import org.springframework.stereotype.Service;
 import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.entity.StockMaster;
+import com.example.backend.entity.InventoryTransaction;
+import com.example.backend.entity.TransactionType;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.inventory.repository.StockMasterRepository;
+import com.example.backend.inventory.repository.InventoryTransactionRepository;
 import com.example.backend.order.dto.PurchaseOrderRequest;
 import com.example.backend.order.repository.PurchaseOrderDetailRepository;
 import com.example.backend.order.repository.PurchaseOrderRepository;
@@ -28,6 +32,7 @@ public class PurchaseOrderService {
   private final PurchaseOrderRepository purchaseOrderRepository;
   private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
   private final StockMasterRepository stockMasterRepository;
+  private final InventoryTransactionRepository inventoryTransactionRepository;
 
   @Transactional
   public String registerOrder(PurchaseOrderRequest req) {
@@ -97,6 +102,26 @@ public class PurchaseOrderService {
       purchaseOrderDetailRepository.save(detail);
 
       total = total.add(d.getQuantity().multiply(d.getPurchasePrice()));
+      
+      // 4. 入庫トランザクション登録
+        InventoryTransaction tx = new InventoryTransaction();
+        tx.setStockItem(stock);
+        tx.setTransactionType(TransactionType.ORDER_REGIST);
+        tx.setQuantity(detail.getQuantity());
+        tx.setOperator(username);
+        tx.setTransactionTime(LocalDateTime.now());
+        tx.setPurchaseOrder(header);
+        tx.setRemarks(d.getRemarks());
+        inventoryTransactionRepository.save(tx);
+      // InventoryTransaction tx = new InventoryTransaction();
+      // tx.setStockItem(stock);
+      // tx.setPurchaseOrder(header);
+      // tx.setTransactionType(TransactionType.PURCHASE_RECEIVE);
+      // tx.setOperator(username);
+      // tx.setTransactionTime(LocalDateTime.now());
+      // tx.setSupplier(req.getSupplier());
+      // tx.setRemarks(req.getRemarks());
+      // inventoryTransactionRepository.save(tx);
     }
 
     header.setOrderSubtotal(total);
