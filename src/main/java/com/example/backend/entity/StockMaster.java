@@ -12,7 +12,10 @@ import java.time.LocalDateTime;
 public class StockMaster {
 
     @Id
-    @Column(name = "item_code", length = 32)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // サロゲートキー
+
+    @Column(name = "item_code", length = 32, unique = true, nullable = false)
     private String itemCode;
 
     @Column(name = "item_name", nullable = false, length = 128)

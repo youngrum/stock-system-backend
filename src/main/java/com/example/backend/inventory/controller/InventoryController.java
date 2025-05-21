@@ -109,6 +109,19 @@ public class InventoryController {
             "data", historyPage));
   }
 
+  @Operation(summary = "新規在庫登録(ID未採番用)")
+  @PostMapping("/inventory/new")
+  public ResponseEntity<?> createStock(@RequestBody StockMaster req) {
+      StockMaster created = inventoryService.createStock(req);
+      System.out.println("Created: " + created);
+      
+      return ResponseEntity.ok(
+          Map.of(
+            "status",200, 
+            "message", "在庫を新規登録しました", 
+            "data", created));
+  }
+
   @Operation(summary = "全トランザクション履歴の取得（ページング対応）")
   @GetMapping("/transactions")
   public ResponseEntity<?> getAllTransactions(

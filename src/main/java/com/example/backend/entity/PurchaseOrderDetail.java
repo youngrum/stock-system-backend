@@ -14,6 +14,7 @@ public class PurchaseOrderDetail {
   private String orderNo;
 
   @Id
+  @JoinColumn(name = "item_code", referencedColumnName = "item_code")
   private String itemCode;
 
   private String itemName;

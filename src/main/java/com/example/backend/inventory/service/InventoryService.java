@@ -81,8 +81,9 @@ public class InventoryService {
     }
 
     // 新規在庫登録
-    public StockMaster createStock(StockMaster stockMaster) {
-        return stockMasterRepository.save(stockMaster);
+    public StockMaster createStock(StockMaster req) {
+        System.out.println("保存結果: id=" + req.getItemCode());
+        return stockMasterRepository.save(req);
     }
 
     // 入庫処理
