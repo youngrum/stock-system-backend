@@ -76,14 +76,27 @@ public class InventoryService {
 
     // 単一在庫取得
     public StockMaster getStockByItemCode(String itemCode) {
-        return stockMasterRepository.findById(itemCode)
+        return stockMasterRepository.findByItemCode(itemCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + itemCode));
     }
 
     // 新規在庫登録
     public StockMaster createStock(StockMaster req) {
-        System.out.println("保存結果: id=" + req.getItemCode());
-        return stockMasterRepository.save(req);
+        
+        // 1. 在庫を登録
+        StockMaster stock = stockMasterRepository.save(req);
+        System.out.println(stock);
+
+        // 2. トランザクション履歴登録
+        InventoryTransaction tx = new InventoryTransaction();
+        tx.setStockItem(stock);
+        tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
+        tx.setQuantity(stock.getCurrentStock());
+        tx.setOperator("system"); // or ログインユーザー名
+        tx.setTransactionTime(LocalDateTime.now());
+        inventoryTransactionRepository.save(tx);
+
+        return stock;
     }
 
     // 入庫処理
@@ -93,7 +106,7 @@ public class InventoryService {
         req.setOperator(username);
 
         // 2. 該当在庫データを取得（なければエラー）
-        StockMaster stock = stockMasterRepository.findById(req.getItemCode())
+        StockMaster stock = stockMasterRepository.findByItemCode(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
 
         // 3. 自動で orderNo を発行
@@ -149,13 +162,14 @@ public class InventoryService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
 
-        StockMaster stock = stockMasterRepository.findById(req.getItemCode())
+        StockMaster stock = stockMasterRepository.findByItemCode(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
 
         if (stock.getCurrentStock().compareTo(req.getQuantity()) < 0) {
             throw new RuntimeException("在庫が不足しています");
         }
 
+        // 出庫トランザクション登録
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
         tx.setTransactionType(TransactionType.MANUAL_DISPATCH);
@@ -221,7 +235,7 @@ public class InventoryService {
             }
 
             // 在庫マスタを取得
-            StockMaster stock = stockMasterRepository.findById(itemCode)
+            StockMaster stock = stockMasterRepository.findByItemCode(itemCode)
                     .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
 
             // 入庫数チェック

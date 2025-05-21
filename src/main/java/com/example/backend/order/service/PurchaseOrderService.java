@@ -64,7 +64,7 @@ public class PurchaseOrderService {
       if (d.getItemCode() != null && !d.getItemCode().isBlank()) {
         System.out.println("▶ itemCode指定あり → 在庫確認中: " + d.getItemCode());
         // 既存の itemCode を直接指定された場合（既存在庫）
-        stock = stockMasterRepository.findById(d.getItemCode())
+        stock = stockMasterRepository.findByItemCode(d.getItemCode())
             .orElseThrow(() -> new ResourceNotFoundException("itemCodeが存在しません: " + d.getItemCode()));
       } else {
         System.out.println("▶ itemCodeなし → 型番＋品名で検索: " + d.getModelNumber() + " / " + d.getItemName());

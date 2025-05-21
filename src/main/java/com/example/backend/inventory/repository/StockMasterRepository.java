@@ -12,6 +12,9 @@ import java.util.Optional;
 @Repository
 public interface StockMasterRepository extends JpaRepository<StockMaster, String> {
 
+    // 商品コードで検索
+    Optional<StockMaster> findByItemCode(String itemCode);
+
     // itemCodeがリクエストに含まれていた時のクエリ
     Page<StockMaster> findByItemCodeContaining(String itemCode, Pageable pageable);
 
