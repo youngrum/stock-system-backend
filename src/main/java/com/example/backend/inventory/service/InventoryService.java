@@ -1,5 +1,6 @@
 package com.example.backend.inventory.service;
 
+import com.example.backend.common.service.ItemCodeGenerator;
 import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.entity.TransactionType;
@@ -36,16 +37,19 @@ public class InventoryService {
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
+    private final ItemCodeGenerator itemCodeGenerator;
 
     @Autowired
     public InventoryService(StockMasterRepository stockMasterRepository,
             InventoryTransactionRepository inventoryTransactionRepository,
             PurchaseOrderRepository purchaseOrderRepository,
-            PurchaseOrderDetailRepository purchaseOrderDetailRepository) {
+            PurchaseOrderDetailRepository purchaseOrderDetailRepository,
+            ItemCodeGenerator itemCodeGenerator) {
         this.stockMasterRepository = stockMasterRepository;
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.purchaseOrderDetailRepository = purchaseOrderDetailRepository;
+        this.itemCodeGenerator = itemCodeGenerator;
     }
 
     // パラメーター付在庫検索
@@ -81,11 +85,22 @@ public class InventoryService {
     }
 
     // 新規在庫登録
+    @Transactional
     public StockMaster createStock(StockMaster req) {
         
         // 1. 在庫を登録
+        // 1-1. 仮保存して id を取得
         StockMaster stock = stockMasterRepository.save(req);
-        System.out.println(stock);
+
+        // 1-2. id ベースで itemCode を採番
+        String code = itemCodeGenerator.generateItemCode(stock.getId());
+        stock.setItemCode(code);
+
+        // 1-3. 再保存（itemCodeを含めて）
+        stockMasterRepository.save(stock);
+        // 在庫マスタに保存した内容を DB に反映させる（FLUSH）
+        // 後続のトランザクション履歴登録で正規のitemCodeを読み取らせるため
+        stockMasterRepository.flush();
 
         // 2. トランザクション履歴登録
         InventoryTransaction tx = new InventoryTransaction();
