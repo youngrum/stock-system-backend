@@ -3,6 +3,7 @@ package com.example.backend.inventory.controller;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.inventory.dto.InventoryDispatchRequest;
 import com.example.backend.inventory.dto.InventoryReceiveRequest;
+import com.example.backend.inventory.dto.StockMasterRequest;
 import com.example.backend.inventory.service.InventoryService;
 import com.example.backend.order.dto.InventoryReceiveFromOrderRequest;
 import com.example.backend.order.dto.PurchaseOrderRequest;
@@ -111,7 +112,7 @@ public class InventoryController {
 
   @Operation(summary = "新規在庫登録(ID未採番用)")
   @PostMapping("/inventory/new")
-  public ResponseEntity<?> createStock(@RequestBody StockMaster req) {
+  public ResponseEntity<?> createStock(@RequestBody StockMasterRequest req) {
       StockMaster created = inventoryService.createStock(req);
       System.out.println("Created: " + created);
       

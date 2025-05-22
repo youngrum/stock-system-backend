@@ -9,6 +9,7 @@ import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.inventory.dto.InventoryDispatchRequest;
 import com.example.backend.inventory.dto.InventoryReceiveRequest;
+import com.example.backend.inventory.dto.StockMasterRequest;
 import com.example.backend.inventory.repository.InventoryTransactionRepository;
 import com.example.backend.inventory.repository.StockMasterRepository;
 import com.example.backend.order.dto.InventoryReceiveFromOrderRequest;
@@ -86,28 +87,38 @@ public class InventoryService {
 
     // 新規在庫登録
     @Transactional
-    public StockMaster createStock(StockMaster req) {
+    public StockMaster createStock(StockMasterRequest req) {
         
         // 1. 在庫を登録
         // 1-1. 仮保存して id を取得
-        StockMaster stock = stockMasterRepository.save(req);
+        StockMaster stock = new StockMaster();
+        stock.setItemName(req.getItemName());
+        stock.setCategory(req.getCategory());
+        stock.setModelNumber(req.getModelNumber());
+        stock.setCurrentStock(req.getCurrentStock());
+
+        stock = stockMasterRepository.save(stock);
 
         // 1-2. id ベースで itemCode を採番
         String code = itemCodeGenerator.generateItemCode(stock.getId());
         stock.setItemCode(code);
 
         // 1-3. 再保存（itemCodeを含めて）
-        stockMasterRepository.save(stock);
+        stock = stockMasterRepository.save(stock);
         // 在庫マスタに保存した内容を DB に反映させる（FLUSH）
         // 後続のトランザクション履歴登録で正規のitemCodeを読み取らせるため
         stockMasterRepository.flush();
 
-        // 2. トランザクション履歴登録
+        // 2. ログインユーザー名を取得
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 3. トランザクション履歴登録
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
         tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
         tx.setQuantity(stock.getCurrentStock());
-        tx.setOperator("system"); // or ログインユーザー名
+        tx.setOperator(username);
+        tx.setRemarks(req.getRemarks());
         tx.setTransactionTime(LocalDateTime.now());
         inventoryTransactionRepository.save(tx);
 
@@ -127,7 +138,7 @@ public class InventoryService {
         // 3. 自動で orderNo を発行
         String orderNo = generateNewOrderNo();
 
-        // 4. 発注ヘッダーをを新規作成 ※発注を飛ばした入庫だが単価や仕入れ先が分かるケースを考慮
+        // 4. 発注ヘッダーを新規作成 ※発注を飛ばした入庫だが単価や仕入れ先が分かるケースを考慮
         PurchaseOrder order = new PurchaseOrder();
         order.setOrderNo(orderNo);
         order.setOrderDate(LocalDate.now());

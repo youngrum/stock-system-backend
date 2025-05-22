@@ -12,4 +12,5 @@ public class StockMasterRequest {
   private String modelNumber; // 型番（任意）
   private String category; // カテゴリ
   private BigDecimal currentStock; // 初期在庫（任意）
+  private String remarks; // トランザクション用
 }
