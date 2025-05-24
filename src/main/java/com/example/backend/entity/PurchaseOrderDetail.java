@@ -9,16 +9,27 @@ import lombok.Data;
 @IdClass(PurchaseOrderDetailId.class)
 public class PurchaseOrderDetail {
 
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "order_no", insertable = false)
+  private PurchaseOrder purchaseOrder;
+
   @Id
-  @Column(name = "order_no", insertable = false, updatable = false)
+  @Column(name = "order_no")
   private String orderNo;
 
   @Id
   @Column(name = "item_code")
   private String itemCode;
 
+  @Column(name = "item_name")
   private String itemName;
+
+  @Column(name = "model_number")
   private String modelNumber;
+
   private String category;
 
   @Column(nullable = false)

@@ -14,6 +14,9 @@ import java.time.LocalDate;
 public class PurchaseOrder {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
   @Column(name = "order_no", length = 64)
   private String orderNo;
 
@@ -42,7 +45,6 @@ public class PurchaseOrder {
   @CreationTimestamp
   private LocalDate createdAt = LocalDate.now();
 
-  @OneToMany
-  @JoinColumn(name = "order_no", referencedColumnName = "order_no", insertable = false, updatable = false)
+  @OneToMany(mappedBy = "purchaseOrder")
   private List<PurchaseOrderDetail> details;
 }
