@@ -1,5 +1,7 @@
 package com.example.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,10 +11,14 @@ import lombok.Data;
 @IdClass(PurchaseOrderDetailId.class)
 public class PurchaseOrderDetail {
 
-  @Id
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "order_no", insertable = false)
+  @JsonBackReference
   private PurchaseOrder purchaseOrder;
+
+  @Id
+  @Column(name = "order_no")
+  private String orderNo;
 
   @Id
   @Column(name = "item_code")

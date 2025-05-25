@@ -14,9 +14,6 @@ import java.time.LocalDate;
 public class PurchaseOrder {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
   @Column(name = "order_no", length = 64)
   private String orderNo;
 
