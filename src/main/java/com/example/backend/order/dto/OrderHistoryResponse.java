@@ -29,6 +29,7 @@ public class OrderHistoryResponse {
     @Builder
     @Data
     public static class OrderDetailResponse {
+        private String orderNo;
         private String itemCode;
         private String itemName;
         private String modelNumber;
@@ -55,6 +56,7 @@ public class OrderHistoryResponse {
             .details(
                 details.stream()
                     .map(d -> OrderDetailResponse.builder()
+                        .orderNo(order.getOrderNo())
                         .itemCode(d.getItemCode())
                         .itemName(d.getItemName())
                         .modelNumber(d.getModelNumber())

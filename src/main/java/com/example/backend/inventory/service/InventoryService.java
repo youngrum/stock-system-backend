@@ -225,10 +225,11 @@ public class InventoryService {
     @Transactional
     public void receiveFromOrder(InventoryReceiveFromOrderRequest req) {
         String orderNo = req.getOrderNo();
+        System.out.println(orderNo);
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
 
-        PurchaseOrder order = purchaseOrderRepository.findById(req.getOrderNo())
+        PurchaseOrder order = purchaseOrderRepository.findByOrderNo(req.getOrderNo())
                 .orElseThrow(() -> new ResourceNotFoundException("発注先が見つかりません"));
 
         for (InventoryReceiveFromOrderRequest.Item item : req.getItems()) {
