@@ -21,6 +21,7 @@ public class OrderHistoryResponse {
     private BigDecimal shippingFee;
     private BigDecimal orderSubtotal;
     private String operator;
+    private String status;
     private String remarks;
     private LocalDate createdAt;
     private List<OrderDetailResponse> details;
@@ -48,6 +49,7 @@ public class OrderHistoryResponse {
             .orderDate(order.getOrderDate())
             .orderSubtotal(order.getOrderSubtotal())
             .operator(order.getOperator())
+            .status(order.getStatus())
             .remarks(order.getRemarks())
             .createdAt(order.getCreatedAt())
             .details(
