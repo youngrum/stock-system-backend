@@ -10,6 +10,7 @@ CREATE TABLE stock_master (
   item_name VARCHAR(128) NOT NULL,
   category VARCHAR(64),
   model_number VARCHAR(64),
+  manufacturer VARCHAR(64);
   current_stock INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

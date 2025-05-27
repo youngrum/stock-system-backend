@@ -111,3 +111,22 @@ ALTER TABLE users DROP COLUMN department [42122-224]
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
+2025-05-27 16:12:09.322531+09:00 jdbc[85]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-27 16:12:09.606923+09:00 jdbc[85]: exception
+org.h2.jdbc.JdbcSQLDataException: 列 "TRANSACTION_TYPE CHARACTER VARYING(10)" の値が長過ぎます: "'MANUAL_RECEIVE' (14)"
+Value too long for column "TRANSACTION_TYPE CHARACTER VARYING(10)": "'MANUAL_RECEIVE' (14)"; SQL statement:
+insert into inventory_transaction (manufacturer,operator,order_no,purchase_price,quantity,remarks,item_code,supplier,transaction_time,transaction_type,transaction_id) values (?,?,?,?,?,?,?,?,?,?,default) [22001-224]
+2025-05-27 16:15:23.673572+09:00 jdbc[95]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-27 16:15:23.680625+09:00 jdbc[95]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-27 16:21:21.726570+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-27 16:21:21.789584+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]

@@ -10,6 +10,7 @@ public class StockMasterRequest {
   private String itemCode; // 商品コード
   private String itemName; // 名称
   private String modelNumber; // 型番（任意）
+  private String manufacturer; // メーカー（任意）
   private String category; // カテゴリ
   private BigDecimal currentStock; // 初期在庫（任意）
   private String remarks; // トランザクション用

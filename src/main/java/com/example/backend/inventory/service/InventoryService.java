@@ -95,6 +95,7 @@ public class InventoryService {
         stock.setItemName(req.getItemName());
         stock.setCategory(req.getCategory());
         stock.setModelNumber(req.getModelNumber());
+        stock.setManufacturer(req.getManufacturer());
         stock.setCurrentStock(req.getCurrentStock());
 
         stock = stockMasterRepository.save(stock);

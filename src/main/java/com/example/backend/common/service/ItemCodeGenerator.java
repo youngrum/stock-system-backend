@@ -11,18 +11,19 @@ public class ItemCodeGenerator {
     private static final String PREFIX = "SG";      // 接頭辞（担当部署ID）
     private static final int BASE_TERM = 56;        // 期の起点（24/8/1～25/7/30 = 56期）
     private static final int START_YEAR = 2024;     // 56期の開始年
-    private static final int ZERO_PADDING = 5;      // idをゼロ埋めする桁数（例：00001）
+    private static final int ZERO_PADDING = 6;      // idをゼロ埋めする桁数（例：000001）
 
     /**
      * 登録済みIDから itemCode を発行する
      *
      * @param id サロゲートキー（stock_master.id）
-     * @return itemCode（例: SG-56-00001）
+     * @return itemCode（例: SG-56-）
      */
     public String generateItemCode(Long id) {
         int term = resolveCurrentTerm();
-        String idFormatted = String.format("%0" + ZERO_PADDING + "d", id); // ゼロ埋め（5桁）
-        return String.format("%s-%d-%s", PREFIX, term, idFormatted);
+        String hexId = Long.toHexString(id); // idの数値を16進数変換
+        String idFormatted = String.format("%0" + ZERO_PADDING + "d", hexId); // ゼロ埋め（5桁）
+        return String.format("%s%d-%s", PREFIX, term, idFormatted); // SG56-4E7
     }
 
     /**

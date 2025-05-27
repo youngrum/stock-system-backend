@@ -27,6 +27,9 @@ public class StockMaster {
     @Column(name = "category", nullable = false, length = 32)
     private String category;
 
+    @Column(name = "manufacturer", length = 64)
+    private String manufacturer;
+
     @Column(name = "current_stock", nullable = false)
     private BigDecimal currentStock = BigDecimal.ZERO;
 

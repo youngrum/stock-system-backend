@@ -114,6 +114,7 @@ public class InventoryController {
   @PostMapping("/inventory/new")
   public ResponseEntity<?> createStock(@RequestBody StockMasterRequest req) {
       StockMaster created = inventoryService.createStock(req);
+      System.out.println(created);
       System.out.println("Created: " + created);
       
       return ResponseEntity.ok(
