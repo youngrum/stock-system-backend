@@ -50,6 +50,7 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (AuthenticationException e) {
+            System.out.println(e);
             Map<String, Object> error = new HashMap<>();
             error.put("status", 401);
             error.put("message", "Login failed.");

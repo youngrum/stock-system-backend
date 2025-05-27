@@ -14,7 +14,11 @@ import java.time.LocalDate;
 public class PurchaseOrder {
 
   @Id
-  @Column(name = "order_no", length = 64)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Long id;
+  
+  @Column(name = "order_no", unique = true, nullable = false)
   private String orderNo;
 
   @Column(name = "supplier", nullable = false, length = 64)

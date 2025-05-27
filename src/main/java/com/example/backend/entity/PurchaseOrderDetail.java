@@ -8,19 +8,21 @@ import lombok.Data;
 @Entity
 @Table(name = "purchase_order_detail")
 @Data
-@IdClass(PurchaseOrderDetailId.class)
 public class PurchaseOrderDetail {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "order_no", insertable = false)
+  @JoinColumn(name = "order_no", insertable = false, updatable = false)
   @JsonBackReference
   private PurchaseOrder purchaseOrder;
 
   @Id
-  @Column(name = "order_no")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Long id;
+  
+  @Column(name = "order_no", nullable = false)
   private String orderNo;
 
-  @Id
   @Column(name = "item_code")
   private String itemCode;
 
