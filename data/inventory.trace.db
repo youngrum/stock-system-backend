@@ -405,3 +405,115 @@ The object is already closed [90007-224]
 2025-05-28 13:38:45.253860+09:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
 The object is already closed [90007-224]
+2025-05-28 14:59:04.823846+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 14:59:04.889979+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: 列 "TRANSACTION_TYPE CHARACTER VARYING(10)" の値が長過ぎます: "'MANUAL_RECEIVE' (14)"
+Value too long for column "TRANSACTION_TYPE CHARACTER VARYING(10)": "'MANUAL_RECEIVE' (14)"; SQL statement:
+insert into inventory_transaction (manufacturer,operator,order_no,purchase_price,quantity,remarks,item_code,supplier,transaction_time,transaction_type,transaction_id) values (?,?,?,?,?,?,?,?,?,?,default) [22001-224]
+2025-05-28 15:00:20.043913+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 15:00:20.063899+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 15:10:32.319345+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 15:10:32.374213+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 15:12:28.808374+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 15:12:28.818822+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 15:22:50.564672+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 15:22:50.604797+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 15:23:23.744232+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:18:29.576739+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:18:29.614144+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:18:54.738618+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:18:54.748571+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:18:54.749312+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:20:11.509617+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:20:11.511323+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:20:11.516606+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:30:21.524421+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:30:21.549969+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:30:55.617924+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:30:55.617924+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:30:55.629434+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:37:46.431237+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:37:46.471655+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:38:52.108476+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:38:52.123424+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:38:52.125719+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:42:39.620800+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PURCHASE_ORDER" not found (this database is empty); SQL statement:
+select p1_0.id,p1_0.created_at,p1_0.order_no,p1_0.operator,p1_0.order_date,p1_0.order_subtotal,p1_0.remarks,p1_0.shipping_fee,p1_0.status,p1_0.supplier from purchase_order p1_0 order by p1_0.created_at desc offset ? rows fetch first ? rows only [42104-224]
+2025-05-28 16:42:55.504359+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "STOCK_MASTER" not found (this database is empty); SQL statement:
+select s1_0.id,s1_0.category,s1_0.current_stock,s1_0.item_code,s1_0.item_name,s1_0.last_updated,s1_0.manufacturer,s1_0.model_number from stock_master s1_0 where s1_0.item_code like ? escape '\' and s1_0.item_name like ? escape '\' and s1_0.category like ? escape '\' and s1_0.model_number like ? escape '\' order by s1_0.item_code offset ? rows fetch first ? rows only [42104-224]
+2025-05-28 16:42:55.556250+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "STOCK_MASTER" not found (this database is empty); SQL statement:
+select s1_0.id,s1_0.category,s1_0.current_stock,s1_0.item_code,s1_0.item_name,s1_0.last_updated,s1_0.manufacturer,s1_0.model_number from stock_master s1_0 where s1_0.item_code like ? escape '\' and s1_0.item_name like ? escape '\' and s1_0.category like ? escape '\' and s1_0.model_number like ? escape '\' order by s1_0.item_code offset ? rows fetch first ? rows only [42104-224]
+2025-05-28 16:46:33.891270+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:46:33.940021+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:47:07.405226+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:47:07.409226+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 16:47:07.410227+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]

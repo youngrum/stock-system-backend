@@ -1,6 +1,7 @@
 package com.example.backend.inventory.service;
 
 import com.example.backend.common.service.ItemCodeGenerator;
+import com.example.backend.common.service.OrderNumberGenerator;
 import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.entity.TransactionType;
@@ -39,18 +40,21 @@ public class InventoryService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
     private final ItemCodeGenerator itemCodeGenerator;
+    private final OrderNumberGenerator orderNumberGenerator;
 
     @Autowired
     public InventoryService(StockMasterRepository stockMasterRepository,
             InventoryTransactionRepository inventoryTransactionRepository,
             PurchaseOrderRepository purchaseOrderRepository,
             PurchaseOrderDetailRepository purchaseOrderDetailRepository,
-            ItemCodeGenerator itemCodeGenerator) {
+            ItemCodeGenerator itemCodeGenerator,
+            OrderNumberGenerator orderNumberGenerator) {
         this.stockMasterRepository = stockMasterRepository;
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.purchaseOrderDetailRepository = purchaseOrderDetailRepository;
         this.itemCodeGenerator = itemCodeGenerator;
+        this.orderNumberGenerator = orderNumberGenerator;
     }
 
     // パラメーター付在庫検索
@@ -127,6 +131,7 @@ public class InventoryService {
     }
 
     // 入庫処理
+    @Transactional
     public Long receiveInventory(InventoryReceiveRequest req) {
         System.out.println(req);
         // 1. ログインユーザー名を取得
@@ -137,33 +142,38 @@ public class InventoryService {
         StockMaster stock = stockMasterRepository.findByItemCode(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
 
-        // 3. 自動で orderNo を発行
-        String orderNo = generateNewOrderNo();
-
-        // 4. 発注ヘッダーを新規作成 ※発注を飛ばした入庫だが単価や仕入れ先が分かるケースを考慮
+        // 3. 発注ヘッダーを新規作成 ※発注を飛ばした入庫だが単価や仕入れ先が分かるケースを考慮
+        // 3-1. orderNoを仮保存して id を取得
         PurchaseOrder order = new PurchaseOrder();
-        order.setOrderNo(orderNo);
+        order.setOrderNo("new-order");
         order.setOrderDate(LocalDate.now());
-        order.setShippingFee(BigDecimal.ZERO);
+        order.setShippingFee(req.getShippingFee());
         order.setOperator(username);
         order.setSupplier(req.getSupplier());
+        order.setStatus("完了");
         order.setRemarks(req.getRemarks());
         order.setOrderSubtotal(BigDecimal.ZERO);
         purchaseOrderRepository.save(order);
 
+        // 3-2. id ベースで oderNo を採番
+        String code = orderNumberGenerator.generateOrderNo(order.getId());
+        order.setOrderNo(code);
+
+        // 3-2を保存：後続のトランザクション履歴登録で正規のitemCodeを読み取らせるため
+        purchaseOrderRepository.flush();
+
         // // ---------- 発注明細の登録 ----------
-        // PurchaseOrderDetail detail = new PurchaseOrderDetail();
-        // detail.setOrderNo(orderNo);
-        // detail.setItemCode(stock.getItemCode());
-        // detail.setItemName(stock.getItemName());
-        // detail.setModelNumber(stock.getModelNumber());
-        // detail.setCategory(stock.getCategory());
-        // detail.setQuantity(d.getQuantity());
-        // detail.setPurchasePrice(d.getPurchasePrice());
-        // detail.setReceivedQuantity(BigDecimal.ZERO);
-        // detail.setStatus("未入庫");
-        // detail.setRemarks(d.getRemarks());
-        // purchaseOrderDetailRepository.save(detail);
+        PurchaseOrderDetail detail = new PurchaseOrderDetail();
+        detail.setItemCode(stock.getItemCode());
+        detail.setItemName(stock.getItemName());
+        detail.setModelNumber(stock.getModelNumber());
+        detail.setCategory(stock.getCategory());
+        detail.setQuantity(req.getQuantity());
+        detail.setPurchasePrice(req.getPurchasePrice());
+        detail.setReceivedQuantity(req.getQuantity());
+        detail.setStatus("完了");
+        detail.setPurchaseOrder(order);
+        purchaseOrderDetailRepository.save(detail);
 
 
         // 5. 入庫トランザクション登録
@@ -194,11 +204,6 @@ public class InventoryService {
         return tx.getTransactionId();
     }
 
-    // 自動発番メソッド
-    private String generateNewOrderNo() {
-        return "PO-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) +
-                "-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
-    }
 
     // シンプルな出庫処理
     public Long dispatchInventory(InventoryDispatchRequest req) {

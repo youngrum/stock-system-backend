@@ -27,7 +27,7 @@ public class InventoryTransaction {
   private StockMaster stockItem;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "transaction_type", nullable = false, length = 10)
+  @Column(name = "transaction_type", nullable = false, length = 32)
   private TransactionType transactionType;
 
   @Column(name = "quantity", nullable = false)
