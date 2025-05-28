@@ -79,8 +79,8 @@ public class InventoryController {
         Map.of(
             "status", 200,
             "message", "Stock received successfully.",
-            "data", Map.of(
-                "transactionId", transactionId)));
+            "transactionId", transactionId
+              ));
   }
 
   @Operation(summary = "出庫登録")

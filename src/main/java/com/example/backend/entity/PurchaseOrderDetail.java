@@ -1,3 +1,4 @@
+// PurchaseOrderDetail.java
 package com.example.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -11,7 +12,8 @@ import lombok.Data;
 public class PurchaseOrderDetail {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "order_no", insertable = false, updatable = false)
+
+  @JoinColumn(name = "order_no", referencedColumnName = "order_no", nullable = false)
   @JsonBackReference
   private PurchaseOrder purchaseOrder;
 
@@ -19,9 +21,6 @@ public class PurchaseOrderDetail {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Long id;
-  
-  @Column(name = "order_no", nullable = false)
-  private String orderNo;
 
   @Column(name = "item_code")
   private String itemCode;

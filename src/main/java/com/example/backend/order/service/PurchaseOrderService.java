@@ -89,7 +89,7 @@ public class PurchaseOrderService {
 
       // ---------- 発注明細の登録 ----------
       PurchaseOrderDetail detail = new PurchaseOrderDetail();
-      detail.setOrderNo(orderNo);
+      // detail.setOrderNo(orderNo);
       detail.setItemCode(stock.getItemCode());
       detail.setItemName(stock.getItemName());
       detail.setModelNumber(stock.getModelNumber());
@@ -99,6 +99,7 @@ public class PurchaseOrderService {
       detail.setReceivedQuantity(BigDecimal.ZERO);
       detail.setStatus("未入庫");
       detail.setRemarks(d.getRemarks());
+      detail.setPurchaseOrder(header);
       purchaseOrderDetailRepository.save(detail);
 
       total = total.add(d.getQuantity().multiply(d.getPurchasePrice()));

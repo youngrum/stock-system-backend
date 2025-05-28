@@ -128,6 +128,7 @@ public class InventoryService {
 
     // 入庫処理
     public Long receiveInventory(InventoryReceiveRequest req) {
+        System.out.println(req);
         // 1. ログインユーザー名を取得
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
@@ -149,6 +150,21 @@ public class InventoryService {
         order.setRemarks(req.getRemarks());
         order.setOrderSubtotal(BigDecimal.ZERO);
         purchaseOrderRepository.save(order);
+
+        // // ---------- 発注明細の登録 ----------
+        // PurchaseOrderDetail detail = new PurchaseOrderDetail();
+        // detail.setOrderNo(orderNo);
+        // detail.setItemCode(stock.getItemCode());
+        // detail.setItemName(stock.getItemName());
+        // detail.setModelNumber(stock.getModelNumber());
+        // detail.setCategory(stock.getCategory());
+        // detail.setQuantity(d.getQuantity());
+        // detail.setPurchasePrice(d.getPurchasePrice());
+        // detail.setReceivedQuantity(BigDecimal.ZERO);
+        // detail.setStatus("未入庫");
+        // detail.setRemarks(d.getRemarks());
+        // purchaseOrderDetailRepository.save(detail);
+
 
         // 5. 入庫トランザクション登録
         InventoryTransaction tx = new InventoryTransaction();
@@ -231,20 +247,20 @@ public class InventoryService {
         req.setOperator(username);
 
         PurchaseOrder order = purchaseOrderRepository.findByOrderNo(req.getOrderNo())
-                .orElseThrow(() -> new ResourceNotFoundException("発注先が見つかりません"));
+                .orElseThrow(() -> new ResourceNotFoundException("対象の発注番号が見つかりません"));
 
         for (InventoryReceiveFromOrderRequest.Item item : req.getItems()) {
             String itemCode = item.getItemCode();
 
             // 🔽 ここで DB から単価を取得
             BigDecimal purchasePrice = purchaseOrderDetailRepository
-                    .findByOrderNoAndItemCode(orderNo, itemCode)
+                    .findByPurchaseOrder_OrderNoAndItemCode(orderNo, itemCode)
                     .map(PurchaseOrderDetail::getPurchasePrice)
                     .orElse(BigDecimal.ZERO); // fallback（または例外投げる）
 
             // 発注明細を取得
             PurchaseOrderDetail detail = purchaseOrderDetailRepository
-                    .findByOrderNoAndItemCode(req.getOrderNo(), itemCode)
+                    .findByPurchaseOrder_OrderNoAndItemCode(req.getOrderNo(), itemCode)
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "発注明細が見つかりません（orderNo: " + req.getOrderNo() + ", itemCode: " + itemCode + "）"));
 
@@ -304,7 +320,7 @@ public class InventoryService {
         }
 
         // 全明細が完了か判定してヘッダーに反映
-        boolean allDone = purchaseOrderDetailRepository.findByOrderNo(req.getOrderNo())
+        boolean allDone = purchaseOrderDetailRepository.findByPurchaseOrder_OrderNo(req.getOrderNo())
                 .stream()
                 .allMatch(d -> "完了".equals(d.getStatus()));
 

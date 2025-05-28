@@ -154,3 +154,254 @@ The object is already closed [90007-224]
 2025-05-28 06:08:53.611311+09:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
 The object is already closed [90007-224]
+2025-05-28 07:58:51.587864+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 07:58:51.623616+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:16:07.436182+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:16:07.436182+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:17:29.841977+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:17:29.846434+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:26:43.629750+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:26:43.648902+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:41:14.763714+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:41:14.779534+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:42:26.868620+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:42:26.873688+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:44:25.437124+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 08:44:25.437124+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:02:02.825255+09:00 jdbc[23]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:02:02.841596+09:00 jdbc[23]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:28:51.433268+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:28:51.450630+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:32:00.129029+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:32:00.133857+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:40:27.447664+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:40:27.463580+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:41:00.974325+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:41:00.975852+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:42:08.961958+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:42:08.978492+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:42:49.974517+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:42:49.990128+09:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:49:06.693800+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 09:49:48.136701+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:04:08.377144+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:04:08.393819+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:06:46.848980+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:06:46.850990+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:09:30.714676+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:09:30.716977+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:17:13.079387+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:17:13.091488+09:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:24:17.794424+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:24:17.820366+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:26:40.657125+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:26:40.657125+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:27:14.020852+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:27:14.020852+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:28:19.848500+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:28:19.848500+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:42:00.430799+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:42:00.435011+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:43:45.682803+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 10:43:45.736321+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: データ変換中にエラーが発生しました "'PO20250528-2729763C' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 17) NOT NULL)"
+Data conversion error converting "'PO20250528-2729763C' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 17) NOT NULL)"; SQL statement:
+insert into purchase_order_detail (category,item_code,item_name,model_number,order_no,purchase_price,quantity,received_quantity,remarks,status,id) values (?,?,?,?,?,?,?,?,?,?,default) [22018-224]
+2025-05-28 11:30:14.456273+09:00 jdbc[24]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 11:30:14.614506+09:00 jdbc[24]: exception
+org.h2.jdbc.JdbcSQLDataException: データ変換中にエラーが発生しました "'PO20250528-30A6EF23' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 18) NOT NULL)"
+Data conversion error converting "'PO20250528-30A6EF23' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 18) NOT NULL)"; SQL statement:
+insert into purchase_order_detail (category,item_code,item_name,model_number,order_no,purchase_price,quantity,received_quantity,remarks,status,id) values (?,?,?,?,?,?,?,?,?,?,default) [22018-224]
+2025-05-28 11:31:21.527001+09:00 jdbc[24]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 11:31:21.533014+09:00 jdbc[24]: exception
+org.h2.jdbc.JdbcSQLDataException: データ変換中にエラーが発生しました "'PO20250528-391919E7' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 19) NOT NULL)"
+Data conversion error converting "'PO20250528-391919E7' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 19) NOT NULL)"; SQL statement:
+insert into purchase_order_detail (category,item_code,item_name,model_number,order_no,purchase_price,quantity,received_quantity,remarks,status,id) values (?,?,?,?,?,?,?,?,?,?,default) [22018-224]
+2025-05-28 11:32:02.098616+09:00 jdbc[24]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 11:32:20.459315+09:00 jdbc[25]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 11:32:20.463319+09:00 jdbc[25]: exception
+org.h2.jdbc.JdbcSQLDataException: データ変換中にエラーが発生しました "'PO20250528-949116BA' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 21) NOT NULL)"
+Data conversion error converting "'PO20250528-949116BA' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 21) NOT NULL)"; SQL statement:
+insert into purchase_order_detail (category,item_code,item_name,model_number,order_no,purchase_price,quantity,received_quantity,remarks,status,id) values (?,?,?,?,?,?,?,?,?,?,default) [22018-224]
+2025-05-28 11:33:59.700983+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 11:33:59.792641+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: データ変換中にエラーが発生しました "'PO20250528-82F8D08F' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 22) NOT NULL)"
+Data conversion error converting "'PO20250528-82F8D08F' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 22) NOT NULL)"; SQL statement:
+insert into purchase_order_detail (category,item_code,item_name,model_number,order_no,purchase_price,quantity,received_quantity,remarks,status,id) values (?,?,?,?,?,?,?,?,?,?,default) [22018-224]
+2025-05-28 11:57:32.456006+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 12:00:51.655582+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 12:00:51.740133+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: データ変換中にエラーが発生しました "'PO20250528-93799070' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 24) NOT NULL)"
+Data conversion error converting "'PO20250528-93799070' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 24) NOT NULL)"; SQL statement:
+insert into purchase_order_detail (category,item_code,item_name,model_number,order_no,purchase_price,quantity,received_quantity,remarks,status,id) values (?,?,?,?,?,?,?,?,?,?,default) [22018-224]
+2025-05-28 12:02:25.414248+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 12:02:25.517580+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: データ変換中にエラーが発生しました "'PO20250528-2F1D6BC2' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 25) NOT NULL)"
+Data conversion error converting "'PO20250528-2F1D6BC2' (PURCHASE_ORDER: ""ID"" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 25) NOT NULL)"; SQL statement:
+insert into purchase_order_detail (category,item_code,item_name,model_number,order_no,purchase_price,quantity,received_quantity,remarks,status,id) values (?,?,?,?,?,?,?,?,?,?,default) [22018-224]
+2025-05-28 13:23:58.480180+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:25:34.454683+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:25:34.538162+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: 列 "TRANSACTION_TYPE CHARACTER VARYING(10)" の値が長過ぎます: "'MANUAL_RECEIVE' (14)"
+Value too long for column "TRANSACTION_TYPE CHARACTER VARYING(10)": "'MANUAL_RECEIVE' (14)"; SQL statement:
+insert into inventory_transaction (manufacturer,operator,order_no,purchase_price,quantity,remarks,item_code,supplier,transaction_time,transaction_type,transaction_id) values (?,?,?,?,?,?,?,?,?,?,default) [22001-224]
+2025-05-28 13:26:41.084551+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:26:41.084551+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:28:23.773392+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:28:23.785392+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:28:23.789392+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:28:57.794566+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:35:54.421101+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:35:54.426756+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:36:05.599333+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:37:01.245146+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:37:01.245146+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:38:45.245440+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:38:45.251446+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-05-28 13:38:45.253860+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]

@@ -38,7 +38,7 @@ public class OrderHistoryService {
         if (orderNo != null && !orderNo.isBlank()) {
             PurchaseOrder order = purchaseOrderRepository.findByOrderNo(orderNo)
                     .orElseThrow(() -> new ResourceNotFoundException("発注が見つかりません（orderNo: " + orderNo + "）"));
-            List<PurchaseOrderDetail> details = purchaseOrderDetailRepository.findByOrderNo(orderNo);
+            List<PurchaseOrderDetail> details = purchaseOrderDetailRepository.findByPurchaseOrder_OrderNo(orderNo);
             OrderHistoryResponse response = OrderHistoryResponse.from(order, details);
             return new PageImpl<>(List.of(response), pageable, 1);
         }
@@ -65,7 +65,7 @@ public class OrderHistoryService {
 
         List<OrderHistoryResponse> responseList = ordersPage.stream()
                 .map(order -> {
-                    List<PurchaseOrderDetail> details = purchaseOrderDetailRepository.findByOrderNo(order.getOrderNo());
+                    List<PurchaseOrderDetail> details = purchaseOrderDetailRepository.findByPurchaseOrder_OrderNo(order.getOrderNo());
                     return OrderHistoryResponse.from(order, details);
                 }).toList();
 

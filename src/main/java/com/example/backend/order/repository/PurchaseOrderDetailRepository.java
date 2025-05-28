@@ -12,8 +12,8 @@ public interface PurchaseOrderDetailRepository
     extends JpaRepository<PurchaseOrderDetail, Long> {
 
   // 特定の発注に属する明細一覧を取得
-  List<PurchaseOrderDetail> findByOrderNo(String orderNo);
+  List<PurchaseOrderDetail> findByPurchaseOrder_OrderNo(String orderNo);
 
   // 発注番号 + 商品コードで1明細を取得（省略可、JpaRepositoryが自動生成）
-  Optional<PurchaseOrderDetail> findByOrderNoAndItemCode(String orderNo, String itemCode);
+  Optional<PurchaseOrderDetail> findByPurchaseOrder_OrderNoAndItemCode(String orderNo, String itemCode);
 }

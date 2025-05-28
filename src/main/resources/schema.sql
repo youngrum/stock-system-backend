@@ -19,7 +19,7 @@ CREATE TABLE stock_master (
 CREATE TABLE inventory_transaction (
   transaction_id BIGINT AUTO_INCREMENT PRIMARY KEY,
   item_code VARCHAR(64) NOT NULL,
-  transaction_type VARCHAR(10) NOT NULL,
+  transaction_type VARCHAR(32) NOT NULL,
   quantity DECIMAL(14, 2) NOT NULL,
   operator VARCHAR(64) NOT NULL,
   transaction_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
