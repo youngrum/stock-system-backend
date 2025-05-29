@@ -120,10 +120,17 @@ public class InventoryService {
         // 3. トランザクション履歴登録
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
-        tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
-        tx.setQuantity(stock.getCurrentStock());
+        // 登録した数量によってトランザクションタイプを分岐
+        if (req.getCurrentStock().compareTo(BigDecimal.ZERO) == 0) {
+            tx.setTransactionType(TransactionType.ITEM_REGIST);
+            tx.setQuantity(BigDecimal.ZERO); // 明示的に0を設定 (一応)
+        } else {
+            tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
+            tx.setQuantity(req.getCurrentStock());
+        }
         tx.setOperator(username);
         tx.setRemarks(req.getRemarks());
+        tx.setPurchaseOrder(null);
         tx.setTransactionTime(LocalDateTime.now());
         inventoryTransactionRepository.save(tx);
 
@@ -142,39 +149,52 @@ public class InventoryService {
         StockMaster stock = stockMasterRepository.findByItemCode(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
 
-        // 3. 発注ヘッダーを新規作成 ※発注を飛ばした入庫だが単価や仕入れ先が分かるケースを考慮
-        // 3-1. orderNoを仮保存して id を取得
-        PurchaseOrder order = new PurchaseOrder();
-        order.setOrderNo("new-order");
-        order.setOrderDate(LocalDate.now());
-        order.setShippingFee(req.getShippingFee());
-        order.setOperator(username);
-        order.setSupplier(req.getSupplier());
-        order.setStatus("完了");
-        order.setRemarks(req.getRemarks());
-        order.setOrderSubtotal(BigDecimal.ZERO);
-        purchaseOrderRepository.save(order);
+        // PurchaseOrder オブジェクトを初期化
+        PurchaseOrder order = null; 
 
-        // 3-2. id ベースで oderNo を採番
-        String code = orderNumberGenerator.generateOrderNo(order.getId());
-        order.setOrderNo(code);
+        // リクエスト数量が0ではない場合のみ発注ヘッダーを作成
+        if (req.getQuantity().compareTo(BigDecimal.ZERO) != 0) {
+            // 3. 発注ヘッダーを新規作成
+            PurchaseOrder newOrder = new PurchaseOrder();
+            newOrder.setOrderDate(LocalDate.now());
+            newOrder.setShippingFee(BigDecimal.ZERO);
+            newOrder.setOperator(username);
+            newOrder.setSupplier(req.getSupplier());
+            newOrder.setRemarks(req.getRemarks());
+            newOrder.setOrderSubtotal(BigDecimal.ZERO);
+            purchaseOrderRepository.save(newOrder);
 
-        // 3-2を保存：後続のトランザクション履歴登録で正規のitemCodeを読み取らせるため
-        purchaseOrderRepository.flush();
+            // 3-2. id ベースで oderNo を採番
+            String code = orderNumberGenerator.generateOrderNo(newOrder.getId());
+            newOrder.setOrderNo(code);
+            purchaseOrderRepository.save(newOrder); // 採番されたOrderNoをDBに保存
+            purchaseOrderRepository.flush(); // DBに反映
 
-        // // ---------- 発注明細の登録 ----------
-        PurchaseOrderDetail detail = new PurchaseOrderDetail();
-        detail.setItemCode(stock.getItemCode());
-        detail.setItemName(stock.getItemName());
-        detail.setModelNumber(stock.getModelNumber());
-        detail.setCategory(stock.getCategory());
-        detail.setQuantity(req.getQuantity());
-        detail.setPurchasePrice(req.getPurchasePrice());
-        detail.setReceivedQuantity(req.getQuantity());
-        detail.setStatus("完了");
-        detail.setPurchaseOrder(order);
-        purchaseOrderDetailRepository.save(detail);
+            order = newOrder; // 作成したPurchaseOrderをセット
+        }
 
+        // ---------- 発注明細の登録 ----------
+        // ご提示のコードブロックをここに移動し、数量が0ではない場合のみ実行
+        if (req.getQuantity().compareTo(BigDecimal.ZERO) != 0) {
+            PurchaseOrderDetail detail = new PurchaseOrderDetail();
+            detail.setPurchaseOrder(order); // ここで上記で作成したorderを使用
+            detail.setItemCode(stock.getItemCode());
+            detail.setItemName(stock.getItemName());
+            detail.setModelNumber(stock.getModelNumber());
+            detail.setCategory(stock.getCategory());
+            detail.setQuantity(req.getQuantity());
+            detail.setPurchasePrice(req.getPurchasePrice());
+            detail.setReceivedQuantity(req.getQuantity()); // ここは入庫処理なので ReceivedQuantity にするなら、この場で完全入庫扱い
+            detail.setStatus("完了"); // 数量と同じだけ入庫されるのであれば完了
+            detail.setRemarks(req.getRemarks()); // remarksもOrderDetailに設定するなら
+            purchaseOrderDetailRepository.save(detail);
+
+            // 7. 発注小計を加算 (PurchaseOrderを作成した場合のみ)
+            // ここも購入金額と数量で計算
+            BigDecimal lineTotal = req.getPurchasePrice().multiply(req.getQuantity());
+            order.setOrderSubtotal(order.getOrderSubtotal().add(lineTotal));
+            purchaseOrderRepository.save(order);
+        }
 
         // 5. 入庫トランザクション登録
         InventoryTransaction tx = new InventoryTransaction();
