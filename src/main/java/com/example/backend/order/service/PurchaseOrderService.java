@@ -20,6 +20,8 @@ import com.example.backend.inventory.repository.InventoryTransactionRepository;
 import com.example.backend.order.dto.PurchaseOrderRequest;
 import com.example.backend.order.repository.PurchaseOrderDetailRepository;
 import com.example.backend.order.repository.PurchaseOrderRepository;
+import com.example.backend.common.service.ItemCodeGenerator;
+import com.example.backend.common.service.OrderNumberGenerator;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,25 +35,32 @@ public class PurchaseOrderService {
   private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
   private final StockMasterRepository stockMasterRepository;
   private final InventoryTransactionRepository inventoryTransactionRepository;
+  private final ItemCodeGenerator itemCodeGenerator;
+  private final OrderNumberGenerator orderNumberGenerator;
 
   @Transactional
   public String registerOrder(PurchaseOrderRequest req) {
-    // 1. 発注番号を生成
-    String orderNo = generateNewOrderNo();
+    // 1. 実行者をセット
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
     req.setOperator(username);
     System.out.println(req.getOperator());
 
-    // 2. 発注ヘッダー作成
+    // 2. 発注ヘッダー作成 id取得のため
     PurchaseOrder header = new PurchaseOrder();
-    header.setOrderNo(orderNo);
+    header.setOrderNo("orderNo"); // 一旦仮の値をセット
     header.setSupplier(req.getSupplier());
     header.setShippingFee(req.getShippingFee());
-    header.setOperator(req.getOperator());
+    header.setOperator(username);
     header.setRemarks(req.getRemarks());
     header.setOrderDate(LocalDate.now());
     header.setOrderSubtotal(BigDecimal.ZERO);
     purchaseOrderRepository.save(header);
+
+    // 2--2. id ベースで oderNo を採番
+    String orderNo = orderNumberGenerator.generateOrderNo(header.getId());
+    header.setOrderNo(orderNo);
+    purchaseOrderRepository.save(header); // 採番されたOrderNoをDBに保存
+    purchaseOrderRepository.flush(); // DBに反映
 
     // 3. 明細登録
     BigDecimal total = BigDecimal.ZERO;
@@ -74,12 +83,15 @@ public class PurchaseOrderService {
             .orElseGet(() -> {
               // 該当がなければ新規登録
               StockMaster s = new StockMaster();
-              s.setItemCode(generateItemCode());
               s.setItemName(d.getItemName());
               s.setModelNumber(d.getModelNumber());
               s.setCategory(d.getCategory());
               s.setCurrentStock(BigDecimal.ZERO);
               StockMaster saved = stockMasterRepository.save(s);
+              String code = itemCodeGenerator.generateItemCode(saved.getId());
+              // itemCodeを生成して保存
+              saved.setItemCode(code);
+              stockMasterRepository.flush();
               System.out.println("▶ 新規登録 itemCode: " + saved.getItemCode());
               return saved;
             });
@@ -103,6 +115,7 @@ public class PurchaseOrderService {
       purchaseOrderDetailRepository.save(detail);
 
       total = total.add(d.getQuantity().multiply(d.getPurchasePrice()));
+      System.out.println("total:" + total);
       
       // 4. 入庫トランザクション登録
         InventoryTransaction tx = new InventoryTransaction();
@@ -128,14 +141,5 @@ public class PurchaseOrderService {
     header.setOrderSubtotal(total);
     purchaseOrderRepository.save(header);
     return orderNo;
-  }
-
-  private String generateNewOrderNo() {
-    return "PO" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "-"
-        + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-  }
-
-  private String generateItemCode() {
-    return "I" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
   }
 }

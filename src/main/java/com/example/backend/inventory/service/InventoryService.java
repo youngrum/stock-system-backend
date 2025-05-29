@@ -156,6 +156,7 @@ public class InventoryService {
         if (req.getQuantity().compareTo(BigDecimal.ZERO) != 0) {
             // 3. 発注ヘッダーを新規作成
             PurchaseOrder newOrder = new PurchaseOrder();
+            newOrder.setOrderNo("order-no");
             newOrder.setOrderDate(LocalDate.now());
             newOrder.setShippingFee(BigDecimal.ZERO);
             newOrder.setOperator(username);
@@ -189,11 +190,6 @@ public class InventoryService {
             detail.setRemarks(req.getRemarks()); // remarksもOrderDetailに設定するなら
             purchaseOrderDetailRepository.save(detail);
 
-            // 7. 発注小計を加算 (PurchaseOrderを作成した場合のみ)
-            // ここも購入金額と数量で計算
-            BigDecimal lineTotal = req.getPurchasePrice().multiply(req.getQuantity());
-            order.setOrderSubtotal(order.getOrderSubtotal().add(lineTotal));
-            purchaseOrderRepository.save(order);
         }
 
         // 5. 入庫トランザクション登録
@@ -218,6 +214,17 @@ public class InventoryService {
         BigDecimal lineTotal = req.getPurchasePrice().multiply(req.getQuantity());
         order.setOrderSubtotal(order.getOrderSubtotal().add(lineTotal));
         purchaseOrderRepository.save(order);
+
+        // 8. 全明細が完了か判定してヘッダーに反映
+        boolean allDone = purchaseOrderDetailRepository.findByPurchaseOrder_OrderNo(req.getOrderNo())
+        .stream()
+        .allMatch(d -> "完了".equals(d.getStatus()));
+
+        if (allDone) {
+            order.setStatus("完納");
+            purchaseOrderRepository.save(order);
+            purchaseOrderRepository.flush();
+        }
 
         // 発行されたトランザクションIDを返す
         System.out.println(tx.getTransactionId());
