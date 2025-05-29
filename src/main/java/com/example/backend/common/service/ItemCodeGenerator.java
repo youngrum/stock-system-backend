@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class ItemCodeGenerator {
 
-    private static final String PREFIX = "SG"; // 接頭辞（担当部署ID）
+    private static final String PREFIX = "ITEM"; // 接頭辞（担当部署ID）
     private static final int BASE_TERM = 56; // 期の起点（24/8/1～25/7/30 = 56期）
     private static final int START_YEAR = 2024; // 56期の開始年
     private static final int ZERO_PADDING = 6; // idをゼロ埋めする桁数（例：000001）
@@ -17,12 +17,12 @@ public class ItemCodeGenerator {
      * 登録済みIDから itemCode を発行する
      *
      * @param id サロゲートキー（stock_master.id）
-     * @return itemCode（例: SG-56-）
+     * @return itemCode（例: ITEM-0001）
      */
     public String generateItemCode(Long id) {
-        int term = resolveCurrentTerm();
+        // int term = resolveCurrentTerm();
         String idFormatted = String.format("%0" + ZERO_PADDING + "X", id); // ゼロ埋め（6桁）
-        return String.format("%s%d-%s", PREFIX, term, idFormatted); // SG56-4E7
+        return String.format("%s%d-%s", PREFIX, idFormatted); // SG56-4E7
     }
 
     /**
