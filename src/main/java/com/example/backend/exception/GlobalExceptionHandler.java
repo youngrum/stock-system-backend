@@ -107,6 +107,7 @@ public class GlobalExceptionHandler {
   // IllegalArgumentException (InventoryServiceで使用)
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+    ex.printStackTrace(); // 開発中はログ出力推奨
       Map<String, Object> body = new HashMap<>();
       body.put("status", HttpStatus.BAD_REQUEST.value());
       body.put("message", ex.getMessage());

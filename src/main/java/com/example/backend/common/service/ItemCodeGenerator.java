@@ -22,7 +22,7 @@ public class ItemCodeGenerator {
     public String generateItemCode(Long id) {
         // int term = resolveCurrentTerm();
         String idFormatted = String.format("%0" + ZERO_PADDING + "X", id); // ゼロ埋め（6桁）
-        return String.format("%s%d-%s", PREFIX, idFormatted); // SG56-4E7
+        return String.format("%s-%s", PREFIX, idFormatted); // ITEM-4E7
     }
 
     /**

@@ -92,10 +92,11 @@ public class InventoryService {
     // 新規在庫登録
     @Transactional
     public StockMaster createStock(StockMasterRequest req) {
-        
+        System.out.println("Creating stock with request: " + req);
         // 1. 在庫を登録
         // 1-1. 仮保存して id を取得
         StockMaster stock = new StockMaster();
+        stock.setItemCode("itemCode-null"); // 仮の itemCode
         stock.setItemName(req.getItemName());
         stock.setCategory(req.getCategory());
         stock.setModelNumber(req.getModelNumber());
@@ -103,6 +104,7 @@ public class InventoryService {
         stock.setCurrentStock(req.getCurrentStock());
 
         stock = stockMasterRepository.save(stock);
+        System.out.println(stock);
 
         // 1-2. id ベースで itemCode を採番
         String code = itemCodeGenerator.generateItemCode(stock.getId());
