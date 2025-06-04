@@ -41,7 +41,7 @@ CREATE TABLE purchase_order (
   order_date DATE NOT NULL,
   shipping_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
   operator VARCHAR(64) NOT NULL,
-  status VARCHAR(32) NOT NULL DEFAULT '未完納',
+  status VARCHAR(32) NOT NULL DEFAULT '未完了',
   remarks VARCHAR(255),
   created_at DATE DEFAULT CURRENT_DATE
 );

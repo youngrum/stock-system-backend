@@ -223,7 +223,7 @@ public class InventoryService {
         .allMatch(d -> "完了".equals(d.getStatus()));
 
         if (allDone) {
-            order.setStatus("完納");
+            order.setStatus("完了");
             purchaseOrderRepository.save(order);
             purchaseOrderRepository.flush();
         }

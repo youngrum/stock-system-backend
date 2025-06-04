@@ -59,7 +59,7 @@ erDiagram
         date order_date "NOT NULL"
         decimal(10,2) shipping_fee "NOT NULL, DEFAULT 0"
         varchar(64) operator "NOT NULL"
-        varchar(32) status "NOT NULL, DEFAULT '未完納'"
+        varchar(32) status "NOT NULL, DEFAULT '未完了'"
         varchar(255) remarks
         date created_at "DEFAULT CURRENT_DATE"
     }

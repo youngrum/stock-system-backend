@@ -37,7 +37,7 @@ public class PurchaseOrder {
   private String operator;
 
   @Column(name = "status", nullable = false)
-  private String status = "未完納";
+  private String status = "未完了";
 
   @Column(name = "remarks", length = 255)
   private String remarks;
