@@ -14,12 +14,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import java.time.LocalDate;
 
 import java.util.Map;
 
@@ -124,18 +126,24 @@ public class InventoryController {
             "data", created));
   }
 
-  @Operation(summary = "全トランザクション履歴の取得（ページング対応）")
+  @Operation(summary = "全トランザクション履歴の取得（ページング対応・検索機能付き）")
   @GetMapping("/transactions")
   public ResponseEntity<?> getAllTransactions(
+      @Parameter(description = "在庫ID") @RequestParam(required = false) String itemCode,
+      @Parameter(description = "操作者") @RequestParam(required = false) String operator,
+      @Parameter(description = "開始日") @RequestParam(required = false) 
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+      @Parameter(description = "終了日") @RequestParam(required = false) 
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
       @PageableDefault(sort = "transactionTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
-    Page<InventoryTransaction> allTransactions = inventoryService.getAllTransactionHistory(pageable);
+      Page<InventoryTransaction> allTransactions = inventoryService.getAllTransactionHistory(
+          itemCode, operator, fromDate, toDate, pageable);
 
-    return ResponseEntity.ok(
-        Map.of(
-            "status", 200,
-            "message", "All inventory transactions fetched successfully.",
-            "data", allTransactions));
+      return ResponseEntity.ok(
+          Map.of(
+              "status", 200,
+              "message", "All inventory transactions fetched successfully.",
+              "data", allTransactions));
   }
-
 }
