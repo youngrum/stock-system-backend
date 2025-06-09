@@ -39,7 +39,22 @@ public class SecurityConfig {
                 "/v3/api-docs/**",
                 "/swagger-ui/**", 
                 "/swagger-ui.html",
-                "/h2-console/**"
+                "/h2-console/**",
+                // Next.jsの静的ファイルがSpring Bootのstaticフォルダ以下にコピーされるため
+                // publicフォルダの内容 (例: favicon.ico, imagesなど)
+                "/*.html", // ルートのindex.htmlなど
+                "/*.js", // ルートのJSファイルなど
+                "/*.css", // ルートのCSSファイルなど
+                "/*.ico", // favicon.icoなど
+                "/*.png", // ルート直下の画像など
+                "/*.jpg",
+                "/*.gif",
+                "/*.svg",
+                // Next.jsのビルド成果物（_next/static/ 配下のJS, CSS, マップファイルなど）
+                // これらのパスはWebConfigでstatic/_next/static/ にマッピングされているはずです
+                "/_next/static/**", // Next.jsのJS/CSS/アセットファイル
+                // トップページ（ルートパス）も許可
+                "/" // ルートパス（index.htmlにフォワードされるため）
             ).permitAll()
             .anyRequest().authenticated()
         ).headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // H2 Console表示許可（ブラウザのX-Frame制御）
