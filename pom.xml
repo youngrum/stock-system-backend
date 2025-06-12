@@ -98,6 +98,19 @@
 			<artifactId>lombok</artifactId> <!-- 最新版（問題ない） -->
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+		<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-aspects</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>3.3.0</version>
+		</dependency>
 
 	</dependencies>
 
@@ -106,6 +119,10 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<executable>true</executable>
+					<mainClass>com.example.backend.BackendApplication</mainClass>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
