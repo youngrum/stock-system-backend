@@ -1,10 +1,12 @@
-// 発注ヘッダーの登録リクエスト
 package com.example.backend.order.dto;
 
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * 発注登録のためのリクエストDTO 
+ */
 @Data
 public class PurchaseOrderRequest {
   private String supplier;

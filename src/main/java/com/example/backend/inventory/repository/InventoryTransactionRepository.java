@@ -1,7 +1,6 @@
 package com.example.backend.inventory.repository;
 
 import com.example.backend.entity.InventoryTransaction;
-import com.example.backend.entity.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
@@ -20,7 +19,7 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
   List<InventoryTransaction> findByPurchaseOrder_OrderNo(String orderNo);
 
   // 入庫のみ抽出
-  List<InventoryTransaction> findByTransactionType(TransactionType type);
+  List<InventoryTransaction> findByTransactionType(InventoryTransaction.TransactionType type);
 
   // ページング機能
   Page<InventoryTransaction> findByStockItem_ItemCodeOrderByTransactionTimeDesc(String itemCode, Pageable pageable);

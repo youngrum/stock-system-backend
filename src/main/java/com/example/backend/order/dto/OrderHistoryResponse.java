@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 
 @Data
 @Builder
+/**
+ *  発注履歴のレスポンスDTO
+ */
 public class OrderHistoryResponse {
     private String orderNo;
     private String supplier;

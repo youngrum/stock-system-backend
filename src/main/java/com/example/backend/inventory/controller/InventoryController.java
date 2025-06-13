@@ -1,14 +1,11 @@
 package com.example.backend.inventory.controller;
 
 import com.example.backend.entity.StockMaster;
+import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.inventory.dto.InventoryDispatchRequest;
 import com.example.backend.inventory.dto.InventoryReceiveRequest;
 import com.example.backend.inventory.dto.StockMasterRequest;
 import com.example.backend.inventory.service.InventoryService;
-import com.example.backend.order.dto.InventoryReceiveFromOrderRequest;
-import com.example.backend.order.dto.PurchaseOrderRequest;
-import com.example.backend.order.service.PurchaseOrderService;
-import com.example.backend.entity.InventoryTransaction;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,12 +28,10 @@ import java.util.Map;
 public class InventoryController {
 
   private final InventoryService inventoryService;
-  private final PurchaseOrderService purchaseOrderService;
 
   @Autowired
-  public InventoryController(InventoryService inventoryService, PurchaseOrderService purchaseOrderService) {
-    this.inventoryService = inventoryService;
-    this.purchaseOrderService = purchaseOrderService;
+  public InventoryController(InventoryService inventoryService) {
+      this.inventoryService = inventoryService;
   }
 
   @Operation(summary = "在庫検索 全件取得時は ID, 品名, カテゴリー, 型番を空にする")
@@ -112,7 +107,7 @@ public class InventoryController {
             "data", historyPage));
   }
 
-  @Operation(summary = "新規在庫登録(ID未採番用)")
+  @Operation(summary = "新規在庫ID発行・登録")
   @PostMapping("/inventory/new")
   public ResponseEntity<?> createStock(@RequestBody StockMasterRequest req) {
       StockMaster created = inventoryService.createStock(req);

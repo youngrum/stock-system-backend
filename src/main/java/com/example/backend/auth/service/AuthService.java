@@ -37,15 +37,15 @@ public class AuthService {
         String dbPassword = user.getPassword();
         
         // デバッグログ（本番では削除）
-        System.out.println("Input password: [{}]"+ password);
-        System.out.println("DB password: [{}]"+ dbPassword);
-        System.out.println("Input password length: {}"+ password != null ? password.length() : "null");
-        System.out.println("DB password length: {}"+ dbPassword != null ? dbPassword.length() : "null");
-        System.out.println("Password equals: {}"+ password != null && password.equals(dbPassword));
+        System.out.println("Input password:"+ password);
+        System.out.println("DB password:"+ dbPassword);
+        System.out.println("Input password length:"+ password != null ? password.length() : "null");
+        System.out.println("DB password length:"+ dbPassword != null ? dbPassword.length() : "null");
+        System.out.println("Password equals:"+ password != null && password.equals(dbPassword));
 
         // パスワード照合（平文で比較。あとでハッシュ比較に変更予定）
         if (!password.equals(dbPassword)) {
-            System.out.println("Password mismatch for user: [{}]"+ username);
+            System.out.println("Password mismatch for user:"+ username);
             throw new AuthenticationException("Invalid username or password.");
         }
 

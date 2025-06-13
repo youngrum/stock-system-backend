@@ -5,6 +5,10 @@ import java.math.BigDecimal;
 import lombok.Data;
 
 @Data
+/**
+ *  在庫マスタ登録用リクエストDTO
+ *  在庫マスタの登録や更新に使用するリクエスト
+ */
 public class StockMasterRequest {
 
   private String itemCode; // 商品コード

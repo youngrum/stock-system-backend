@@ -63,6 +63,6 @@ public class OrderController {
     return ResponseEntity.ok(
         Map.of(
             "status", 200,
-            "message", "入庫処理が完了しました"));
+            "message", "発注登録商品の入庫処理が完了しました"));
   }
 }
