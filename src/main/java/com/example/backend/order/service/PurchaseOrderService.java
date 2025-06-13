@@ -13,7 +13,6 @@ import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.entity.InventoryTransaction;
-import com.example.backend.entity.TransactionType;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.inventory.repository.StockMasterRepository;
 import com.example.backend.inventory.repository.InventoryTransactionRepository;
@@ -120,7 +119,7 @@ public class PurchaseOrderService {
       // 4. 入庫トランザクション登録
         InventoryTransaction tx = new InventoryTransaction();
         tx.setStockItem(stock);
-        tx.setTransactionType(TransactionType.ORDER_REGIST);
+        tx.setTransactionType(InventoryTransaction.TransactionType.ORDER_REGIST);
         tx.setQuantity(detail.getQuantity());
         tx.setOperator(username);
         tx.setTransactionTime(LocalDateTime.now());

@@ -1,3 +1,4 @@
+// InventoryTransaction.java
 package com.example.backend.entity;
 
 import jakarta.persistence.*;
@@ -5,6 +6,11 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import com.example.backend.inventory.dto.InventoryDispatchRequest;
+import com.example.backend.inventory.dto.InventoryReceiveRequest;
+import com.example.backend.inventory.dto.StockMasterRequest;
+import com.example.backend.order.dto.InventoryReceiveFromOrderRequest;
 
 @Entity
 @Table(name = "inventory_transaction")
@@ -50,4 +56,111 @@ public class InventoryTransaction {
 
   @Column(name = "remarks", length = 255)
   private String remarks;
+
+  // ===== ファクトリメソッド =====
+    
+  /**
+   * 新規在庫登録
+   */
+  public static InventoryTransaction createReceiveTransaction(StockMaster stockItem, StockMasterRequest req, String username) {
+      // 登録した数量によってトランザクションタイプを分岐
+        InventoryTransaction tx = new InventoryTransaction();
+        tx.setStockItem(stockItem);
+        // 登録した数量によってトランザクションタイプを分岐
+        if (req.getCurrentStock().compareTo(BigDecimal.ZERO) == 0) {
+            tx.setTransactionType(InventoryTransaction.TransactionType.ITEM_REGIST);
+            tx.setQuantity(BigDecimal.ZERO); // 明示的に0を設定 (一応)
+        } else {
+            tx.setTransactionType(InventoryTransaction.TransactionType.MANUAL_RECEIVE);
+            tx.setQuantity(req.getCurrentStock());
+        }
+        tx.setOperator(username);
+        tx.setRemarks(req.getRemarks());
+        tx.setPurchaseOrder(null);
+        tx.setTransactionTime(LocalDateTime.now());
+      return tx;
+  }
+
+  /**
+   * @param stock 在庫マスタ
+   * @param order 発注情報
+   * @param req 入庫リクエスト情報
+   * @param operator オペレーター名
+   * @return 入庫処理 (モーダルからの手動入庫)
+   */
+  public static InventoryTransaction createTransactionForManualReceive(
+    StockMaster stock, PurchaseOrder order, InventoryReceiveRequest req, String operator) {
+    
+    InventoryTransaction tx = new InventoryTransaction();
+    tx.setStockItem(stock);
+    tx.setPurchaseOrder(order);
+    tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
+    tx.setQuantity(req.getQuantity());
+    tx.setOperator(operator);
+    tx.setTransactionTime(LocalDateTime.now());
+    tx.setManufacturer(req.getManufacturer());
+    tx.setSupplier(req.getSupplier());
+    tx.setPurchasePrice(req.getPurchasePrice());
+    tx.setRemarks(req.getRemarks());
+    return tx;
+  }
+
+  /**
+   * 出庫トランザクションを生成
+   * @param stockItem 在庫マスタ
+   * @param req 出庫リクエスト情報
+   * @param username オペレーター名
+   * @return 入庫処理 (モーダルからの手動入庫)
+   */
+  public static InventoryTransaction createTransactionforDispatch(StockMaster stockItem, 
+                                                        InventoryDispatchRequest req, String username) {
+      // 出庫トランザクション登録
+      InventoryTransaction tx = new InventoryTransaction();
+      tx.setStockItem(stockItem);
+      tx.setTransactionType(InventoryTransaction.TransactionType.MANUAL_DISPATCH);
+      tx.setQuantity(req.getQuantity());
+      tx.setRemarks(req.getRemarks());
+      tx.setOperator(username);
+      tx.setTransactionTime(LocalDateTime.now());
+      return tx;
+  }
+
+  /**
+   * 発注物の納品による入庫トランザクションを生成
+   * @param stock 在庫マスタ
+   * @param item 個々の発注商品
+   * @param order 発注情報
+   * @param req リクエスト情報
+   * @param purchasePrice 購入価格 サービス層でDB から単価を取得
+   * @param operator オペレーター名
+   * @return 入庫トランザクション
+   */
+  public static InventoryTransaction createTransactionForPurchaseReceive(
+    StockMaster stock, 
+    InventoryReceiveFromOrderRequest.Item item, 
+    PurchaseOrder order, 
+    InventoryReceiveFromOrderRequest req, 
+    BigDecimal purchasePrice, 
+    String operator ) {
+      
+      InventoryTransaction tx = new InventoryTransaction();
+      tx.setPurchaseOrder(order);
+      tx.setStockItem(stock);
+      tx.setQuantity(item.getReceivedQuantity());
+      tx.setPurchasePrice(purchasePrice);
+      tx.setTransactionType(TransactionType.PURCHASE_RECEIVE);
+      tx.setOperator(operator);
+      tx.setTransactionTime(LocalDateTime.now());
+      tx.setRemarks(item.getRemarks());
+      return tx;
+  }
+ 
+  public enum TransactionType {
+    MANUAL_RECEIVE,     // 手動入庫(inventory/newで新規登録の数量1以上を登録・invenventory/で入庫登録)
+    PURCHASE_RECEIVE,   // 発注物の納品による入庫
+    ITEM_REGIST,        // inventory/newで新規在庫登録フォームからの登録
+    ORDER_REGIST,       // 発注ヘッダーの登録 ※在庫変動なし
+    MANUAL_DISPATCH,    // 通常出庫（出荷・廃棄含む）
+    RETURN_DISPATCH     // 返品・キャンセルによる出庫 ※未実装
+  }
 }

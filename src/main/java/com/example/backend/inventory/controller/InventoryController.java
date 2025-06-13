@@ -112,7 +112,7 @@ public class InventoryController {
             "data", historyPage));
   }
 
-  @Operation(summary = "新規在庫登録(ID未採番用)")
+  @Operation(summary = "新規在庫ID発行・登録")
   @PostMapping("/inventory/new")
   public ResponseEntity<?> createStock(@RequestBody StockMasterRequest req) {
       StockMaster created = inventoryService.createStock(req);

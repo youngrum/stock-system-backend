@@ -4,7 +4,6 @@ import com.example.backend.common.service.ItemCodeGenerator;
 import com.example.backend.common.service.OrderNumberGenerator;
 import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.entity.StockMaster;
-import com.example.backend.entity.TransactionType;
 import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.exception.ResourceNotFoundException;
@@ -20,17 +19,13 @@ import com.example.backend.order.repository.PurchaseOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import jakarta.validation.ValidationException;
 
 @Service
@@ -45,7 +40,6 @@ public class InventoryService {
 
     private static final int DEFAULT_DAYS_BACK = 30; // toDateのみ指定時のデフォルト期間
     private static final int MAX_SEARCH_DAYS = 365;   // 最大検索可能期間（パフォーマンス対策）
-
 
     @Autowired
     public InventoryService(StockMasterRepository stockMasterRepository,
@@ -94,60 +88,27 @@ public class InventoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + itemCode));
     }
 
-    // 新規在庫登録
+    // 新規在庫ID発行・登録
     @Transactional
     public StockMaster createStock(StockMasterRequest req) {
         System.out.println("Creating stock with request: " + req);
-        // 1. 在庫を登録
-        // 1-1. 仮保存して id を取得
-        StockMaster stock = new StockMaster();
-        stock.setItemCode("itemCode-null"); // 仮の itemCode
-        stock.setItemName(req.getItemName());
-        stock.setCategory(req.getCategory());
-        stock.setModelNumber(req.getModelNumber());
-        stock.setManufacturer(req.getManufacturer());
-        stock.setCurrentStock(req.getCurrentStock());
-
-        stock = stockMasterRepository.save(stock);
-        System.out.println(stock);
-
-        // 1-2. id ベースで itemCode を採番
-        String code = itemCodeGenerator.generateItemCode(stock.getId());
-        stock.setItemCode(code);
-
-        // 1-3. 再保存（itemCodeを含めて）
-        stock = stockMasterRepository.save(stock);
-        // 在庫マスタに保存した内容を DB に反映させる（FLUSH）
-        // 後続のトランザクション履歴登録で正規のitemCodeを読み取らせるため
-        stockMasterRepository.flush();
+        // 1. 在庫レコードを作成
+        StockMaster stock = StockMaster.createStock(req, stockMasterRepository, itemCodeGenerator);
 
         // 2. ログインユーザー名を取得
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // 3. トランザクション履歴登録
-        InventoryTransaction tx = new InventoryTransaction();
-        tx.setStockItem(stock);
-        // 登録した数量によってトランザクションタイプを分岐
-        if (req.getCurrentStock().compareTo(BigDecimal.ZERO) == 0) {
-            tx.setTransactionType(TransactionType.ITEM_REGIST);
-            tx.setQuantity(BigDecimal.ZERO); // 明示的に0を設定 (一応)
-        } else {
-            tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
-            tx.setQuantity(req.getCurrentStock());
-        }
-        tx.setOperator(username);
-        tx.setRemarks(req.getRemarks());
-        tx.setPurchaseOrder(null);
-        tx.setTransactionTime(LocalDateTime.now());
-        inventoryTransactionRepository.save(tx);
-
+        InventoryTransaction transaction = InventoryTransaction.createReceiveTransaction(stock, req, username);
+        inventoryTransactionRepository.save(transaction);
+        System.out.println("Transaction saved with ID: " + transaction.getTransactionId());
         return stock;
     }
 
-    // 入庫処理
+    // 入庫処理 (モーダルからの手動入庫)
     @Transactional
     public Long receiveInventory(InventoryReceiveRequest req) {
-        System.out.println(req);
+        System.out.println("Receiving inventory with request: " + req);
         // 1. ログインユーザー名を取得
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
@@ -193,25 +154,16 @@ public class InventoryService {
             detail.setQuantity(req.getQuantity());
             detail.setPurchasePrice(req.getPurchasePrice());
             detail.setReceivedQuantity(req.getQuantity()); // ここは入庫処理なので ReceivedQuantity にするなら、この場で完全入庫扱い
-            detail.setStatus("完了"); // 数量と同じだけ入庫されるのであれば完了
+            detail.setStatus("完了"); // 入庫処理なのでステータスは「完了」
             detail.setRemarks(req.getRemarks()); // remarksもOrderDetailに設定するなら
             purchaseOrderDetailRepository.save(detail);
 
         }
 
         // 5. 入庫トランザクション登録
-        InventoryTransaction tx = new InventoryTransaction();
-        tx.setStockItem(stock);
-        tx.setPurchaseOrder(order);
-        tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
-        tx.setQuantity(req.getQuantity());
-        tx.setOperator(username);
-        tx.setTransactionTime(LocalDateTime.now());
-        tx.setManufacturer(req.getManufacturer());
-        tx.setSupplier(req.getSupplier());
-        tx.setPurchasePrice(req.getPurchasePrice());
-        tx.setRemarks(req.getRemarks());
-        inventoryTransactionRepository.save(tx);
+        InventoryTransaction transaction = InventoryTransaction.createTransactionForManualReceive(stock, order, req, username);
+        inventoryTransactionRepository.save(transaction);
+        System.out.println("Transaction saved with ID: " + transaction.getTransactionId());
 
         // 6. 在庫数を更新
         stock.setCurrentStock(stock.getCurrentStock().add(req.getQuantity()));
@@ -234,14 +186,13 @@ public class InventoryService {
         }
 
         // 発行されたトランザクションIDを返す
-        System.out.println(tx.getTransactionId());
-        return tx.getTransactionId();
+        System.out.println(transaction.getTransactionId());
+        return transaction.getTransactionId();
     }
 
-    // シンプルな出庫処理
+    // 出庫処理
     public Long dispatchInventory(InventoryDispatchRequest req) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        req.setOperator(username);
 
         StockMaster stock = stockMasterRepository.findByItemCode(req.getItemCode())
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
@@ -250,20 +201,15 @@ public class InventoryService {
             throw new RuntimeException("在庫が不足しています");
         }
 
-        // 出庫トランザクション登録
-        InventoryTransaction tx = new InventoryTransaction();
-        tx.setStockItem(stock);
-        tx.setTransactionType(TransactionType.MANUAL_DISPATCH);
-        tx.setQuantity(req.getQuantity());
-        tx.setRemarks(req.getRemarks());
-        tx.setOperator(username);
-        tx.setTransactionTime(LocalDateTime.now());
-        inventoryTransactionRepository.save(tx);
+        // 3. トランザクション履歴登録
+        InventoryTransaction transaction = InventoryTransaction.createTransactionforDispatch(stock, req, username);
+        inventoryTransactionRepository.save(transaction);
 
+        // 4. 在庫数を更新
         stock.setCurrentStock(stock.getCurrentStock().subtract(req.getQuantity()));
         stockMasterRepository.save(stock);
 
-        return tx.getTransactionId();
+        return transaction.getTransactionId();
     }
 
     // 在庫ID指定で在庫履歴取得
@@ -434,16 +380,8 @@ public class InventoryService {
             purchaseOrderDetailRepository.save(detail);
 
             // トランザクション登録
-            InventoryTransaction tx = new InventoryTransaction();
-            tx.setPurchaseOrder(order);
-            tx.setOperator(req.getOperator());
-            tx.setStockItem(stock);
-            tx.setQuantity(item.getReceivedQuantity());
-            tx.setPurchasePrice(purchasePrice);
-            tx.setTransactionType(TransactionType.PURCHASE_RECEIVE);
-            tx.setOperator(req.getOperator());
-            tx.setTransactionTime(LocalDateTime.now());
-            tx.setRemarks(item.getRemarks());
+            InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseReceive(
+                    stock, item, order, req, purchasePrice, username);
             inventoryTransactionRepository.save(tx);
         }
 
