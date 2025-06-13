@@ -34,6 +34,19 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // セッション使わない
             .authorizeHttpRequests(auth -> auth
             .requestMatchers(
+                "/", 
+                "/login", 
+                "inventory", 
+                "inventory/**", 
+                "order", 
+                "order/**", 
+                "/404.html", 
+                "/favicon.ico", 
+                "/*.html", 
+                "/*.txt", 
+                "/*.svg", 
+                "/*.png", 
+                "/_next/**", 
                 "/v1/api/login", 
                 "/v1/api/logout",
                 "/v3/api-docs/**",
@@ -42,7 +55,7 @@ public class SecurityConfig {
                 "/h2-console/**"
             ).permitAll()
             .anyRequest().authenticated()
-        ).headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // H2 Console表示許可（ブラウザのX-Frame制御）
+        ).headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin())) // H2 Console表示許可（ブラウザのX-Frame制御）
         .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class) // JWTフィルターを追加
         .build();
     }
