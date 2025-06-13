@@ -6,6 +6,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
+/**
+ * * 入庫登録リクエストDTO
+*/
 public class InventoryReceiveRequest {
 
   private String orderNo; // 発注番号（必須）

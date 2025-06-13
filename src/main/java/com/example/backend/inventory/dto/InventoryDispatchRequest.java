@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 
 
 @Data
+/**
+ * 出庫登録リクエストDTO
+ */
 public class InventoryDispatchRequest {
 
   private String itemCode; // 商品コード（必須）

@@ -5,6 +5,9 @@ import java.util.List;
 import java.math.BigDecimal;
 
 @Data
+/**
+ * * 発注登録に行う入庫登録リクエスト
+ */
 public class InventoryReceiveFromOrderRequest {
   private String orderNo;
   private String operator;
