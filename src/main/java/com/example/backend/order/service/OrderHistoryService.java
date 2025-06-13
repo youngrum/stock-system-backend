@@ -4,7 +4,6 @@ import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.order.dto.OrderHistoryResponse;
-import com.example.backend.order.repository.OrderHistoryRepository;
 import com.example.backend.order.repository.PurchaseOrderDetailRepository;
 import com.example.backend.order.repository.PurchaseOrderRepository;
 
@@ -18,10 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +26,16 @@ public class OrderHistoryService {
     private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
 
+    /**
+     * 発注履歴を取得する
+     *
+     * @param orderNo  発注番号（nullの場合は全件取得）
+     * @param page     ページ番号（nullの場合は指定なし）
+     * @param size     ページサイズ（nullの場合は指定なし）
+     * @param fromDate 開始日付（nullの場合は指定なし）
+     * @param toDate   終了日付（nullの場合は指定なし）
+     * @return 発注履歴のページ
+     */
     public Page<OrderHistoryResponse> getOrderHistory(String orderNo, int page, int size, LocalDate fromDate,
             LocalDate toDate) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());

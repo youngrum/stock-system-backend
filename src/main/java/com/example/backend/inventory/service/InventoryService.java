@@ -55,40 +55,12 @@ public class InventoryService {
         this.itemCodeGenerator = itemCodeGenerator;
         this.orderNumberGenerator = orderNumberGenerator;
     }
-
-    // パラメーター付在庫検索
-    public Page<StockMaster> searchStock(String itemCode, String itemName, String category, String modelNumber,
-            Pageable pageable) {
-
-        // 空の場合は空文字に変換（部分一致検索に対応）
-        String itemCodeKeyword = (itemCode != null) ? itemCode : "";
-        String itemNameKeyword = (itemName != null) ? itemName : "";
-        String categoryKeyword = (category != null) ? category : "";
-        String modelNumberKeyword = (modelNumber != null) ? modelNumber : "";
-
-        System.out.printf(
-                "🔍 検索条件: itemCodeKeyword='%s', itemNameKeyword='%s', categoryKeyword='%s', modelNumberKeyword='%s'%n",
-                itemCodeKeyword, itemNameKeyword, categoryKeyword, modelNumberKeyword);
-
-        if (!isBlank(itemCode)) {
-            System.out.printf("!isBlank(itemCode)");
-            // itemCode は一意なので他の条件を無視してよい
-            return stockMasterRepository.findByItemCodeContaining(itemCode, pageable);
-        }
-        // itemCode が空の場合、他の条件で検索
-        return stockMasterRepository
-                .findByItemCodeContainingAndItemNameContainingAndCategoryContainingAndModelNumberContaining(
-                        itemCodeKeyword, itemNameKeyword,
-                        categoryKeyword, modelNumberKeyword, pageable);
-    }
-
-    // 単一在庫取得
-    public StockMaster getStockByItemCode(String itemCode) {
-        return stockMasterRepository.findByItemCode(itemCode)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + itemCode));
-    }
-
-    // 新規在庫ID発行・登録
+    /**
+     * 新規在庫ID発行・登録
+     *
+     * @param req 在庫登録リクエスト
+     * @return 登録された在庫マスタエンティティ
+     */
     @Transactional
     public StockMaster createStock(StockMasterRequest req) {
         System.out.println("Creating stock with request: " + req);
@@ -105,7 +77,12 @@ public class InventoryService {
         return stock;
     }
 
-    // 入庫処理 (モーダルからの手動入庫)
+    /**
+     * 入庫処理 (モーダルからの手動入庫)
+     *
+     * @param req 在庫登録リクエスト
+     * @return 登録された在庫マスタエンティティ
+     */   
     @Transactional
     public Long receiveInventory(InventoryReceiveRequest req) {
         System.out.println("Receiving inventory with request: " + req);
@@ -190,7 +167,12 @@ public class InventoryService {
         return transaction.getTransactionId();
     }
 
-    // 出庫処理
+    /**
+     * 在庫出庫処理 (モーダルからの手動入庫)
+     * @param req
+     * @return
+     */
+    @Transactional
     public Long dispatchInventory(InventoryDispatchRequest req) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -212,12 +194,158 @@ public class InventoryService {
         return transaction.getTransactionId();
     }
 
-    // 在庫ID指定で在庫履歴取得
+
+    /**
+     * 発注商品の納品処理
+     * @param req
+     * @return
+     */
+    @Transactional
+    public void receiveFromOrder(InventoryReceiveFromOrderRequest req) {
+        String orderNo = req.getOrderNo();
+        System.out.println(orderNo);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        req.setOperator(username);
+
+        PurchaseOrder order = purchaseOrderRepository.findByOrderNo(req.getOrderNo())
+                .orElseThrow(() -> new ResourceNotFoundException("対象の発注番号が見つかりません"));
+
+        for (InventoryReceiveFromOrderRequest.Item item : req.getItems()) {
+            String itemCode = item.getItemCode();
+
+            // 🔽 ここで DB から単価を取得
+            BigDecimal purchasePrice = purchaseOrderDetailRepository
+                    .findByPurchaseOrder_OrderNoAndItemCode(orderNo, itemCode)
+                    .map(PurchaseOrderDetail::getPurchasePrice)
+                    .orElse(BigDecimal.ZERO); // fallback（または例外投げる）
+
+            // 発注明細を取得
+            PurchaseOrderDetail detail = purchaseOrderDetailRepository
+                    .findByPurchaseOrder_OrderNoAndItemCode(req.getOrderNo(), itemCode)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "発注明細が見つかりません（orderNo: " + req.getOrderNo() + ", itemCode: " + itemCode + "）"));
+
+            // ▼ ここで受け入れ済み数量チェックを追加
+            BigDecimal receivedSoFar = detail.getReceivedQuantity() != null ? detail.getReceivedQuantity()
+                    : BigDecimal.ZERO;
+            BigDecimal orderQuantity = detail.getQuantity();
+            BigDecimal receivingNow = item.getReceivedQuantity();
+
+            if (receivedSoFar.compareTo(orderQuantity) >= 0) {
+                throw new ValidationException("すでに全数が入庫済みのため、これ以上受け入れできません（itemCode: " + itemCode + "）");
+            }
+
+            if (receivedSoFar.add(receivingNow).compareTo(orderQuantity) > 0) {
+                throw new ValidationException("受け入れ数が発注数を超えています（itemCode: " + itemCode + "）");
+            }
+
+            // 在庫マスタを取得
+            StockMaster stock = stockMasterRepository.findByItemCode(itemCode)
+                    .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
+
+            // 入庫数チェック
+            BigDecimal totalReceived = detail.getReceivedQuantity().add(item.getReceivedQuantity());
+
+            if (totalReceived.compareTo(detail.getQuantity()) > 0) {
+                throw new IllegalArgumentException("受領数が発注数を超えています: " + itemCode);
+            }
+
+            // 在庫数更新
+            stock.setCurrentStock(stock.getCurrentStock().add(item.getReceivedQuantity()));
+            stockMasterRepository.save(stock);
+
+            // 明細更新
+            detail.setReceivedQuantity(totalReceived);
+            // .compareTo() は 0 を返すと「等しい」、正なら「大きい」、負なら「小さい」。
+            if (totalReceived.compareTo(detail.getQuantity()) >= 0) {
+                detail.setStatus("完了");
+            } else if (totalReceived.compareTo(BigDecimal.ZERO) > 0) {
+                detail.setStatus("一部入庫");
+            } else {
+                detail.setStatus("未入庫");
+            }
+            purchaseOrderDetailRepository.save(detail);
+
+            // トランザクション登録
+            InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseReceive(
+                    stock, item, order, req, purchasePrice, username);
+            inventoryTransactionRepository.save(tx);
+        }
+
+        // 全明細が完了か判定してヘッダーに反映
+        boolean allDone = purchaseOrderDetailRepository.findByPurchaseOrder_OrderNo(req.getOrderNo())
+                .stream()
+                .allMatch(d -> "完了".equals(d.getStatus()));
+
+        if (allDone) {
+            order.setStatus("完了");
+            purchaseOrderRepository.save(order);
+        }
+    }
+
+    /**
+     * パラメーター付在庫検索
+     * @param itemCode
+     * @param itemName
+     * @param category
+     * @param modelNumber
+     * @param pageable
+     * @return
+     */
+    public Page<StockMaster> searchStock(String itemCode, String itemName, String category, String modelNumber,
+            Pageable pageable) {
+
+        // 空の場合は空文字に変換（部分一致検索に対応）
+        String itemCodeKeyword = (itemCode != null) ? itemCode : "";
+        String itemNameKeyword = (itemName != null) ? itemName : "";
+        String categoryKeyword = (category != null) ? category : "";
+        String modelNumberKeyword = (modelNumber != null) ? modelNumber : "";
+
+        System.out.printf(
+                "🔍 検索条件: itemCodeKeyword='%s', itemNameKeyword='%s', categoryKeyword='%s', modelNumberKeyword='%s'%n",
+                itemCodeKeyword, itemNameKeyword, categoryKeyword, modelNumberKeyword);
+
+        if (!isBlank(itemCode)) {
+            System.out.printf("!isBlank(itemCode)");
+            // itemCode は一意なので他の条件を無視してよい
+            return stockMasterRepository.findByItemCodeContaining(itemCode, pageable);
+        }
+        // itemCode が空の場合、他の条件で検索
+        return stockMasterRepository
+                .findByItemCodeContainingAndItemNameContainingAndCategoryContainingAndModelNumberContaining(
+                        itemCodeKeyword, itemNameKeyword,
+                        categoryKeyword, modelNumberKeyword, pageable);
+    }
+
+    /**
+     * 在庫ID指定で在庫情報取得
+     * @param itemCode
+     * @return
+     */
+    public StockMaster getStockByItemCode(String itemCode) {
+        return stockMasterRepository.findByItemCode(itemCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + itemCode));
+    }
+
+    /**
+     * 在庫ID指定で在庫の処理履歴取得
+     * @param itemCode
+     * @param pageable
+     * @return
+     */
     public Page<InventoryTransaction> getTransactionHistory(String itemCode, Pageable pageable) {
         return inventoryTransactionRepository.findByStockItem_ItemCodeOrderByTransactionTimeDesc(itemCode, pageable);
     }
 
-    // 全取引履歴閲覧（検索機能付き）
+    /**
+     * 全取引履歴閲覧（検索機能付き）
+     * @param itemCode
+     * @param operator
+     * @param fromDate
+     * @param toDate
+     * @param pageable
+     * @return
+     */
     public Page<InventoryTransaction> getAllTransactionHistory(
         String itemCode, String operator, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
     
@@ -312,90 +440,11 @@ public class InventoryService {
         }
     }
 
-    // 発注商品の納品処理
-    @Transactional
-    public void receiveFromOrder(InventoryReceiveFromOrderRequest req) {
-        String orderNo = req.getOrderNo();
-        System.out.println(orderNo);
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        req.setOperator(username);
-
-        PurchaseOrder order = purchaseOrderRepository.findByOrderNo(req.getOrderNo())
-                .orElseThrow(() -> new ResourceNotFoundException("対象の発注番号が見つかりません"));
-
-        for (InventoryReceiveFromOrderRequest.Item item : req.getItems()) {
-            String itemCode = item.getItemCode();
-
-            // 🔽 ここで DB から単価を取得
-            BigDecimal purchasePrice = purchaseOrderDetailRepository
-                    .findByPurchaseOrder_OrderNoAndItemCode(orderNo, itemCode)
-                    .map(PurchaseOrderDetail::getPurchasePrice)
-                    .orElse(BigDecimal.ZERO); // fallback（または例外投げる）
-
-            // 発注明細を取得
-            PurchaseOrderDetail detail = purchaseOrderDetailRepository
-                    .findByPurchaseOrder_OrderNoAndItemCode(req.getOrderNo(), itemCode)
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "発注明細が見つかりません（orderNo: " + req.getOrderNo() + ", itemCode: " + itemCode + "）"));
-
-            // ▼ ここで受け入れ済み数量チェックを追加
-            BigDecimal receivedSoFar = detail.getReceivedQuantity() != null ? detail.getReceivedQuantity()
-                    : BigDecimal.ZERO;
-            BigDecimal orderQuantity = detail.getQuantity();
-            BigDecimal receivingNow = item.getReceivedQuantity();
-
-            if (receivedSoFar.compareTo(orderQuantity) >= 0) {
-                throw new ValidationException("すでに全数が入庫済みのため、これ以上受け入れできません（itemCode: " + itemCode + "）");
-            }
-
-            if (receivedSoFar.add(receivingNow).compareTo(orderQuantity) > 0) {
-                throw new ValidationException("受け入れ数が発注数を超えています（itemCode: " + itemCode + "）");
-            }
-
-            // 在庫マスタを取得
-            StockMaster stock = stockMasterRepository.findByItemCode(itemCode)
-                    .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
-
-            // 入庫数チェック
-            BigDecimal totalReceived = detail.getReceivedQuantity().add(item.getReceivedQuantity());
-
-            if (totalReceived.compareTo(detail.getQuantity()) > 0) {
-                throw new IllegalArgumentException("受領数が発注数を超えています: " + itemCode);
-            }
-
-            // 在庫数更新
-            stock.setCurrentStock(stock.getCurrentStock().add(item.getReceivedQuantity()));
-            stockMasterRepository.save(stock);
-
-            // 明細更新
-            detail.setReceivedQuantity(totalReceived);
-            // .compareTo() は 0 を返すと「等しい」、正なら「大きい」、負なら「小さい」。
-            if (totalReceived.compareTo(detail.getQuantity()) >= 0) {
-                detail.setStatus("完了");
-            } else if (totalReceived.compareTo(BigDecimal.ZERO) > 0) {
-                detail.setStatus("一部入庫");
-            } else {
-                detail.setStatus("未入庫");
-            }
-            purchaseOrderDetailRepository.save(detail);
-
-            // トランザクション登録
-            InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseReceive(
-                    stock, item, order, req, purchasePrice, username);
-            inventoryTransactionRepository.save(tx);
-        }
-
-        // 全明細が完了か判定してヘッダーに反映
-        boolean allDone = purchaseOrderDetailRepository.findByPurchaseOrder_OrderNo(req.getOrderNo())
-                .stream()
-                .allMatch(d -> "完了".equals(d.getStatus()));
-
-        if (allDone) {
-            order.setStatus("完了");
-            purchaseOrderRepository.save(order);
-        }
-    }
-
+    /**
+     * 文字列が空またはnullかどうかを判定
+     * @param value
+     * @return
+     */
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
     }

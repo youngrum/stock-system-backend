@@ -37,6 +37,12 @@ public class PurchaseOrderService {
   private final ItemCodeGenerator itemCodeGenerator;
   private final OrderNumberGenerator orderNumberGenerator;
 
+  /**
+   * 発注登録を行う
+   *
+   * @param req 発注リクエスト
+   * @return 発注番号
+   */
   @Transactional
   public String registerOrder(PurchaseOrderRequest req) {
     // 1. 実行者をセット
@@ -100,7 +106,6 @@ public class PurchaseOrderService {
 
       // ---------- 発注明細の登録 ----------
       PurchaseOrderDetail detail = new PurchaseOrderDetail();
-      // detail.setOrderNo(orderNo);
       detail.setItemCode(stock.getItemCode());
       detail.setItemName(stock.getItemName());
       detail.setModelNumber(stock.getModelNumber());
@@ -117,24 +122,9 @@ public class PurchaseOrderService {
       System.out.println("total:" + total);
       
       // 4. 入庫トランザクション登録
-        InventoryTransaction tx = new InventoryTransaction();
-        tx.setStockItem(stock);
-        tx.setTransactionType(InventoryTransaction.TransactionType.ORDER_REGIST);
-        tx.setQuantity(detail.getQuantity());
-        tx.setOperator(username);
-        tx.setTransactionTime(LocalDateTime.now());
-        tx.setPurchaseOrder(header);
-        tx.setRemarks(d.getRemarks());
+      InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseOrder(
+          username, stock, header, req, d.getPurchasePrice(), d);
         inventoryTransactionRepository.save(tx);
-      // InventoryTransaction tx = new InventoryTransaction();
-      // tx.setStockItem(stock);
-      // tx.setPurchaseOrder(header);
-      // tx.setTransactionType(TransactionType.PURCHASE_RECEIVE);
-      // tx.setOperator(username);
-      // tx.setTransactionTime(LocalDateTime.now());
-      // tx.setSupplier(req.getSupplier());
-      // tx.setRemarks(req.getRemarks());
-      // inventoryTransactionRepository.save(tx);
     }
 
     header.setOrderSubtotal(total);

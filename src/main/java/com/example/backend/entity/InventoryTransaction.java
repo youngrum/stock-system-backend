@@ -11,6 +11,7 @@ import com.example.backend.inventory.dto.InventoryDispatchRequest;
 import com.example.backend.inventory.dto.InventoryReceiveRequest;
 import com.example.backend.inventory.dto.StockMasterRequest;
 import com.example.backend.order.dto.InventoryReceiveFromOrderRequest;
+import com.example.backend.order.dto.PurchaseOrderRequest;
 
 @Entity
 @Table(name = "inventory_transaction")
@@ -152,6 +153,35 @@ public class InventoryTransaction {
       tx.setOperator(operator);
       tx.setTransactionTime(LocalDateTime.now());
       tx.setRemarks(item.getRemarks());
+      return tx;
+  }
+
+  /**
+   * 発注登録済み商品の納品＝入庫トランザクションを生成
+   * @param operator オペレーター名
+   * @param stock 在庫マスタ
+   * @param order 発注情報
+   * @param req リクエスト情報
+   * @param purchasePrice 購入価格 サービス層でDB から単価を取得
+   * @param detail 発注明細
+   * @return 入庫トランザクション
+   */
+  public static InventoryTransaction createTransactionForPurchaseOrder(
+    String operator,
+    StockMaster stock, 
+    PurchaseOrder order, 
+    PurchaseOrderRequest req, 
+    BigDecimal purchasePrice, 
+    PurchaseOrderRequest.Detail detail) {
+      InventoryTransaction tx = new InventoryTransaction();
+      tx.setPurchaseOrder(order);
+      tx.setStockItem(stock);
+      tx.setQuantity(detail.getQuantity());
+      tx.setPurchasePrice(purchasePrice);
+      tx.setTransactionType(TransactionType.PURCHASE_RECEIVE);
+      tx.setOperator(operator);
+      tx.setTransactionTime(LocalDateTime.now());
+      tx.setRemarks(detail.getRemarks());
       return tx;
   }
  
