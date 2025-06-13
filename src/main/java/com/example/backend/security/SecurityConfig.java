@@ -9,11 +9,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.Customizer;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(); // .csrf(...) の呼び出しが cors() の直後にあることで、戻り値の型が違うためチェーンさせない
+        http.cors(Customizer.withDefaults()); // .csrf(...) の呼び出しが cors() の直後にあることで、戻り値の型が違うためチェーンさせない
         return http
             .csrf(csrf -> csrf.disable()) // CSRF無効化（APIは基本オフでOK）
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // セッション使わない
