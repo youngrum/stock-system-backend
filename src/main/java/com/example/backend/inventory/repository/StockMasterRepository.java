@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface StockMasterRepository extends JpaRepository<StockMaster, String> {
+public interface StockMasterRepository extends JpaRepository<StockMaster, Long> {
 
     // 商品コードで検索
     Optional<StockMaster> findByItemCode(String itemCode);

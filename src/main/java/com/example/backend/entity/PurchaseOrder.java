@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.List;
 import java.math.BigDecimal;
@@ -49,6 +50,6 @@ public class PurchaseOrder {
   private LocalDate createdAt = LocalDate.now();
 
   @OneToMany(mappedBy = "purchaseOrder")
-  @JsonIgnore
+  @JsonManagedReference
   private List<PurchaseOrderDetail> details;
 }
