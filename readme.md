@@ -20,19 +20,19 @@ http://localhost:8080/h2-console/
 ```mermaid
 erDiagram
     users {
-        varchar(64) username PK "NOT NULL"
-        varchar(255) password "NOT NULL"
-        varchar(64) department
+        varchar username PK "NOT NULL"
+        varchar password "NOT NULL"
+        varchar department
         boolean enabled "NOT NULL"
     }
 
     stock_master {
         bigint id PK "AUTO_INCREMENT"
-        varchar(64) item_code UK "NOT NULL, UNIQUE"
-        varchar(128) item_name "NOT NULL"
-        varchar(64) category
-        varchar(64) model_number
-        varchar(64) manufacturer
+        varchar item_code UK "NOT NULL, UNIQUE"
+        varchar item_name "NOT NULL"
+        varchar category
+        varchar model_number
+        varchar manufacturer
         int current_stock "NOT NULL"
         timestamp created_at "DEFAULT CURRENT_TIMESTAMP"
         timestamp updated_at "DEFAULT CURRENT_TIMESTAMP ON UPDATE"
@@ -40,42 +40,42 @@ erDiagram
 
     inventory_transaction {
         bigint transaction_id PK "AUTO_INCREMENT"
-        varchar(64) item_code FK "NOT NULL"
-        varchar(32) transaction_type "NOT NULL"
-        decimal(14,2) quantity "NOT NULL"
-        varchar(64) operator "NOT NULL"
+        varchar item_code FK "NOT NULL"
+        varchar transaction_type "NOT NULL"
+        decimal quantity "NOT NULL"
+        varchar operator "NOT NULL"
         timestamp transaction_time "DEFAULT CURRENT_TIMESTAMP, NOT NULL"
-        varchar(64) manufacturer
-        varchar(64) supplier
-        decimal(10,2) purchase_price
-        varchar(64) order_no FK
-        varchar(255) remarks
+        varchar manufacturer
+        varchar supplier
+        decimal purchase_price
+        varchar order_no FK
+        varchar remarks
     }
 
     purchase_order {
-        varchar(64) order_no PK "NOT NULL"
-        varchar(64) supplier "NOT NULL"
-        decimal(14,2) order_subtotal "NOT NULL, DEFAULT 0"
+        varchar order_no PK "NOT NULL"
+        varchar supplier "NOT NULL"
+        decimal order_subtotal "NOT NULL, DEFAULT 0"
         date order_date "NOT NULL"
-        decimal(10,2) shipping_fee "NOT NULL, DEFAULT 0"
-        varchar(64) operator "NOT NULL"
-        varchar(32) status "NOT NULL, DEFAULT '未完了'"
-        varchar(255) remarks
+        decimal shipping_fee "NOT NULL, DEFAULT 0"
+        varchar operator "NOT NULL"
+        varchar status "NOT NULL, DEFAULT 未完了"
+        varchar remarks
         date created_at "DEFAULT CURRENT_DATE"
     }
 
     purchase_order_detail {
         bigint id PK "AUTO_INCREMENT"
-        varchar(64) order_no FK "NOT NULL"
-        varchar(64) item_code
-        varchar(128) item_name
-        varchar(64) model_number
-        varchar(64) category
-        decimal(14,2) quantity "NOT NULL"
-        decimal(10,2) purchasePrice "NOT NULL"
-        decimal(10,2) receivedQuantity
-        varchar(32) status
-        varchar(255) remarks
+        varchar order_no FK "NOT NULL"
+        varchar item_code
+        varchar item_name
+        varchar model_number
+        varchar category
+        decimal quantity "NOT NULL"
+        decimal purchase_price "NOT NULL"
+        decimal received_quantity
+        varchar status
+        varchar remarks
     }
 
     %% Relationships
