@@ -1,23 +1,3 @@
-## API test <swagger-ui>
-
-http://localhost:8080/swagger-ui/index.html#/
-
-## H2 DB
-
-http://localhost:8080/h2-console/
-
-### 開発
-
-<jdbc:h2:file:Z:/inventory-db/inventory>
-
-### ローカル
-
-http://localhost:8080/h2-console/
-<jdbc:h2:file:./data/inventory>
-
-## データベース設計
-
-```mermaid
 erDiagram
     users {
         varchar(64) username PK "NOT NULL"
@@ -42,8 +22,7 @@ erDiagram
         bigint transaction_id PK "AUTO_INCREMENT"
         varchar(64) item_code FK "NOT NULL"
         varchar(32) transaction_type "NOT NULL"
-        decimal(14,2) quantity
-        "NOT NULL"
+        decimal(14,2) quantity "NOT NULL"
         varchar(64) operator "NOT NULL"
         timestamp transaction_time "DEFAULT CURRENT_TIMESTAMP, NOT NULL"
         varchar(64) manufacturer
@@ -72,10 +51,8 @@ erDiagram
         varchar(128) item_name
         varchar(64) model_number
         varchar(64) category
-        decimal(14,2) quantity
-        "NOT NULL"
-        decimal(10,2) purchasePrice
-        "NOT NULL"
+        decimal(14,2) quantity "NOT NULL"
+        decimal(10,2) purchasePrice "NOT NULL"
         decimal(10,2) receivedQuantity
         varchar(32) status
         varchar(255) remarks
