@@ -1,46 +1,93 @@
 package com.example.backend.common.service;
 
+import com.example.backend.entity.NumberingMaster;
+import com.example.backend.common.repository.NumberingMasterRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class OrderNumberGenerator {
-    
-    private static final String PREFIX = "S";      // 接頭辞
-    private static final int BASE_TERM = 56;        // 期の起点（24/8/1～25/7/30 = 56期）
-    private static final int START_YEAR = 2024;     // 56期の開始年
-    private static final int ZERO_PADDING = 6;      // idをゼロ埋めする桁数（例：00001）
+
+    private static final String DEPARTMENT_CODE = "S";
+    private static final int BASE_TERM = 56;
+    private static final int START_YEAR = 2024;
+    private static final int ZERO_PADDING = 6;
+
+    @Autowired
+    private NumberingMasterRepository numberingMasterRepository;
 
     /**
-     * 登録済みIDから itemCode を発行する
-     *
-     * @param id サロゲートキー（purchase_order.id）
-     * @return itemCode（例: S56-00001）
+     * 新しい注文番号を生成する
      */
-    public String generateOrderNo(Long id) {
-        int term = resolveCurrentTerm();
-        String idFormatted = String.format("%0" + ZERO_PADDING + "X", id); // ゼロ埋め（6桁）
-        return String.format("%s%d-%s", PREFIX, term, idFormatted);
+    @Transactional
+    public String generateOrderNo() {
+        return generateNumber(DEPARTMENT_CODE, "ORDER");
     }
 
     /**
-     * 現在の期を計算する（毎年8月1日切り替え）
-     *
-     * @return 現在の期（例: 56, 57, ...）
+     * 指定された部門・種別の番号を生成する
+     */
+    @Transactional
+    public String generateNumber(String deptCode, String numberingType) {
+        int currentTerm = resolveCurrentTerm();
+        long nextNumber = getNextNumber(deptCode, numberingType, currentTerm);
+        String numberFormatted = String.format("%0" + ZERO_PADDING + "X", nextNumber);
+        return String.format("%s%d-%s", deptCode, currentTerm, numberFormatted);
+    }
+
+    /**
+     * 採番マスタから次の番号を取得・更新
+     */
+    private long getNextNumber(String deptCode, String numberingType, int fiscalYear) {
+        // 悲観的ロックで取得
+        Optional<NumberingMaster> optionalMaster = numberingMasterRepository
+                .findByDepartmentCodeAndNumberingTypeAndFiscalYearForUpdate(deptCode, numberingType, fiscalYear);
+
+        NumberingMaster master;
+        if (optionalMaster.isPresent()) {
+            master = optionalMaster.get();
+        } else {
+            // 新規作成
+            master = new NumberingMaster(deptCode, numberingType, fiscalYear);
+            master = numberingMasterRepository.save(master);
+        }
+
+        // 次の番号を取得（内部でインクリメント）
+        long nextNumber = master.getNextNumber();
+
+        // 更新を保存
+        numberingMasterRepository.save(master);
+
+        return nextNumber;
+    }
+
+    /**
+     * 現在の期を計算する
      */
     public int resolveCurrentTerm() {
         LocalDate now = LocalDate.now();
         int year = now.getYear();
-    
-        // この年の8月1日が期の切り替え日
+
         LocalDate cutoff = LocalDate.of(year, 8, 1);
-    
-        // もしまだ8月1日を過ぎていないなら、前年の期とみなす
+
         if (now.isBefore(cutoff)) {
-            year--; // ← 期は前年に属する
+            year--;
         }
-    
+
         return BASE_TERM + (year - START_YEAR);
+    }
+
+    /**
+     * 既存のIDベース生成（互換性のため残す）
+     */
+    @Deprecated
+    public String generateOrderNoFromId(Long id) {
+        int term = resolveCurrentTerm();
+        String idFormatted = String.format("%0" + ZERO_PADDING + "X", id);
+        return String.format("%s%d-%s", DEPARTMENT_CODE, term, idFormatted);
     }
 }

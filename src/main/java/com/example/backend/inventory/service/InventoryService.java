@@ -39,7 +39,7 @@ public class InventoryService {
     private final OrderNumberGenerator orderNumberGenerator;
 
     private static final int DEFAULT_DAYS_BACK = 30; // toDateのみ指定時のデフォルト期間
-    private static final int MAX_SEARCH_DAYS = 365;   // 最大検索可能期間（パフォーマンス対策）
+    private static final int MAX_SEARCH_DAYS = 365; // 最大検索可能期間（パフォーマンス対策）
 
     @Autowired
     public InventoryService(StockMasterRepository stockMasterRepository,
@@ -55,6 +55,7 @@ public class InventoryService {
         this.itemCodeGenerator = itemCodeGenerator;
         this.orderNumberGenerator = orderNumberGenerator;
     }
+
     /**
      * 新規在庫ID発行・登録
      *
@@ -82,7 +83,7 @@ public class InventoryService {
      *
      * @param req 在庫登録リクエスト
      * @return 登録された在庫マスタエンティティ
-     */   
+     */
     @Transactional
     public Long receiveInventory(InventoryReceiveRequest req) {
         System.out.println("Receiving inventory with request: " + req);
@@ -95,7 +96,7 @@ public class InventoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("在庫が見つかりません"));
 
         // PurchaseOrder オブジェクトを初期化
-        PurchaseOrder order = null; 
+        PurchaseOrder order = null;
 
         // リクエスト数量が0ではない場合のみ発注ヘッダーを作成
         if (req.getQuantity().compareTo(BigDecimal.ZERO) != 0) {
@@ -110,8 +111,8 @@ public class InventoryService {
             newOrder.setOrderSubtotal(BigDecimal.ZERO);
             purchaseOrderRepository.save(newOrder);
 
-            // 3-2. id ベースで oderNo を採番
-            String code = orderNumberGenerator.generateOrderNo(newOrder.getId());
+            // 3-2. NUMBERING_MASTER テーブルベースで orderNo を採番
+            String code = orderNumberGenerator.generateOrderNo();
             newOrder.setOrderNo(code);
             purchaseOrderRepository.save(newOrder); // 採番されたOrderNoをDBに保存
             purchaseOrderRepository.flush(); // DBに反映
@@ -139,7 +140,8 @@ public class InventoryService {
         }
 
         // 5. 入庫トランザクション登録
-        InventoryTransaction transaction = InventoryTransaction.createTransactionForManualReceive(stock, order, req, username);
+        InventoryTransaction transaction = InventoryTransaction.createTransactionForManualReceive(stock, order, req,
+                username);
         inventoryTransactionRepository.save(transaction);
         System.out.println("Transaction saved with ID: " + transaction.getTransactionId());
 
@@ -154,8 +156,8 @@ public class InventoryService {
 
         // 8. 全明細が完了か判定してヘッダーに反映
         boolean allDone = purchaseOrderDetailRepository.findByPurchaseOrder_OrderNo(req.getOrderNo())
-        .stream()
-        .allMatch(d -> "完了".equals(d.getStatus()));
+                .stream()
+                .allMatch(d -> "完了".equals(d.getStatus()));
 
         if (allDone) {
             order.setStatus("完了");
@@ -170,6 +172,7 @@ public class InventoryService {
 
     /**
      * 在庫出庫処理 (モーダルからの手動入庫)
+     * 
      * @param req
      * @return
      */
@@ -195,9 +198,9 @@ public class InventoryService {
         return transaction.getTransactionId();
     }
 
-
     /**
      * 発注商品の納品処理
+     * 
      * @param req
      * @return
      */
@@ -286,6 +289,7 @@ public class InventoryService {
 
     /**
      * パラメーター付在庫検索
+     * 
      * @param itemCode
      * @param itemName
      * @param category
@@ -320,6 +324,7 @@ public class InventoryService {
 
     /**
      * 在庫ID指定で在庫情報取得
+     * 
      * @param itemCode
      * @return
      */
@@ -330,6 +335,7 @@ public class InventoryService {
 
     /**
      * 在庫ID指定で在庫の処理履歴取得
+     * 
      * @param itemCode
      * @param pageable
      * @return
@@ -340,6 +346,7 @@ public class InventoryService {
 
     /**
      * 全取引履歴閲覧（検索機能付き）
+     * 
      * @param itemCode
      * @param operator
      * @param fromDate
@@ -348,101 +355,106 @@ public class InventoryService {
      * @return
      */
     public Page<InventoryTransaction> getAllTransactionHistory(
-        String itemCode, String operator, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
-    
-    // 検索条件をログ出力（デバッグ用）
-    System.out.printf(
-        "🔍 取引履歴検索条件: itemCode='%s', operator='%s', fromDate='%s', toDate='%s'%n",
-        itemCode, operator, fromDate, toDate);
+            String itemCode, String operator, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
 
-    // パラメーターの正規化
-    String itemCodeKeyword = (itemCode != null && !itemCode.isBlank()) ? itemCode : null;
-    String operatorKeyword = (operator != null && !operator.isBlank()) ? operator : null;
-    
-    // 期間の自動補完処理
-    LocalDateTime fromDateTime = null;
-    LocalDateTime toDateTime = null;
-    
-    if (fromDate != null && toDate != null) {
-        // 両方指定されている場合
-        fromDateTime = fromDate.atStartOfDay();
-        toDateTime = toDate.atTime(23, 59, 59);
-        
-        // 期間の妥当性チェック
-        if (fromDate.isAfter(toDate)) {
-            throw new IllegalArgumentException("開始日は終了日より前の日付を指定してください");
+        // 検索条件をログ出力（デバッグ用）
+        System.out.printf(
+                "🔍 取引履歴検索条件: itemCode='%s', operator='%s', fromDate='%s', toDate='%s'%n",
+                itemCode, operator, fromDate, toDate);
+
+        // パラメーターの正規化
+        String itemCodeKeyword = (itemCode != null && !itemCode.isBlank()) ? itemCode : null;
+        String operatorKeyword = (operator != null && !operator.isBlank()) ? operator : null;
+
+        // 期間の自動補完処理
+        LocalDateTime fromDateTime = null;
+        LocalDateTime toDateTime = null;
+
+        if (fromDate != null && toDate != null) {
+            // 両方指定されている場合
+            fromDateTime = fromDate.atStartOfDay();
+            toDateTime = toDate.atTime(23, 59, 59);
+
+            // 期間の妥当性チェック
+            if (fromDate.isAfter(toDate)) {
+                throw new IllegalArgumentException("開始日は終了日より前の日付を指定してください");
+            }
+
+            // 最大検索期間のチェック（パフォーマンス対策）
+            long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(fromDate, toDate);
+            if (daysBetween > MAX_SEARCH_DAYS) {
+                throw new IllegalArgumentException("検索期間は" + MAX_SEARCH_DAYS + "日以内で指定してください");
+            }
+
+        } else if (fromDate != null && toDate == null) {
+            // fromDateのみ指定 → toDateは今日まで
+            fromDateTime = fromDate.atStartOfDay();
+            toDateTime = LocalDate.now().atTime(23, 59, 59);
+            System.out.println("📅 toDateが未指定のため、今日(" + LocalDate.now() + ")までの範囲で検索します");
+
+        } else if (fromDate == null && toDate != null) {
+            // toDateのみ指定 → fromDateはデフォルト日数前から
+            fromDateTime = toDate.minusDays(DEFAULT_DAYS_BACK).atStartOfDay();
+            toDateTime = toDate.atTime(23, 59, 59);
+            System.out.println("📅 fromDateが未指定のため、" + toDate.minusDays(DEFAULT_DAYS_BACK) + "からの範囲で検索します");
         }
-        
-        // 最大検索期間のチェック（パフォーマンス対策）
-        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(fromDate, toDate);
-        if (daysBetween > MAX_SEARCH_DAYS) {
-            throw new IllegalArgumentException("検索期間は" + MAX_SEARCH_DAYS + "日以内で指定してください");
-        }
-        
-    } else if (fromDate != null && toDate == null) {
-        // fromDateのみ指定 → toDateは今日まで
-        fromDateTime = fromDate.atStartOfDay();
-        toDateTime = LocalDate.now().atTime(23, 59, 59);
-        System.out.println("📅 toDateが未指定のため、今日(" + LocalDate.now() + ")までの範囲で検索します");
-        
-    } else if (fromDate == null && toDate != null) {
-        // toDateのみ指定 → fromDateはデフォルト日数前から
-        fromDateTime = toDate.minusDays(DEFAULT_DAYS_BACK).atStartOfDay();
-        toDateTime = toDate.atTime(23, 59, 59);
-        System.out.println("📅 fromDateが未指定のため、" + toDate.minusDays(DEFAULT_DAYS_BACK) + "からの範囲で検索します");
+
+        // 条件に応じた検索処理
+        return executeTransactionSearch(itemCodeKeyword, operatorKeyword, fromDateTime, toDateTime, pageable);
     }
-
-    // 条件に応じた検索処理
-    return executeTransactionSearch(itemCodeKeyword, operatorKeyword, fromDateTime, toDateTime, pageable);
-}
 
     // 検索実行メソッド（可読性向上のため分離）
     private Page<InventoryTransaction> executeTransactionSearch(
             String itemCode, String operator, LocalDateTime fromDateTime, LocalDateTime toDateTime, Pageable pageable) {
-        
+
         // 期間検索の有無を判定
         boolean hasDateRange = (fromDateTime != null && toDateTime != null);
-        
+
         if (itemCode != null && operator != null && hasDateRange) {
             // 全条件指定
-            return inventoryTransactionRepository.findByStockItem_ItemCodeContainingAndOperatorContainingAndTransactionTimeBetweenOrderByTransactionTimeDesc(
-                itemCode, operator, fromDateTime, toDateTime, pageable);
+            return inventoryTransactionRepository
+                    .findByStockItem_ItemCodeContainingAndOperatorContainingAndTransactionTimeBetweenOrderByTransactionTimeDesc(
+                            itemCode, operator, fromDateTime, toDateTime, pageable);
         } else if (itemCode != null && hasDateRange) {
             // アイテムコード + 期間
-            return inventoryTransactionRepository.findByStockItem_ItemCodeContainingAndTransactionTimeBetweenOrderByTransactionTimeDesc(
-                itemCode, fromDateTime, toDateTime, pageable);
+            return inventoryTransactionRepository
+                    .findByStockItem_ItemCodeContainingAndTransactionTimeBetweenOrderByTransactionTimeDesc(
+                            itemCode, fromDateTime, toDateTime, pageable);
         } else if (operator != null && hasDateRange) {
             // 操作者 + 期間
-            return inventoryTransactionRepository.findByOperatorContainingAndTransactionTimeBetweenOrderByTransactionTimeDesc(
-                operator, fromDateTime, toDateTime, pageable);
+            return inventoryTransactionRepository
+                    .findByOperatorContainingAndTransactionTimeBetweenOrderByTransactionTimeDesc(
+                            operator, fromDateTime, toDateTime, pageable);
         } else if (itemCode != null && operator != null) {
             // アイテムコード + 操作者
-            return inventoryTransactionRepository.findByStockItem_ItemCodeContainingAndOperatorContainingOrderByTransactionTimeDesc(
-                itemCode, operator, pageable);
+            return inventoryTransactionRepository
+                    .findByStockItem_ItemCodeContainingAndOperatorContainingOrderByTransactionTimeDesc(
+                            itemCode, operator, pageable);
         } else if (itemCode != null) {
             // アイテムコードのみ
             return inventoryTransactionRepository.findByStockItem_ItemCodeContainingOrderByTransactionTimeDesc(
-                itemCode, pageable);
+                    itemCode, pageable);
         } else if (operator != null) {
             // 操作者のみ
             return inventoryTransactionRepository.findByOperatorContainingOrderByTransactionTimeDesc(
-                operator, pageable);
+                    operator, pageable);
         } else if (hasDateRange) {
             // 期間のみ
             return inventoryTransactionRepository.findByTransactionTimeBetweenOrderByTransactionTimeDesc(
-                fromDateTime, toDateTime, pageable);
+                    fromDateTime, toDateTime, pageable);
         } else {
             // 条件なし（全件） - パフォーマンス対策として最近30日に限定
             LocalDateTime defaultFrom = LocalDate.now().minusDays(DEFAULT_DAYS_BACK).atStartOfDay();
             LocalDateTime defaultTo = LocalDate.now().atTime(23, 59, 59);
             System.out.println("📅 検索条件未指定のため、最近" + DEFAULT_DAYS_BACK + "日間の履歴を表示します");
             return inventoryTransactionRepository.findByTransactionTimeBetweenOrderByTransactionTimeDesc(
-                defaultFrom, defaultTo, pageable);
+                    defaultFrom, defaultTo, pageable);
         }
     }
 
     /**
      * 文字列が空またはnullかどうかを判定
+     * 
      * @param value
      * @return
      */

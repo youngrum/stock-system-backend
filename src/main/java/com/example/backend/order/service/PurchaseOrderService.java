@@ -58,8 +58,8 @@ public class PurchaseOrderService {
     header.setOrderSubtotal(BigDecimal.ZERO);
     purchaseOrderRepository.save(header);
 
-    // 2--2. id ベースで oderNo を採番
-    String orderNo = orderNumberGenerator.generateOrderNo(header.getId());
+    // 2--2. NUMBERING_MASTER テーブルベースで orderNo を採番
+    String orderNo = orderNumberGenerator.generateOrderNo();
     header.setOrderNo(orderNo);
     purchaseOrderRepository.save(header); // 採番されたOrderNoをDBに保存
     purchaseOrderRepository.flush(); // DBに反映
@@ -117,11 +117,11 @@ public class PurchaseOrderService {
 
       total = total.add(d.getQuantity().multiply(d.getPurchasePrice()));
       System.out.println("total:" + total);
-      
+
       // 4. 入庫トランザクション登録
       InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseOrder(
           username, stock, header, req, d.getPurchasePrice(), d);
-        inventoryTransactionRepository.save(tx);
+      inventoryTransactionRepository.save(tx);
     }
 
     header.setOrderSubtotal(total);
