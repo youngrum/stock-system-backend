@@ -41,6 +41,9 @@ public class StockMaster {
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 
+    @Column(name ="location", length = 64)
+    private String location;
+
     @PrePersist
     @PreUpdate
     public void updateTimestamp() {
@@ -61,6 +64,7 @@ public class StockMaster {
         stock.setModelNumber(req.getModelNumber());
         stock.setCurrentStock(req.getCurrentStock());
         stock.setCurrentStock(req.getCurrentStock() != null ? req.getCurrentStock() : BigDecimal.ZERO);
+        stock.setLocation(req.getLocation() != null ? req.getLocation() : "-");
 
         // 2. 仮保存してIDを取得
         stock = repository.save(stock);

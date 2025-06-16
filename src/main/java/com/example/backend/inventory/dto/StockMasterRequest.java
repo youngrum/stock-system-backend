@@ -18,4 +18,5 @@ public class StockMasterRequest {
   private String category; // カテゴリ
   private BigDecimal currentStock; // 初期在庫（任意）
   private String remarks; // トランザクション用
+  private String location; // 保管場所（任意）
 }

@@ -24,5 +24,6 @@ public class PurchaseOrderRequest {
     private BigDecimal quantity;
     private BigDecimal purchasePrice;
     private String remarks;
+    private String location; // 保管場所（任意）
   }
 }

@@ -21,5 +21,6 @@ public class InventoryReceiveRequest {
   private BigDecimal shippingFee; // 送料（任意）
   private BigDecimal purchasePrice; // 仕入れ単価（任意）
   private String remarks; // 備考（任意）
+  private String Location; // 保管場所（任意）
   // private boolean confirm;// 類似品確認後の本登録フラグ
 }
