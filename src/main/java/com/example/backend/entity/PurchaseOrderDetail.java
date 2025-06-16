@@ -12,7 +12,6 @@ import lombok.Data;
 public class PurchaseOrderDetail {
 
   @ManyToOne(fetch = FetchType.LAZY)
-
   @JoinColumn(name = "order_no", referencedColumnName = "order_no", nullable = false)
   @JsonBackReference
   private PurchaseOrder purchaseOrder;

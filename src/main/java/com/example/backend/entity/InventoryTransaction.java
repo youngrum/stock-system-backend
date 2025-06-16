@@ -24,11 +24,11 @@ public class InventoryTransaction {
   private Long transactionId;
 
   // NULL許容: 出庫にはorderNoがない可能性あり
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "order_no", referencedColumnName = "order_no")
   private PurchaseOrder purchaseOrder;
 
-  @ManyToOne // 他のエンティティ(StockMaster)の参照を宣言
+  @ManyToOne(fetch = FetchType.LAZY) // 他のエンティティ(StockMaster)の参照を宣言
   // InventoryTransactionテーブルのitem_codeを使ってSTOCK_MASTERのitem_codeを外部参照
   @JoinColumn(name = "item_code", referencedColumnName = "item_code", nullable = false)
   private StockMaster stockItem;

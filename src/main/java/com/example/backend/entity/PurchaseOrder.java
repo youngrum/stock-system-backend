@@ -47,7 +47,7 @@ public class PurchaseOrder {
   @CreationTimestamp
   private LocalDate createdAt = LocalDate.now();
 
-  @OneToMany(mappedBy = "purchaseOrder")
+  @OneToMany(mappedBy = "purchaseOrder", fetch = FetchType.EAGER)
   @JsonManagedReference
   private List<PurchaseOrderDetail> details;
 }
