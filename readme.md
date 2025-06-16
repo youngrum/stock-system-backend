@@ -72,6 +72,10 @@ erDiagram
         varchar(64) model_number
         varchar(64) category
         decimal(14,2) quantity "NOT NULL"
+        decimal(10,2) purchasePrice // 追加: PurchaseOrderDetail.java にも purchasePrice があるため追加
+        decimal(10,2) receivedQuantity // 追加: PurchaseOrderDetail.java にも receivedQuantity があるため追加
+        varchar(32) status // 追加: PurchaseOrderDetail.java にも status があるため追加
+        varchar(255) remarks // 追加: PurchaseOrderDetail.java にも remarks があるため追加
     }
 
     %% Relationships
