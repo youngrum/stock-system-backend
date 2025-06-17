@@ -33,7 +33,7 @@ public class StockMaster {
     private String category;
 
     @Column(name = "manufacturer", length = 64)
-    private String manufacturer;
+    private String manufacturer = "-";
 
     @Column(name = "current_stock", nullable = false)
     private BigDecimal currentStock = BigDecimal.ZERO;
