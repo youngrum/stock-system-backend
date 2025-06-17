@@ -86,9 +86,12 @@ public class PurchaseOrderService {
             .orElseGet(() -> {
               // 該当がなければ新規登録
               StockMaster s = new StockMaster();
+              System.out.println("▶ 新規登録 : " + d);
               s.setItemName(d.getItemName());
               s.setModelNumber(d.getModelNumber());
               s.setCategory(d.getCategory());
+              s.setLocation(d.getLocation());
+              System.out.println("保管先："+d.getLocation());
               s.setCurrentStock(BigDecimal.ZERO);
               StockMaster saved = stockMasterRepository.save(s);
               String code = itemCodeGenerator.generateItemCode(saved.getId());

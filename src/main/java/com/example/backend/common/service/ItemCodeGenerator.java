@@ -7,7 +7,7 @@ import java.time.LocalDate;
 @Service
 public class ItemCodeGenerator {
 
-    private static final String PREFIX = "ITEM"; // 接頭辞（担当部署ID）
+    private static final String PREFIX = "I"; // 接頭辞（在庫ID）
     private static final int BASE_TERM = 56; // 期の起点（24/8/1～25/7/30 = 56期）
     private static final int START_YEAR = 2024; // 56期の開始年
     private static final int ZERO_PADDING = 6; // idをゼロ埋めする桁数（例：000001）

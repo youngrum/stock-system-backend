@@ -47,6 +47,4 @@ public class PurchaseOrderDetail {
   @Column(nullable = true)
   private String remarks;
 
-  @Column(name ="location", length = 64)
-  private String location;
 }

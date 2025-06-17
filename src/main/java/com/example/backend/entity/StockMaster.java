@@ -42,7 +42,7 @@ public class StockMaster {
     private LocalDateTime lastUpdated;
 
     @Column(name ="location", length = 64)
-    private String location;
+    private String location = "-";
 
     @PrePersist
     @PreUpdate

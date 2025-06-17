@@ -130,7 +130,6 @@ public class InventoryService {
             detail.setModelNumber(stock.getModelNumber());
             detail.setCategory(stock.getCategory());
             detail.setQuantity(req.getQuantity());
-            detail.setLocation(req.getLocation());
             detail.setPurchasePrice(req.getPurchasePrice());
             detail.setReceivedQuantity(req.getQuantity()); // ここは入庫処理なので ReceivedQuantity にするなら、この場で完全入庫扱い
             detail.setStatus("完了"); // 入庫処理なのでステータスは「完了」

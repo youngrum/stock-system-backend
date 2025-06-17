@@ -47,6 +47,7 @@ public class OrderController {
   @Operation(summary = "発注登録（新商品含む）")
   @PostMapping("/orders")
   public ResponseEntity<Map<String, Object>> registerOrder(@RequestBody PurchaseOrderRequest request) {
+    System.out.println("Received order request: " + request);
     String orderNo = purchaseOrderService.registerOrder(request);
     return ResponseEntity.ok(
         Map.of(
