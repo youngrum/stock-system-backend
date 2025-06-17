@@ -78,7 +78,19 @@ erDiagram
         varchar remarks
     }
 
+    numbering_master {
+        bigint id PK "AUTO_INCREMENT"
+        varchar department_code "NOT NULL, LENGTH 10"
+        varchar numbering_type "NOT NULL, LENGTH 20"
+        int fiscal_year "NOT NULL"
+        bigint current_decimal_number "NOT NULL"
+        timestamp created_at "NOT NULL, NOT UPDATABLE"
+        timestamp updated_at "NOT NULL"
+        int version "楽観的排他制御"
+    }
+
     %% Relationships
     stock_master ||--o{ inventory_transaction : "item_code"
     purchase_order ||--o{ inventory_transaction : "order_no"
     purchase_order ||--o{ purchase_order_detail : "order_no"
+    numbering_master ||--o{ purchase_order : "generates order_no"

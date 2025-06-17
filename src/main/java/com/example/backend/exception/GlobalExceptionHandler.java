@@ -14,9 +14,6 @@ import java.util.HashMap; // Map.of はImmutableMapのため、変更可能なHa
 import java.util.Map;
 import java.util.List; // バリデーションエラーの詳細用
 import java.util.stream.Collectors; // バリデーションエラーの詳細用
-
-// (jakarta.validation.ValidationException は Spring の MethodArgumentNotValidException とは別の例外体系なので注意が必要です。
-// もしサービス層でValidationExceptionをスローするなら、それも捕捉すべきです)
 import jakarta.validation.ValidationException; // InventoryService でスローしているため追加
 
 @RestControllerAdvice

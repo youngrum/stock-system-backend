@@ -47,9 +47,13 @@ public class PurchaseOrderService {
     req.setOperator(username);
     System.out.println(req.getOperator());
 
-    // 2. 発注ヘッダー作成 id取得のため
+    // 2-1. 発注ヘッダー作成 id取得のため
     PurchaseOrder header = new PurchaseOrder();
-    header.setOrderNo("orderNo"); // 一旦仮の値をセット
+    
+    // 2-2. NUMBERING_MASTER テーブルベースで orderNo を直接採番
+    String orderNo = orderNumberGenerator.generateOrderNo();
+    header.setOrderNo(orderNo);
+
     header.setSupplier(req.getSupplier());
     header.setShippingFee(req.getShippingFee());
     header.setOperator(username);
@@ -58,11 +62,8 @@ public class PurchaseOrderService {
     header.setOrderSubtotal(BigDecimal.ZERO);
     purchaseOrderRepository.save(header);
 
-    // 2--2. NUMBERING_MASTER テーブルベースで orderNo を採番
-    String orderNo = orderNumberGenerator.generateOrderNo();
-    header.setOrderNo(orderNo);
-    purchaseOrderRepository.save(header); // 採番されたOrderNoをDBに保存
     purchaseOrderRepository.flush(); // DBに反映
+    System.out.println("発注No登録完了: " + header.getOrderNo());
 
     // 3. 明細登録
     BigDecimal total = BigDecimal.ZERO;

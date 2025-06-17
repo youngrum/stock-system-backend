@@ -98,31 +98,31 @@ public class InventoryService {
         // PurchaseOrder オブジェクトを初期化
         PurchaseOrder order = null;
 
-        // リクエスト数量が0ではない場合のみ発注ヘッダーを作成
+        // リクエスト数量が0ではない場合のみ発注ヘッダーを作成 ※発注をスキップして納品完了とする処理
         if (req.getQuantity().compareTo(BigDecimal.ZERO) != 0) {
-            // 3. 発注ヘッダーを新規作成
+            // 3-1. 発注ヘッダーを新規作成
             PurchaseOrder newOrder = new PurchaseOrder();
-            newOrder.setOrderNo("order-no");
+            
+            // 3-2. NUMBERING_MASTER テーブルベースで orderNo を直接採番
+            String generatedOrderNo = orderNumberGenerator.generateOrderNo(); // generateOrderNo()は引数不要になった
+            newOrder.setOrderNo(generatedOrderNo); // 採番されたOrderNoを直接セット
+            
             newOrder.setOrderDate(LocalDate.now());
             newOrder.setShippingFee(BigDecimal.ZERO);
             newOrder.setOperator(username);
             newOrder.setSupplier(req.getSupplier());
             newOrder.setRemarks(req.getRemarks());
             newOrder.setOrderSubtotal(BigDecimal.ZERO);
-            purchaseOrderRepository.save(newOrder);
 
-            // 3-2. NUMBERING_MASTER テーブルベースで orderNo を採番
-            String code = orderNumberGenerator.generateOrderNo();
-            newOrder.setOrderNo(code);
-            purchaseOrderRepository.save(newOrder); // 採番されたOrderNoをDBに保存
-            purchaseOrderRepository.flush(); // DBに反映
+            // 3-3. PurchaseOrderを一度だけ保存する
+            purchaseOrderRepository.save(newOrder);
+            purchaseOrderRepository.flush();
+            System.out.println("発注No登録完了: " + newOrder.getOrderNo());
 
             order = newOrder; // 作成したPurchaseOrderをセット
-        }
 
-        // ---------- 発注明細の登録 ----------
-        // ご提示のコードブロックをここに移動し、数量が0ではない場合のみ実行
-        if (req.getQuantity().compareTo(BigDecimal.ZERO) != 0) {
+            // ---------- 発注明細の登録 ----------
+            // 数量が0ではない場合のみ実行
             PurchaseOrderDetail detail = new PurchaseOrderDetail();
             detail.setPurchaseOrder(order); // ここで上記で作成したorderを使用
             detail.setItemCode(stock.getItemCode());
