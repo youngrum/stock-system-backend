@@ -7,23 +7,17 @@ CREATE TABLE users
 );
 CREATE TABLE stock_master
 (
-  id BIGINT
-  AUTO_INCREMENT PRIMARY KEY,
-  item_code VARCHAR
-  (64) NOT NULL UNIQUE,
-  item_name VARCHAR
-  (128) NOT NULL,
-  category VARCHAR
-  (64),
-  model_number VARCHAR
-  (64),
-  manufacturer VARCHAR
-  (64);
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  item_code VARCHAR(64) NOT NULL UNIQUE,
+  item_name VARCHAR(128) NOT NULL,
+  category VARCHAR(64),
+  model_number VARCHAR(64),
+  manufacturer VARCHAR(64),
   current_stock INT NOT NULL,
+  location VARCHAR(64) DEFAULT '-',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON
-  UPDATE CURRENT_TIMESTAMP
-  );
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
   CREATE TABLE inventory_transaction
   (
