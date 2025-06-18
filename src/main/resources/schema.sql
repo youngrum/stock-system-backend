@@ -54,7 +54,8 @@ CREATE TABLE purchase_order_detail
 
 CREATE TABLE inventory_transaction
 (
-  transaction_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  transaction_id VARCHAR(64) NOT NULL UNIQUE,
   item_code VARCHAR(64) NOT NULL,
   transaction_type VARCHAR(32) NOT NULL,
   quantity DECIMAL(14, 2) NOT NULL,

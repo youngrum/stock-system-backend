@@ -7,6 +7,8 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.example.backend.common.service.TransactionIdGenerator;
+import com.example.backend.inventory.repository.InventoryTransactionRepository;
 import com.example.backend.inventory.dto.InventoryDispatchRequest;
 import com.example.backend.inventory.dto.InventoryReceiveRequest;
 import com.example.backend.inventory.dto.StockMasterRequest;
@@ -20,8 +22,10 @@ public class InventoryTransaction {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id; // サロゲートキー
+
   @Column(name = "transaction_id")
-  private Long transactionId;
+  private String transactionId;
 
   // NULL許容: 出庫にはorderNoがない可能性あり
   @ManyToOne(fetch = FetchType.LAZY)
@@ -65,9 +69,15 @@ public class InventoryTransaction {
    */
   public static InventoryTransaction createReceiveTransaction(StockMaster stockItem, StockMasterRequest req,
       String username) {
+    
+    // トランザクションIDを生成
+    TransactionIdGenerator generator = new TransactionIdGenerator();
+    String txNo = generator.generateTxNo();
+
     // 登録した数量によってトランザクションタイプを分岐
     InventoryTransaction tx = new InventoryTransaction();
     tx.setStockItem(stockItem);
+    tx.setTransactionId(txNo);
     // 登録した数量によってトランザクションタイプを分岐
     if (req.getCurrentStock().compareTo(BigDecimal.ZERO) == 0) {
       tx.setTransactionType(InventoryTransaction.TransactionType.ITEM_REGIST);
@@ -93,9 +103,14 @@ public class InventoryTransaction {
   public static InventoryTransaction createTransactionForManualReceive(
       StockMaster stock, PurchaseOrder order, InventoryReceiveRequest req, String operator) {
 
+    // トランザクションIDを生成
+    TransactionIdGenerator generator = new TransactionIdGenerator();
+    String txNo = generator.generateTxNo();
+
     InventoryTransaction tx = new InventoryTransaction();
     tx.setStockItem(stock);
     tx.setPurchaseOrder(order);
+    tx.setTransactionId(txNo);
     tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
     tx.setQuantity(req.getQuantity());
     tx.setOperator(operator);
@@ -117,8 +132,14 @@ public class InventoryTransaction {
    */
   public static InventoryTransaction createTransactionforDispatch(StockMaster stockItem,
       InventoryDispatchRequest req, String username) {
+
+    // トランザクションIDを生成
+    TransactionIdGenerator generator = new TransactionIdGenerator();
+    String txNo = generator.generateTxNo();
+        
     // 出庫トランザクション登録
     InventoryTransaction tx = new InventoryTransaction();
+    tx.setTransactionId(txNo);
     tx.setStockItem(stockItem);
     tx.setTransactionType(InventoryTransaction.TransactionType.MANUAL_DISPATCH);
     tx.setQuantity(req.getQuantity());
@@ -147,7 +168,12 @@ public class InventoryTransaction {
       BigDecimal purchasePrice,
       String operator) {
 
+    // トランザクションIDを生成
+    TransactionIdGenerator generator = new TransactionIdGenerator();
+    String txNo = generator.generateTxNo();
+
     InventoryTransaction tx = new InventoryTransaction();
+    tx.setTransactionId(txNo);
     tx.setPurchaseOrder(order);
     tx.setStockItem(stock);
     tx.setQuantity(item.getReceivedQuantity());
@@ -177,7 +203,13 @@ public class InventoryTransaction {
       PurchaseOrderRequest req,
       BigDecimal purchasePrice,
       PurchaseOrderRequest.Detail detail) {
+
+    // トランザクションIDを生成
+    TransactionIdGenerator generator = new TransactionIdGenerator();
+    String txNo = generator.generateTxNo();
+
     InventoryTransaction tx = new InventoryTransaction();
+    tx.setTransactionId(txNo);
     tx.setPurchaseOrder(order);
     tx.setStockItem(stock);
     tx.setQuantity(detail.getQuantity());
@@ -186,6 +218,26 @@ public class InventoryTransaction {
     tx.setOperator(operator);
     tx.setTransactionTime(LocalDateTime.now());
     tx.setRemarks(detail.getRemarks());
+    return tx;
+  }
+
+  public static InventoryTransaction createTransactionForCsv(
+      String[] data, StockMaster stock, String username, TransactionIdGenerator transactionIdGenerator,InventoryTransactionRepository inventoryTransactionRepository) {
+
+    // トランザクションIDを生成
+    String txNo = transactionIdGenerator.generateTxNo();
+    InventoryTransaction tx = new InventoryTransaction();
+    
+    tx.setTransactionId(txNo);
+    tx.setStockItem(stock);
+    tx.setTransactionType(TransactionType.ITEM_REGIST);
+    tx.setManufacturer(data[3]);  // CSVのメーカー列manufacturerを使用
+    tx.setSupplier(data[4]);  // CSVの仕入れ先列suplierを使用
+    tx.setQuantity(new BigDecimal(data[5])); // CSVの数量列current_stockを使用
+    tx.setRemarks(data[7]); // CSVの備考列remarksを使用
+    tx.setOperator(username);
+    tx.setTransactionTime(LocalDateTime.now());
+    inventoryTransactionRepository.save(tx);
     return tx;
   }
 

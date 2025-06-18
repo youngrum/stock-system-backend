@@ -40,6 +40,7 @@ erDiagram
 
     inventory_transaction {
         bigint transaction_id PK "AUTO_INCREMENT"
+        varchar id "NOT NULL"
         varchar item_code FK "NOT NULL"
         varchar transaction_type "NOT NULL"
         decimal quantity "NOT NULL"

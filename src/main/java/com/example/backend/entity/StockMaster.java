@@ -87,8 +87,8 @@ public class StockMaster {
                                            StockMasterRepository repository,
                                            ItemCodeGenerator itemCodeGenerator) throws Exception {
         // データの妥当性チェック
-        if (csvData.length < 7) {
-            throw new IllegalArgumentException("CSVデータが不完全です。7列必要です。");
+        if (csvData.length < 8) {
+            throw new IllegalArgumentException("CSVデータが不完全です。8列必要です。");
         }
 
         // 1. エンティティインスタンスを生成
@@ -100,20 +100,25 @@ public class StockMaster {
         stock.setModelNumber(csvData[1].trim().isEmpty() ? "-" : csvData[1].trim());
         stock.setCategory(csvData[2].trim());
         stock.setManufacturer(csvData[3].trim().isEmpty() ? "-" : csvData[3].trim());
+        //csvData[4] = suplier はStockMasterには存在しないため、コメントアウト
+        // stock.set(csvData[4].trim().isEmpty() ? "-" : csvData[4].trim());
         
         // 在庫数の変換
         try {
-            String stockStr = csvData[4].trim();
-            if (stockStr.isEmpty()) {
+            String stockStr = csvData[5] != null ? csvData[5].trim() : "";
+            if (stockStr.isEmpty()) {  // 空文字列チェックを先に
                 stock.setCurrentStock(BigDecimal.ZERO);
             } else {
                 stock.setCurrentStock(new BigDecimal(stockStr));
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("在庫数が数値ではありません: " + csvData[4]);
+            throw new IllegalArgumentException("在庫数が数値ではありません: " + csvData[5]);
         }
         
-        stock.setLocation(csvData[5].trim().isEmpty() ? "-" : csvData[5].trim());
+        stock.setLocation(csvData[6].trim().isEmpty() ? "-" : csvData[6].trim());
+
+        // csvData[8]=remarksはStockMasterには存在しないため、コメントアウト
+        // stock.setremarks(csvData[8].trim().isEmpty() ? "-" : csvData[8].trim());
 
         // 3. 仮保存してIDを取得
         stock = repository.save(stock);
@@ -135,8 +140,8 @@ public class StockMaster {
      * CSVアップロード用簡易バリデーション
      */
     public static void validateCsvData(String[] csvData) throws Exception {
-        if (csvData.length < 6) {
-            throw new IllegalArgumentException("CSVデータが不完全です。必要な列数: 6, 実際の列数: " + csvData.length);
+        if (csvData.length < 8) {
+            throw new IllegalArgumentException("CSVデータが不完全です。必要な列数: 8, 実際の列数: " + csvData.length);
         }
 
         // 必須フィールドのチェック
@@ -148,12 +153,14 @@ public class StockMaster {
             throw new IllegalArgumentException("カテゴリは必須です");
         }
 
+        System.out.println("csvData[6]："+csvData[5]);
+
         // 在庫数の数値チェック
-        if (!csvData[4].trim().isEmpty()) {
+        if (!csvData[5].trim().isEmpty()) {
             try {
-                new BigDecimal(csvData[4].trim());
+                new BigDecimal(csvData[5].trim());
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("在庫数が数値ではありません: " + csvData[4]);
+                throw new IllegalArgumentException("在庫数が数値ではありません: " + csvData[5]);
             }
         }
     }

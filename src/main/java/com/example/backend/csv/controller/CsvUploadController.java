@@ -87,15 +87,16 @@ public class CsvUploadController {
         // ヘッダー行の事前チェック
         try (BufferedReader reader = new BufferedReader(
             new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+
             String headerLine = reader.readLine();
-            System.out.println("=== ヘッダー行詳細デバッグ ===");
-            System.out.println("ヘッダー行: [" + headerLine + "]");
-            System.out.println("ヘッダー長: " + (headerLine != null ? headerLine.length() : "null"));
-                        
+            
             // BOM除去
             if (headerLine != null && headerLine.startsWith("\uFEFF")) {
                 headerLine = headerLine.substring(1);
             }
+            System.out.println("=== ヘッダー行詳細デバッグ ===");
+            System.out.println("ヘッダー行: [" + headerLine + "]");
+            System.out.println("ヘッダー長: " + (headerLine != null ? headerLine.length() : "null"));
             
             // 空白除去
             headerLine = headerLine != null ? headerLine.trim() : null;
@@ -103,14 +104,14 @@ public class CsvUploadController {
             if (!csvUploadService.validateCsvFormat(headerLine)) {
                 response.put("success", false);
                 response.put("message", "CSVファイルのフォーマットが正しくありません。");
-                response.put("expectedFormat", "item_name,model_number,category,manufacturer,current_stock,location,remarks");
+                response.put("expectedFormat", "item_name,model_number,category,manufacturer,suplier,current_stock,location,remarks");
                 response.put("actualHeader", headerLine);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         }
 
         // CSV処理サービスを呼び出す
-        List<String> errors = csvUploadService.importCsv(file.getInputStream());
+        List<String> errors = csvUploadService.uploadCsv(file.getInputStream());
 
         if (errors.isEmpty()) {
             response.put("success", true);
@@ -146,13 +147,14 @@ public class CsvUploadController {
         
         response.put("filename", "stock_master_template.csv");
         response.put("headers", new String[]{
-            "item_name", "model_number", "category", "manufacturer", "current_stock", "location", "remarks"
+            "item_name", "model_number", "category", "manufacturer", "suplier", "current_stock", "location", "remarks"
         });
         response.put("headerDescriptions", Map.of(
             "item_name", "商品名（必須）",
             "model_number", "型番（任意）",
             "category", "カテゴリ（必須）", 
             "manufacturer", "メーカー（任意、未設定の場合は'-'）",
+            "suplier", "仕入れ先（任意、未設定の場合は'-'）",
             "current_stock", "現在庫数（任意、未設定の場合は0）",
             "location", "保管場所（任意、未設定の場合は'-'）",
             "remarks", "備考（任意、未設定の場合は'-'）"
@@ -161,7 +163,8 @@ public class CsvUploadController {
             "item_name", "テスト商品A",
             "model_number", "MOD-001", 
             "category", "電子機器",
-            "manufacturer", "テストメーカー",
+            "manufacturer", "○○電機",
+            "manufacturer", "○○商事",
             "current_stock", "100",
             "location", "倉庫A",
             "remarks", "特記事項なし"

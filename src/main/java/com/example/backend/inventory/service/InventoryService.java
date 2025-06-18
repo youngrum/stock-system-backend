@@ -85,7 +85,7 @@ public class InventoryService {
      * @return 登録された在庫マスタエンティティ
      */
     @Transactional
-    public Long receiveInventory(InventoryReceiveRequest req) {
+    public String receiveInventory(InventoryReceiveRequest req) {
         System.out.println("Receiving inventory with request: " + req);
         // 1. ログインユーザー名を取得
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -176,7 +176,7 @@ public class InventoryService {
      * @return
      */
     @Transactional
-    public Long dispatchInventory(InventoryDispatchRequest req) {
+    public String dispatchInventory(InventoryDispatchRequest req) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         StockMaster stock = stockMasterRepository.findByItemCode(req.getItemCode())

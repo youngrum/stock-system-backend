@@ -71,7 +71,7 @@ public class InventoryController {
   @Operation(summary = "入庫登録")
   @PostMapping("/inventory/receive/{itemCode}")
   public ResponseEntity<?> receiveInventory(@RequestBody InventoryReceiveRequest request) {
-    long transactionId = inventoryService.receiveInventory(request);
+    String transactionId = inventoryService.receiveInventory(request);
     return ResponseEntity.ok(
         Map.of(
             "status", 200,
@@ -83,7 +83,7 @@ public class InventoryController {
   @Operation(summary = "出庫登録")
   @PostMapping("/inventory/dispatch/{itemCode}")
   public ResponseEntity<?> dispatchInventory(@RequestBody InventoryDispatchRequest request) {
-    long transactionId = inventoryService.dispatchInventory(request);
+    String transactionId = inventoryService.dispatchInventory(request);
     return ResponseEntity.ok(
         Map.of(
             "status", 200,
