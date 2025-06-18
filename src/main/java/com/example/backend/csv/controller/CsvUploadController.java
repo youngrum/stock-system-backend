@@ -164,7 +164,7 @@ public class CsvUploadController {
             "model_number", "MOD-001", 
             "category", "電子機器",
             "manufacturer", "○○電機",
-            "manufacturer", "○○商事",
+            "suplier", "○○商事",
             "current_stock", "100",
             "location", "倉庫A",
             "remarks", "特記事項なし"
