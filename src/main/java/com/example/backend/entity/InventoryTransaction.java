@@ -69,7 +69,7 @@ public class InventoryTransaction {
    */
   public static InventoryTransaction createReceiveTransaction(StockMaster stockItem, StockMasterRequest req,
       String username) {
-    
+
     // トランザクションIDを生成
     TransactionIdGenerator generator = new TransactionIdGenerator();
     String txNo = generator.generateTxNo();
@@ -136,7 +136,7 @@ public class InventoryTransaction {
     // トランザクションIDを生成
     TransactionIdGenerator generator = new TransactionIdGenerator();
     String txNo = generator.generateTxNo();
-        
+
     // 出庫トランザクション登録
     InventoryTransaction tx = new InventoryTransaction();
     tx.setTransactionId(txNo);
@@ -222,17 +222,18 @@ public class InventoryTransaction {
   }
 
   public static InventoryTransaction createTransactionForCsv(
-      String[] data, StockMaster stock, String username, TransactionIdGenerator transactionIdGenerator,InventoryTransactionRepository inventoryTransactionRepository) {
+      String[] data, StockMaster stock, String username, TransactionIdGenerator transactionIdGenerator,
+      InventoryTransactionRepository inventoryTransactionRepository) {
 
     // トランザクションIDを生成
     String txNo = transactionIdGenerator.generateTxNo();
     InventoryTransaction tx = new InventoryTransaction();
-    
+
     tx.setTransactionId(txNo);
     tx.setStockItem(stock);
-    tx.setTransactionType(TransactionType.ITEM_REGIST);
-    tx.setManufacturer(data[3]);  // CSVのメーカー列manufacturerを使用
-    tx.setSupplier(data[4]);  // CSVの仕入れ先列suplierを使用
+    tx.setTransactionType(TransactionType.MANUAL_RECEIVE);
+    tx.setManufacturer(data[3]); // CSVのメーカー列manufacturerを使用
+    tx.setSupplier(data[4]); // CSVの仕入れ先列suplierを使用
     tx.setQuantity(new BigDecimal(data[5])); // CSVの数量列current_stockを使用
     tx.setRemarks(data[7]); // CSVの備考列remarksを使用
     tx.setOperator(username);
