@@ -82,4 +82,76 @@ public class StockMaster {
         
         return stock;
     }
+
+    public static StockMaster createStockFromCsv(String[] csvData,
+                                           StockMasterRepository repository,
+                                           ItemCodeGenerator itemCodeGenerator) throws Exception {
+        // データの妥当性チェック
+        if (csvData.length < 7) {
+            throw new IllegalArgumentException("CSVデータが不完全です。7列必要です。");
+        }
+
+        // 1. エンティティインスタンスを生成
+        StockMaster stock = new StockMaster();
+        stock.setItemCode("itemCode-null"); // 仮のitemCode
+        
+        // 2. CSVデータを設定（トリムして設定）
+        stock.setItemName(csvData[0].trim());
+        stock.setModelNumber(csvData[1].trim().isEmpty() ? "-" : csvData[1].trim());
+        stock.setCategory(csvData[2].trim());
+        stock.setManufacturer(csvData[3].trim().isEmpty() ? "-" : csvData[3].trim());
+        
+        // 在庫数の変換
+        try {
+            String stockStr = csvData[4].trim();
+            if (stockStr.isEmpty()) {
+                stock.setCurrentStock(BigDecimal.ZERO);
+            } else {
+                stock.setCurrentStock(new BigDecimal(stockStr));
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("在庫数が数値ではありません: " + csvData[4]);
+        }
+        
+        stock.setLocation(csvData[5].trim().isEmpty() ? "-" : csvData[5].trim());
+
+        // 3. 仮保存してIDを取得
+        stock = repository.save(stock);
+        
+        // 4. IDベースでitemCodeを採番
+        String code = itemCodeGenerator.generateItemCode(stock.getId());
+        stock.setItemCode(code);
+        
+        // 5. 正式なitemCodeで再保存
+        stock = repository.save(stock);
+        
+        return stock;
+    }
+
+    /**
+     * CSVアップロード用簡易バリデーション
+     */
+    public static void validateCsvData(String[] csvData) throws Exception {
+        if (csvData.length < 6) {
+            throw new IllegalArgumentException("CSVデータが不完全です。必要な列数: 6, 実際の列数: " + csvData.length);
+        }
+
+        // 必須フィールドのチェック
+        if (csvData[0].trim().isEmpty()) {
+            throw new IllegalArgumentException("商品名は必須です");
+        }
+        
+        if (csvData[2].trim().isEmpty()) {
+            throw new IllegalArgumentException("カテゴリは必須です");
+        }
+
+        // 在庫数の数値チェック
+        if (!csvData[4].trim().isEmpty()) {
+            try {
+                new BigDecimal(csvData[4].trim());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("在庫数が数値ではありません: " + csvData[4]);
+            }
+        }
+    }
 }

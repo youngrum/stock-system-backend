@@ -8,44 +8,161 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/api")
-@Tag(name = "CSVファイルアップロードAPI", description = "在庫情報のCSVファイルアップロードと処理")
+@Tag(name = "CSVファイル処理API", description = "在庫情報のCSVファイルについてのアップロードとテンプレート情報の取得を提供します")
 public class CsvUploadController {
 
-  @Autowired
-  private CsvUploadService csvUploadService;
+    @Autowired
+    private CsvUploadService csvUploadService;
+    /**
+     * 在庫情報CSVファイルのアップロードと処理
+     * 
+     * @param file アップロードされたCSVファイル
+     * @return 処理結果のレスポンス
+     */
+    @Operation(summary = "在庫CSVファイルアップロード", 
+               description = "在庫情報が記載されたCSVファイルをアップロードし、stock_masterテーブルに登録します")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "アップロード成功"),
+            @ApiResponse(responseCode = "400", description = "バリデーションエラー"),
+            @ApiResponse(responseCode = "500", description = "サーバーエラー")
+    })
 
-  @SuppressWarnings("null")
-  @PostMapping("/upload-csv")
-  public ResponseEntity<Map<String, String>> uploadCsv(@RequestParam("file") MultipartFile file) {
+    @PostMapping("/upload-csv")
+    public ResponseEntity<Map<String, Object>> uploadCsv(@RequestParam("file") MultipartFile file) {
+
+          Map<String, Object> response = new HashMap<>();
+    
+    // ファイルの基本チェック
     if (file.isEmpty()) {
-      return new ResponseEntity<>(Map.of("message", "ファイルが選択されていません。"), HttpStatus.BAD_REQUEST);
+        response.put("success", false);
+        response.put("message", "ファイルが選択されていません。");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-    if (!file.getContentType().equals("text/csv")) {
-      return new ResponseEntity<>(Map.of("message", "CSVファイルのみアップロード可能です。"), HttpStatus.BAD_REQUEST);
+    
+    // ファイルタイプのチェック
+    String contentType = file.getContentType();
+    String filename = file.getOriginalFilename();
+    
+    // デバッグ用ログ出力（本番環境では削除）
+    System.out.println("Content-Type: " + contentType);
+    System.out.println("Filename: " + filename);
+    
+    // ファイル名での拡張子チェックを優先
+    if (filename == null || !filename.toLowerCase().endsWith(".csv")) {
+        response.put("success", false);
+        response.put("message", "CSVファイル（.csv拡張子）のみアップロード可能です。");
+        response.put("uploadedContentType", contentType);
+        response.put("uploadedFilename", filename);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    
+    // Content-Typeのチェック
+    if (contentType != null && !isAcceptableContentType(contentType)) {
+        // Content-Typeが不正でも、拡張子が.csvなら警告のみ
+        System.out.println("Warning: Unexpected content-type for CSV file: " + contentType);
     }
 
     try {
-      // CSV処理サービスを呼び出す (別途実装)
-      List<String> errors = csvUploadService.importCsv(file.getInputStream());
+        // ヘッダー行の事前チェック
+        try (BufferedReader reader = new BufferedReader(
+            new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+            String headerLine = reader.readLine();
+            System.out.println("=== ヘッダー行詳細デバッグ ===");
+            System.out.println("ヘッダー行: [" + headerLine + "]");
+            System.out.println("ヘッダー長: " + (headerLine != null ? headerLine.length() : "null"));
+    
+            if (!csvUploadService.validateCsvFormat(headerLine)) {
+                response.put("success", false);
+                response.put("message", "CSVファイルのフォーマットが正しくありません。");
+                response.put("expectedFormat", "item_name,model_number,category,manufacturer,current_stock,location,remarks");
+                response.put("actualHeader", headerLine);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+        }
 
-      if (errors.isEmpty()) {
-        return new ResponseEntity<>(Map.of("message", "CSVファイルのアップロードと処理が完了しました。"), HttpStatus.OK);
-      } else {
-        // エラーがある場合
-        return new ResponseEntity<>(Map.of("message", "一部のデータでエラーが発生しました。", "details", String.join("\n", errors)),
-            HttpStatus.BAD_REQUEST);
-      }
+        // CSV処理サービスを呼び出す
+        List<String> errors = csvUploadService.importCsv(file.getInputStream());
+
+        if (errors.isEmpty()) {
+            response.put("success", true);
+            response.put("message", "CSVファイルのアップロードと処理が完了しました。");
+            response.put("filename", filename);
+            response.put("fileSize", file.getSize());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            // 一部エラーがある場合
+            response.put("success", false);
+            response.put("message", "一部のデータでエラーが発生しました。");
+            response.put("errors", errors);
+            response.put("errorCount", errors.size());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
 
     } catch (Exception e) {
-      e.printStackTrace();
-      return new ResponseEntity<>(Map.of("message", "CSVファイルの処理中にエラーが発生しました: " + e.getMessage()),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+        e.printStackTrace();
+        response.put("success", false);
+        response.put("message", "CSVファイルの処理中にエラーが発生しました: " + e.getMessage());
+        response.put("errorType", e.getClass().getSimpleName());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
+ }
+    /**
+     * 在庫登録用CSVテンプレートファイルの情報を取得
+     */
+    @Operation(summary = "CSVテンプレートダウンロード", 
+               description = "在庫登録用CSVテンプレートファイルの情報を返します")
+    @GetMapping("/csv-template-info")
+    public ResponseEntity<Map<String, Object>> getCsvTemplateInfo() {
+        Map<String, Object> response = new HashMap<>();
+        
+        response.put("filename", "stock_master_template.csv");
+        response.put("headers", new String[]{
+            "item_name", "model_number", "category", "manufacturer", "current_stock", "location", "remarks"
+        });
+        response.put("headerDescriptions", Map.of(
+            "item_name", "商品名（必須）",
+            "model_number", "型番（任意）",
+            "category", "カテゴリ（必須）", 
+            "manufacturer", "メーカー（任意、未設定の場合は'-'）",
+            "current_stock", "現在庫数（任意、未設定の場合は0）",
+            "location", "保管場所（任意、未設定の場合は'-'）",
+            "remarks", "備考（任意、未設定の場合は'-'）"
+        ));
+        response.put("example", Map.of(
+            "item_name", "テスト商品A",
+            "model_number", "MOD-001", 
+            "category", "電子機器",
+            "manufacturer", "テストメーカー",
+            "current_stock", "100",
+            "location", "倉庫A",
+            "remarks", "特記事項なし"
+        ));
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 受け入れ可能なContent-Typeかどうかを判定
+     */
+    private boolean isAcceptableContentType(String contentType) {
+        return contentType.equals("text/csv") ||
+              contentType.equals("application/csv") ||
+              contentType.equals("text/plain") ||
+              contentType.equals("application/vnd.ms-excel") ||  // Excel形式のCSV
+              contentType.equals("text/comma-separated-values") ||
+              contentType.startsWith("text/"); // text/*は許可
+    }
 }
