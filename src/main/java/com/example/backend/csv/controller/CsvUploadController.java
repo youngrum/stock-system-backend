@@ -76,6 +76,14 @@ public class CsvUploadController {
     }
 
     try {
+        // ファイル形式の実際の検証
+        if (!isValidCsvFile(file)) {
+            response.put("success", false);
+            response.put("message", "アップロードされたファイルは有効なCSVファイルではありません。Excelで保存する際は「CSV（カンマ区切り）形式」を選択してください。");
+            response.put("detectedFormat", "Excel形式またはバイナリファイル");
+            response.put("expectedFormat", "テキスト形式のCSVファイル");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
         // ヘッダー行の事前チェック
         try (BufferedReader reader = new BufferedReader(
             new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
@@ -83,6 +91,14 @@ public class CsvUploadController {
             System.out.println("=== ヘッダー行詳細デバッグ ===");
             System.out.println("ヘッダー行: [" + headerLine + "]");
             System.out.println("ヘッダー長: " + (headerLine != null ? headerLine.length() : "null"));
+                        
+            // BOM除去
+            if (headerLine != null && headerLine.startsWith("\uFEFF")) {
+                headerLine = headerLine.substring(1);
+            }
+            
+            // 空白除去
+            headerLine = headerLine != null ? headerLine.trim() : null;
     
             if (!csvUploadService.validateCsvFormat(headerLine)) {
                 response.put("success", false);
@@ -165,4 +181,39 @@ public class CsvUploadController {
               contentType.equals("text/comma-separated-values") ||
               contentType.startsWith("text/"); // text/*は許可
     }
+    /**
+ * ファイルが有効なCSV形式かどうかを検証
+ */
+private boolean isValidCsvFile(MultipartFile file) {
+    try (BufferedReader reader = new BufferedReader(
+            new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+        
+        String firstLine = reader.readLine();
+        if (firstLine == null) {
+            return false; // 空ファイル
+        }
+        
+        // バイナリデータの検出（Excel形式など）
+        // XML宣言やExcel特有の文字列をチェック
+        if (firstLine.contains("[Content_Types].xml") || 
+            firstLine.contains("_rels/") ||
+            firstLine.startsWith("PK") || // ZIP形式（xlsx）
+            firstLine.contains("<?xml") ||
+            firstLine.length() > 1000) { // 異常に長いヘッダー行
+            return false;
+        }
+        
+        // 制御文字の検出（printable文字以外）
+        for (char c : firstLine.toCharArray()) {
+            if (c < 32 && c != '\t' && c != '\r' && c != '\n') {
+                return false; // バイナリデータの可能性
+            }
+        }
+        
+        return true;
+        
+    } catch (Exception e) {
+        return false;
+    }
+}
 }

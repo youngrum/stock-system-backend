@@ -16,7 +16,7 @@ public class ItemCodeGenerator {
      * 登録済みIDから itemCode を発行する
      *
      * @param id サロゲートキー（stock_master.id）
-     * @return itemCode（例: ITEM-0001）
+     * @return itemCode（例: I-0001）
      */
     public String generateItemCode(Long id) {
         // int term = resolveCurrentTerm();

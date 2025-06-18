@@ -117,14 +117,17 @@ public class StockMaster {
 
         // 3. 仮保存してIDを取得
         stock = repository.save(stock);
-        
+                
         // 4. IDベースでitemCodeを採番
         String code = itemCodeGenerator.generateItemCode(stock.getId());
         stock.setItemCode(code);
         
         // 5. 正式なitemCodeで再保存
         stock = repository.save(stock);
-        
+
+        // 6. DBに反映（FLUSH）
+        repository.flush();
+
         return stock;
     }
 
