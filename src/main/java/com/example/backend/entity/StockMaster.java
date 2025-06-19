@@ -149,6 +149,11 @@ public class StockMaster {
             throw new IllegalArgumentException("商品名は必須です");
         }
         
+        // 必須フィールドのチェック
+        if (csvData[1].trim().isEmpty()) {
+            throw new IllegalArgumentException("型番は必須です");
+        }
+        
         if (csvData[2].trim().isEmpty()) {
             throw new IllegalArgumentException("カテゴリは必須です");
         }

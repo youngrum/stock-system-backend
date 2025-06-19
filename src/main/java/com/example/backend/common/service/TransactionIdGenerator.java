@@ -12,7 +12,6 @@ import java.util.Optional;
 @Service
 public class TransactionIdGenerator {
 
-    
     private static final String DEPARTMENT_CODE = "S";
     private static final int BASE_TERM = 56; // 2024年8月1日からの期を56期とする
     private static final int START_YEAR = 2024;

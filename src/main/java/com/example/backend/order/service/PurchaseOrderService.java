@@ -3,6 +3,7 @@ package com.example.backend.order.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +19,14 @@ import com.example.backend.order.repository.PurchaseOrderDetailRepository;
 import com.example.backend.order.repository.PurchaseOrderRepository;
 import com.example.backend.common.service.ItemCodeGenerator;
 import com.example.backend.common.service.OrderNumberGenerator;
+import com.example.backend.common.service.TransactionIdGenerator;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor // // 手動コンストラクタは不要
 public class PurchaseOrderService {
 
   private final PurchaseOrderRepository purchaseOrderRepository;
@@ -32,6 +34,7 @@ public class PurchaseOrderService {
   private final StockMasterRepository stockMasterRepository;
   private final InventoryTransactionRepository inventoryTransactionRepository;
   private final ItemCodeGenerator itemCodeGenerator;
+  private final TransactionIdGenerator transactionIdGenerator;
   private final OrderNumberGenerator orderNumberGenerator;
 
   /**
@@ -124,7 +127,8 @@ public class PurchaseOrderService {
 
       // 4. 入庫トランザクション登録
       InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseOrder(
-          username, stock, header, req, d.getPurchasePrice(), d);
+          username, stock, header, req, d, transactionIdGenerator, inventoryTransactionRepository);
+      System.out.println(tx);
       inventoryTransactionRepository.save(tx);
     }
 

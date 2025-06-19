@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -114,6 +115,7 @@ public class CsvUploadController {
 
       // CSV処理サービスを呼び出す
       List<String> errors = csvUploadService.uploadCsv(file.getInputStream());
+      System.out.println("検証結果 - data: " + (errors));
 
       if (errors.isEmpty()) {
         response.put("success", true);
@@ -151,18 +153,23 @@ public class CsvUploadController {
     response.put("headers", new String[] {
         "item_name", "model_number", "category", "manufacturer", "suplier", "current_stock", "location", "remarks"
     });
-    response.put("headerDescriptions", Map.of(
-        "item_name", "商品名（必須）",
-        "model_number", "型番（任意）",
-        "category", "カテゴリ（必須）",
-        "manufacturer", "メーカー（任意、未設定の場合は'-'）",
-        "suplier", "仕入れ先（任意、未設定の場合は'-'）",
-        "current_stock", "現在庫数（任意、未設定の場合は0）",
-        "location", "保管場所（任意、未設定の場合は'-'）",
-        "remarks", "備考（任意、未設定の場合は'-'）"));
 
     // Map.of()だと順序がランダム生成なのでLinkedHashMapを使用
+    Map<String, String> headerDescriptions = new LinkedHashMap<>();
+
+    headerDescriptions.put("item_name", "商品名（必須）");
+    headerDescriptions.put("model_number", "型番（必須）");
+    headerDescriptions.put("category", "カテゴリ（必須）");
+    headerDescriptions.put("manufacturer", "メーカー（任意、未設定の場合は'-'）");
+    headerDescriptions.put("suplier", "仕入れ先（任意、未設定の場合は'-'）");
+    headerDescriptions.put("current_stock", "現在庫数（任意、未設定の場合は0）");
+    headerDescriptions.put("location", "保管場所（任意、未設定の場合は'-'）");
+    headerDescriptions.put("remarks", "備考（任意、未設定の場合は'-'）");
+
+    response.put("headerDescriptions", headerDescriptions);
+
     Map<String, String> example = new LinkedHashMap<>();
+    
     example.put("item_name", "テスト商品A");
     example.put("model_number", "MOD-001");
     example.put("category", "電子機器");

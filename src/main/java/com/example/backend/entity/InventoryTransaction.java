@@ -68,11 +68,11 @@ public class InventoryTransaction {
    * 新規在庫登録
    */
   public static InventoryTransaction createReceiveTransaction(StockMaster stockItem, StockMasterRequest req,
-      String username) {
+      String username, TransactionIdGenerator transactionIdGenerator,
+      InventoryTransactionRepository inventoryTransactionRepository) {
 
     // トランザクションIDを生成
-    TransactionIdGenerator generator = new TransactionIdGenerator();
-    String txNo = generator.generateTxNo();
+    String txNo = transactionIdGenerator.generateTxNo();
 
     // 登録した数量によってトランザクションタイプを分岐
     InventoryTransaction tx = new InventoryTransaction();
@@ -101,11 +101,12 @@ public class InventoryTransaction {
    * @return 入庫処理 (モーダルからの手動入庫)
    */
   public static InventoryTransaction createTransactionForManualReceive(
-      StockMaster stock, PurchaseOrder order, InventoryReceiveRequest req, String operator) {
+      StockMaster stock, PurchaseOrder order, InventoryReceiveRequest req, String operator, 
+      TransactionIdGenerator transactionIdGenerator,
+      InventoryTransactionRepository inventoryTransactionRepository) {
 
     // トランザクションIDを生成
-    TransactionIdGenerator generator = new TransactionIdGenerator();
-    String txNo = generator.generateTxNo();
+    String txNo = transactionIdGenerator.generateTxNo();
 
     InventoryTransaction tx = new InventoryTransaction();
     tx.setStockItem(stock);
@@ -131,11 +132,11 @@ public class InventoryTransaction {
    * @return 入庫処理 (モーダルからの手動入庫)
    */
   public static InventoryTransaction createTransactionforDispatch(StockMaster stockItem,
-      InventoryDispatchRequest req, String username) {
+      InventoryDispatchRequest req, String username, TransactionIdGenerator transactionIdGenerator,
+      InventoryTransactionRepository inventoryTransactionRepository) {
 
     // トランザクションIDを生成
-    TransactionIdGenerator generator = new TransactionIdGenerator();
-    String txNo = generator.generateTxNo();
+    String txNo = transactionIdGenerator.generateTxNo();
 
     // 出庫トランザクション登録
     InventoryTransaction tx = new InventoryTransaction();
@@ -166,11 +167,12 @@ public class InventoryTransaction {
       PurchaseOrder order,
       InventoryReceiveFromOrderRequest req,
       BigDecimal purchasePrice,
-      String operator) {
+      String operator,
+      TransactionIdGenerator transactionIdGenerator,
+      InventoryTransactionRepository inventoryTransactionRepository) {
 
     // トランザクションIDを生成
-    TransactionIdGenerator generator = new TransactionIdGenerator();
-    String txNo = generator.generateTxNo();
+    String txNo = transactionIdGenerator.generateTxNo();
 
     InventoryTransaction tx = new InventoryTransaction();
     tx.setTransactionId(txNo);
@@ -201,19 +203,18 @@ public class InventoryTransaction {
       StockMaster stock,
       PurchaseOrder order,
       PurchaseOrderRequest req,
-      BigDecimal purchasePrice,
-      PurchaseOrderRequest.Detail detail) {
+      PurchaseOrderRequest.Detail detail,TransactionIdGenerator transactionIdGenerator,
+      InventoryTransactionRepository inventoryTransactionRepository) {
 
     // トランザクションIDを生成
-    TransactionIdGenerator generator = new TransactionIdGenerator();
-    String txNo = generator.generateTxNo();
+    String txNo = transactionIdGenerator.generateTxNo();
 
     InventoryTransaction tx = new InventoryTransaction();
     tx.setTransactionId(txNo);
     tx.setPurchaseOrder(order);
     tx.setStockItem(stock);
     tx.setQuantity(detail.getQuantity());
-    tx.setPurchasePrice(purchasePrice);
+    tx.setPurchasePrice(detail.getPurchasePrice());
     tx.setTransactionType(TransactionType.ORDER_REGIST);
     tx.setOperator(operator);
     tx.setTransactionTime(LocalDateTime.now());

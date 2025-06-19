@@ -1,9 +1,7 @@
 INSERT INTO users
   (username, password, enabled)
 VALUES
-  ('tanaka taro', 'a111', TRUE),
-  ('kobayashi megumi', 'hGf%4VbnM@1L', TRUE),
-  ('yamamoto shota', 'zYx#67OpQrs3', TRUE);
+  ('tanaka taro', 'a111', TRUE);
 
 INSERT INTO numbering_master
   (

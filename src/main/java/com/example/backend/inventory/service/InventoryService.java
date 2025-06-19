@@ -2,6 +2,7 @@ package com.example.backend.inventory.service;
 
 import com.example.backend.common.service.ItemCodeGenerator;
 import com.example.backend.common.service.OrderNumberGenerator;
+import com.example.backend.common.service.TransactionIdGenerator;
 import com.example.backend.entity.InventoryTransaction;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.entity.PurchaseOrder;
@@ -37,6 +38,7 @@ public class InventoryService {
     private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
     private final ItemCodeGenerator itemCodeGenerator;
     private final OrderNumberGenerator orderNumberGenerator;
+    private TransactionIdGenerator transactionIdGenerator;
 
     private static final int DEFAULT_DAYS_BACK = 30; // toDateのみ指定時のデフォルト期間
     private static final int MAX_SEARCH_DAYS = 365; // 最大検索可能期間（パフォーマンス対策）
@@ -47,13 +49,15 @@ public class InventoryService {
             PurchaseOrderRepository purchaseOrderRepository,
             PurchaseOrderDetailRepository purchaseOrderDetailRepository,
             ItemCodeGenerator itemCodeGenerator,
-            OrderNumberGenerator orderNumberGenerator) {
+            OrderNumberGenerator orderNumberGenerator,
+            TransactionIdGenerator transactionIdGenerator) {
         this.stockMasterRepository = stockMasterRepository;
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.purchaseOrderDetailRepository = purchaseOrderDetailRepository;
         this.itemCodeGenerator = itemCodeGenerator;
         this.orderNumberGenerator = orderNumberGenerator;
+        this.transactionIdGenerator = transactionIdGenerator;
     }
 
     /**
@@ -72,9 +76,10 @@ public class InventoryService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // 3. トランザクション履歴登録
-        InventoryTransaction transaction = InventoryTransaction.createReceiveTransaction(stock, req, username);
-        inventoryTransactionRepository.save(transaction);
-        System.out.println("Transaction saved with ID: " + transaction.getTransactionId());
+        InventoryTransaction tx = InventoryTransaction.createReceiveTransaction(stock, req, username, transactionIdGenerator,
+        inventoryTransactionRepository );
+        inventoryTransactionRepository.save(tx);
+        System.out.println("Transaction saved with ID: " + tx.getTransactionId());
         return stock;
     }
 
@@ -140,7 +145,7 @@ public class InventoryService {
 
         // 5. 入庫トランザクション登録
         InventoryTransaction transaction = InventoryTransaction.createTransactionForManualReceive(stock, order, req,
-                username);
+                username, transactionIdGenerator, inventoryTransactionRepository);
         inventoryTransactionRepository.save(transaction);
         System.out.println("Transaction saved with ID: " + transaction.getTransactionId());
 
@@ -187,7 +192,7 @@ public class InventoryService {
         }
 
         // 3. トランザクション履歴登録
-        InventoryTransaction transaction = InventoryTransaction.createTransactionforDispatch(stock, req, username);
+        InventoryTransaction transaction = InventoryTransaction.createTransactionforDispatch(stock, req, username, transactionIdGenerator, inventoryTransactionRepository);
         inventoryTransactionRepository.save(transaction);
 
         // 4. 在庫数を更新
@@ -271,7 +276,7 @@ public class InventoryService {
 
             // トランザクション登録
             InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseReceive(
-                    stock, item, order, req, purchasePrice, username);
+                    stock, item, order, req, purchasePrice, username, transactionIdGenerator, inventoryTransactionRepository);
             inventoryTransactionRepository.save(tx);
         }
 
