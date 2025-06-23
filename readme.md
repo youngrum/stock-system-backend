@@ -48,7 +48,7 @@ erDiagram
         timestamp transaction_time "DEFAULT CURRENT_TIMESTAMP, NOT NULL"
         varchar(64) manufacturer
         varchar(64) supplier
-        decimal(10,2) purchase_price
+        decimal purchase_price "precision 10 scale 2"
         varchar(255) remarks
     }
 
@@ -56,9 +56,9 @@ erDiagram
         bigint id PK "AUTO_INCREMENT"
         varchar order_no UK "UNIQUE, NOT NULL"
         varchar(64) supplier "NOT NULL"
-        decimal(14,2) order_subtotal "NOT NULL, DEFAULT 0"
+        decimal order_subtotal "NOT NULL, DEFAULT 0, precision 14 scale 2"
         date order_date "NOT NULL"
-        decimal(10,2) shipping_fee "NOT NULL, DEFAULT 0"
+        decimal shipping_fee "NOT NULL, DEFAULT 0, precision 10 scale 2"
         varchar(64) operator "NOT NULL"
         varchar status "NOT NULL, DEFAULT 未完了"
         varchar(255) remarks
