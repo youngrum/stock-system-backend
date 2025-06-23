@@ -95,4 +95,3 @@ erDiagram
     purchase_order ||--o{ inventory_transaction : "order_no"
     purchase_order ||--o{ purchase_order_detail : "order_no"
     numbering_master ||--o{ purchase_order : "generates order_no"
-```
