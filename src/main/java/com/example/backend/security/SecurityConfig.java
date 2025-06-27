@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,8 +30,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults()); // .csrf(...) の呼び出しが cors() の直後にあることで、戻り値の型が違うためチェーンさせない
+         http.csrf(csrf -> csrf
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRFトークンをCookieに保存
+            .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()) // トークンをリクエスト属性に設定
+        );
+        
         return http
-            .csrf(csrf -> csrf.disable()) // CSRF無効化（APIは基本オフでOK）
+            // .csrf(csrf -> csrf.disable()) // CSRF無効化（APIは基本オフでOK）
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // セッション使わない
             .authorizeHttpRequests(auth -> auth
             .requestMatchers(

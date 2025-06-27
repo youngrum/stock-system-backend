@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/v1/api")
 @Tag(name = "認証API", description = "ログイン/ログアウト機能")
@@ -33,7 +36,7 @@ public class AuthController {
 
     @Operation(summary = "ログイン認証")
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         try {
             User authenticatedUser = authService.authenticate(request.getUsername(), request.getPassword());
             String token = jwtUtil.generateToken(authenticatedUser.getUsername());
@@ -42,12 +45,21 @@ public class AuthController {
             data.put("token", token);
             data.put("username", authenticatedUser.getUsername());
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("status", 200);
-            response.put("message", "Login successful.");
-            response.put("data", data);
 
-            return ResponseEntity.ok(response);
+            // Cookieにトークンを設定
+            Cookie tokenCookie = new Cookie("token", token);
+            tokenCookie.setHttpOnly(true); // XSS攻撃対策
+            tokenCookie.setSecure(true); // HTTPS環境でのみ送信
+            tokenCookie.setPath("/"); // 全パスで有効
+            tokenCookie.setMaxAge(24 * 60 * 60); // 24時間有効
+            response.addCookie(tokenCookie);
+
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("status", 200);
+            responseBody.put("message", "Login successful.");
+            responseBody.put("data", data);
+
+            return ResponseEntity.ok(responseBody);
 
         } catch (AuthenticationException e) {
             System.out.println(e);
@@ -58,6 +70,25 @@ public class AuthController {
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
+    }
+
+    @Operation(summary = "ログアウト")
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        // Cookieを削除（MaxAgeを0に設定）
+        Cookie tokenCookie = new Cookie("token", null);
+        tokenCookie.setHttpOnly(true);
+        tokenCookie.setSecure(true);
+        tokenCookie.setPath("/");
+        tokenCookie.setMaxAge(0); // 即座に削除
+        response.addCookie(tokenCookie);
+
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("status", 200);
+        responseBody.put("message", "Logout successful.");
+        responseBody.put("data", null);
+
+        return ResponseEntity.ok(responseBody);
     }
 
     @GetMapping("/me")
