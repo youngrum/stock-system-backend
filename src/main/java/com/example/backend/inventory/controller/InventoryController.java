@@ -41,7 +41,7 @@ public class InventoryController {
       @Parameter(description = "品名") @RequestParam(required = false) String itemName,
       @Parameter(description = "カテゴリー") @RequestParam(required = false) String category,
       @Parameter(description = "型番") @RequestParam(required = false) String modelNumber,
-      @PageableDefault(sort = "itemCode", direction = Sort.Direction.ASC) Pageable pageable) {
+      @PageableDefault(size = 100, sort = "itemCode", direction = Sort.Direction.ASC) Pageable pageable) {
 
     System.out.println(itemCode);
     System.out.println(itemName);
@@ -96,7 +96,7 @@ public class InventoryController {
   @GetMapping("/inventory/{itemCode}/history")
   public ResponseEntity<?> getInventoryHistory(
       @PathVariable String itemCode,
-      @PageableDefault(sort = "transactionTime", direction = Sort.Direction.DESC) Pageable pageable) {
+      @PageableDefault(size = 100, sort = "transactionTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
     Page<InventoryTransaction> historyPage = inventoryService.getTransactionHistory(itemCode, pageable);
 
@@ -130,7 +130,7 @@ public class InventoryController {
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
       @Parameter(description = "終了日") @RequestParam(required = false) 
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-      @PageableDefault(sort = "transactionTime", direction = Sort.Direction.DESC) Pageable pageable) {
+      @PageableDefault(size = 100, sort = "transactionTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
       Page<InventoryTransaction> allTransactions = inventoryService.getAllTransactionHistory(
           itemCode, operator, fromDate, toDate, pageable);

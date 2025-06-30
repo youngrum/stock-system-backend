@@ -29,7 +29,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults()); // .csrf(...) の呼び出しが cors() の直後にあることで、戻り値の型が違うためチェーンさせない
         return http
-            .csrf(csrf -> csrf.disable()) // CSRF無効化（APIは基本オフでOK）
+            .csrf(csrf -> csrf.disable()) // CSRF無効化（RESTFUL APIは基本オフでOK）
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // セッション使わない
             .authorizeHttpRequests(auth -> auth
             .requestMatchers(
