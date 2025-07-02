@@ -158,15 +158,18 @@ public class StockMaster {
             throw new IllegalArgumentException("カテゴリは必須です");
         }
 
-        System.out.println("csvData[6]："+csvData[5]);
+        System.out.println("csvData[5]："+csvData[5]);
 
         // 在庫数の数値チェック
-        if (!csvData[5].trim().isEmpty()) {
-            try {
-                new BigDecimal(csvData[5].trim());
+        try {
+                String stockStr = csvData[5] != null ? csvData[5].trim() : "";
+                if (stockStr.isEmpty()) {  // 空文字列チェックを先に
+                    stockStr = 0 + ""; // 空文字列の場合は0に変換
+                }else {
+                    new BigDecimal(stockStr); // 数値変換
+                }
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("在庫数が数値ではありません: " + csvData[5]);
             }
-        }
     }
 }
