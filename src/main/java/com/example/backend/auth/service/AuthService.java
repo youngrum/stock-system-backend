@@ -24,12 +24,12 @@ public class AuthService {
     }
 
     public User authenticate(String username, String password) throws AuthenticationException {
-        log.debug("Authentication attempt for username: [{}]", username);
+        log.debug("Authentication attempt for username: ", username);
         
         Optional<User> optionalUser = userRepository.findByUsername(username);
 
         if (optionalUser.isEmpty()) {
-            log.debug("User not found: [{}]", username);
+            log.debug("User not found: ", username);
             throw new AuthenticationException("Invalid username or password.");
         }
 
@@ -51,11 +51,11 @@ public class AuthService {
 
         // ユーザーが無効化されていたら拒否する
         if (!user.isEnabled()) {
-            System.out.println("User account disabled: [{}]"+ username);
+            System.out.println("User account disabled:"+ username);
             throw new AuthenticationException("User account is disabled.");
         }
 
-        System.out.println("Authentication successful for user: [{}]"+ username);
+        System.out.println("Authentication successful for user:"+ username);
         return user;
     }
 }
