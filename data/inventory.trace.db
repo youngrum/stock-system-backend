@@ -1,48 +1,24 @@
-2025-06-17 05:50:42.793308+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:50:42.833348+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:50:56.332087+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:50:56.332087+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:51:19.166250+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:51:19.197158+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:51:19.215499+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:51:19.219460+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:51:21.969944+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:51:21.981944+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:51:21.991686+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:52:26.476164+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-17 05:52:26.587991+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-18 21:07:42.802219+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-18 21:07:42.853999+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
-2025-06-18 21:07:42.862985+09:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
-The object is already closed [90007-224]
+2025-07-04 16:15:17.375943+09:00 jdbc[25]: null
+org.h2.message.DbException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:218)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:135)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:359)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:201)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:470)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:733)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:712)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 16 more
