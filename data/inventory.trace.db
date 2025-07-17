@@ -22,3 +22,184 @@ The connection was not closed by the application and is garbage collected [90018
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
 	... 16 more
+2025-07-16 16:48:39.630793+09:00 jdbc[84]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: SQLステートメントに文法エラーがあります "CREATE TABLE `asset_master` (\000d\000a    `id` bigint NOT NULL AUTO_INCREMENT,\000d\000a    `asset_code` varchar(255) NULL,\000d\000a    `serial_number` varchar(100) NULL,\000d\000a    `item_name` varchar(255) NOT NULL,\000d\000a    `model_number` varchar(255) NULL,\000d\000a    `category` varchar(100) NOT NULL,\000d\000a    `purchase_date` date NULL,\000d\000a    `location` varchar(100) NULL,\000d\000a    `status` varchar(50) NOT NULL DEFAULT 'ORDERED',\000d\000a    `last_calibration_date` date NULL,\000d\000a    `next_calibration_due_date` date NULL,\000d\000a    `remarks` text NULL,\000d\000a    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\000d\000a    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\000d\000a    PRIMARY KEY (`id`),\000d\000a    UNIQUE [*]KEY `uq_asset_code` (`asset_code`)\000d\000a)"; 期待されるステートメント "NULLS, ("
+Syntax error in SQL statement "CREATE TABLE `asset_master` (\000d\000a    `id` bigint NOT NULL AUTO_INCREMENT,\000d\000a    `asset_code` varchar(255) NULL,\000d\000a    `serial_number` varchar(100) NULL,\000d\000a    `item_name` varchar(255) NOT NULL,\000d\000a    `model_number` varchar(255) NULL,\000d\000a    `category` varchar(100) NOT NULL,\000d\000a    `purchase_date` date NULL,\000d\000a    `location` varchar(100) NULL,\000d\000a    `status` varchar(50) NOT NULL DEFAULT 'ORDERED',\000d\000a    `last_calibration_date` date NULL,\000d\000a    `next_calibration_due_date` date NULL,\000d\000a    `remarks` text NULL,\000d\000a    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\000d\000a    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\000d\000a    PRIMARY KEY (`id`),\000d\000a    UNIQUE [*]KEY `uq_asset_code` (`asset_code`)\000d\000a)"; expected "NULLS, ("; SQL statement:
+CREATE TABLE `asset_master` (
+    `id` bigint NOT NULL AUTO_INCREMENT,
+    `asset_code` varchar(255) NULL,
+    `serial_number` varchar(100) NULL,
+    `item_name` varchar(255) NOT NULL,
+    `model_number` varchar(255) NULL,
+    `category` varchar(100) NOT NULL,
+    `purchase_date` date NULL,
+    `location` varchar(100) NULL,
+    `status` varchar(50) NOT NULL DEFAULT 'ORDERED',
+    `last_calibration_date` date NULL,
+    `next_calibration_due_date` date NULL,
+    `remarks` text NULL,
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_asset_code` (`asset_code`)
+) [42001-224]
+2025-07-17 09:32:34.119131+09:00 jdbc[34]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "ASSETS" が見つかりません
+Table "ASSETS" not found; SQL statement:
+ALTER TABLE assets ADD COLUMN monitored BOOLEAN NOT NULL DEFAULT TRUE [42102-224]
+2025-07-17 10:27:32.701332+09:00 jdbc[47]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:27:32.701332+09:00 jdbc[45]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:27:32.751404+09:00 jdbc[45]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:27:32.952318+09:00 jdbc[47]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:27:58.715383+09:00 jdbc[45]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:27:58.715383+09:00 jdbc[45]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:31:21.907315+09:00 jdbc[46]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:31:21.907315+09:00 jdbc[46]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:36:00.090477+09:00 jdbc[56]: null
+org.h2.message.DbException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:218)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:135)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:359)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:201)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:470)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:733)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:712)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 16 more
+2025-07-17 10:41:06.546859+09:00 jdbc[56]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:41:06.546859+09:00 jdbc[56]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:42:35.440068+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:42:35.473669+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:42:35.523288+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:42:35.540556+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:42:35.557307+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 10:42:35.573684+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-17 15:37:29.252052+09:00 jdbc[106]: null
+org.h2.message.DbException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:218)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:135)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:359)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:201)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:470)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:733)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:712)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 16 more
+2025-07-17 15:37:29.319560+09:00 jdbc[106]: null
+org.h2.message.DbException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:218)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:135)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:359)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:201)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:470)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:733)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:712)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 16 more
+2025-07-17 16:36:42.708170+09:00 jdbc[127]: null
+org.h2.message.DbException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:218)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:135)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:359)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:201)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:470)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:733)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:712)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: アプリケーションにより閉じられていない接続がガベージコレクトされました
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 16 more
+2025-07-17 16:37:31.046296+09:00 jdbc[126]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "PURCHASE_ORDER" はすでに存在します
+Table "PURCHASE_ORDER" already exists; SQL statement:
+CREATE TABLE purchase_order (
+    order_type VARCHAR(50) NOT NULL
+) [42101-224]
+2025-07-17 16:37:44.057553+09:00 jdbc[126]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: SQLステートメントに文法エラーがあります "ALTER TABLE purchase_order [*](\000d\000a    order_type VARCHAR(50) NOT NULL\000d\000a)"; 期待されるステートメント "., ADD, SET, RENAME, DROP, ALTER"
+Syntax error in SQL statement "ALTER TABLE purchase_order [*](\000d\000a    order_type VARCHAR(50) NOT NULL\000d\000a)"; expected "., ADD, SET, RENAME, DROP, ALTER"; SQL statement:
+ALTER TABLE purchase_order (
+    order_type VARCHAR(50) NOT NULL
+) [42001-224]
