@@ -26,6 +26,7 @@ public class PurchaseOrderRequest {
     private String itemType;  // 物品orサービスの分岐（ITEM, SERVICE）
     private String serviceType; // 校正or修理の分岐 (CALIBRATION, REPAIR)
     private String modelNumber;
+    private Long relatedAssetId;
     private String category;
     private BigDecimal quantity;
     private BigDecimal purchasePrice;
@@ -40,7 +41,7 @@ public class PurchaseOrderRequest {
     private String serviceType; // "SERVICE"固定
     private BigDecimal servicePrice; // 校正料金
     private String itemName;
-    private Integer quantity;
+    private BigDecimal quantity;
     private BigDecimal purchasePrice;
   }
 }

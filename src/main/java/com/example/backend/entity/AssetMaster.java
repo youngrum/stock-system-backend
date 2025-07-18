@@ -34,8 +34,8 @@ public class AssetMaster {
     @Column(name = "serial_number", length = 100, nullable = true)
     private String serialNumber;
 
-    @Column(name = "item_name", length = 255, nullable = false)
-    private String itemName;
+    @Column(name = "asset_name", length = 255, nullable = false)
+    private String assetName;
 
     @Column(name = "model_number", length = 255, nullable = true)
     private String modelNumber = "-"; // 初期値を設定;

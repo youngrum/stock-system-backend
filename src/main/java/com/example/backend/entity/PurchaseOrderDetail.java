@@ -30,13 +30,12 @@ public class PurchaseOrderDetail {
   @Column(name = "item_code", length = 64, nullable = true)
   private String itemCode;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "asset_id", referencedColumnName = "id", nullable = true)
-  private AssetMaster assetMaster; // 設備登録時に発行される管理ID 手動入力
+  @Column(name = "asset_id", nullable = true)
+  private Long assetId; // 設備登録時に発行される管理ID 手動入力
   
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY) // LAZYフェッチを推奨
   @JoinColumn(name = "related_asset_id", referencedColumnName = "id", nullable = true)
-  private AssetMaster relatedAssetId; // 既存購入設備のID (AssetMaster.id)を参照
+  private AssetMaster relatedAsset; // 既存購入設備のID (AssetMaster.id)を参照
 
   @Column(name = "linked_id", nullable = true)
   private Long linkedId; // 新規購入設備の発注明細ID (PurchaseOrderDetail.id)を参照

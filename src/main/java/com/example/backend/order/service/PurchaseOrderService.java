@@ -11,12 +11,14 @@ import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.entity.StockMaster;
 import com.example.backend.entity.InventoryTransaction;
+import com.example.backend.entity.AssetMaster;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.inventory.repository.StockMasterRepository;
 import com.example.backend.inventory.repository.InventoryTransactionRepository;
 import com.example.backend.order.dto.PurchaseOrderRequest;
 import com.example.backend.order.repository.PurchaseOrderDetailRepository;
 import com.example.backend.order.repository.PurchaseOrderRepository;
+import com.example.backend.asset.repository.AssetMasterRepository;
 import com.example.backend.common.service.ItemCodeGenerator;
 import com.example.backend.common.service.OrderNumberGenerator;
 import com.example.backend.common.service.TransactionIdGenerator;
@@ -32,6 +34,7 @@ public class PurchaseOrderService {
   private final PurchaseOrderRepository purchaseOrderRepository;
   private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
   private final StockMasterRepository stockMasterRepository;
+  private final AssetMasterRepository assetMasterRepository;
   private final InventoryTransactionRepository inventoryTransactionRepository;
   private final ItemCodeGenerator itemCodeGenerator;
   private final TransactionIdGenerator transactionIdGenerator;
@@ -63,13 +66,13 @@ public class PurchaseOrderService {
     BigDecimal totalAmountFromDetails = BigDecimal.ZERO;
 
     if ("INVENTORY".equalsIgnoreCase(req.getOrderType())) {
-      System.out.println("▶ 在庫発注として処理を開始します。");
+      System.out.println("在庫発注として処理を開始");
       totalAmountFromDetails = processInventoryOrderDetails(header, req.getDetails(), username);
-    } else if ("EQUIPMENT_CALIBRATION".equalsIgnoreCase(req.getOrderType())) {
-      System.out.println("▶ 設備/校正発注として処理を開始します。");
-      totalAmountFromDetails = processAssetCalibrationOrderDetails(header, req.getDetails(), username);
+    } else if ("ASSET".equalsIgnoreCase(req.getOrderType())) {
+      System.out.println("設備/校正発注として処理を開始");
+      totalAmountFromDetails = processAssetOrderDetails(header, req.getDetails(), username);
     } else {
-      throw new IllegalArgumentException("無効な発注タイプです: " + req.getOrderType());
+      throw new IllegalArgumentException("無効な発注タイプ: " + req.getOrderType());
     }
 
     // 4. 発注ヘッダーの小計を更新
@@ -117,12 +120,12 @@ public class PurchaseOrderService {
         throw new IllegalArgumentException("在庫発注のITEM明細にはネストされたサービスを含めることはできません。");
       }
 
-      System.out.println("▶ 在庫ITEM明細処理中: " + d.getItemName());
+      System.out.println("在庫ITEM明細処理中: " + d.getItemName());
 
       StockMaster stock;
-      // ---------- 柔軟対応の在庫判定 (既存ロジック) ----------
+       // itemCodeから在庫の存在チェック なければ型番＋品名で検索 在庫なければ新規登録
       if (d.getItemCode() != null && !d.getItemCode().isBlank()) {
-        System.out.println("▶ itemCode指定あり → 在庫確認中: " + d.getItemCode());
+        System.out.println("▶ itemCode指定あり: " + d.getItemCode());
         stock = stockMasterRepository.findByItemCode(d.getItemCode())
             .orElseThrow(() -> new ResourceNotFoundException("itemCodeが存在しません: " + d.getItemCode()));
       } else {
@@ -139,9 +142,11 @@ public class PurchaseOrderService {
               System.out.println("保管先："+d.getLocation());
               s.setCurrentStock(BigDecimal.ZERO);
               StockMaster saved = stockMasterRepository.save(s);
+              // itemCodeを生成
               String code = itemCodeGenerator.generateItemCode(saved.getId());
               saved.setItemCode(code);
-              stockMasterRepository.flush(); // itemCodeを生成して保存
+
+              stockMasterRepository.flush(); // itemCodeを更新して保存
               System.out.println("▶ 新規登録 itemCode: " + saved.getItemCode());
               return saved;
             });
@@ -149,9 +154,10 @@ public class PurchaseOrderService {
 
       System.out.println("▶ 明細登録準備完了 → " + stock.getItemCode());
 
-      // ---------- 発注明細の登録 ----------
+      // 発注明細の登録
       PurchaseOrderDetail detail = new PurchaseOrderDetail();
       detail.setItemCode(stock.getItemCode());
+      detail.setItemType(d.getItemType());
       detail.setItemName(stock.getItemName());
       detail.setModelNumber(stock.getModelNumber());
       detail.setCategory(stock.getCategory());
@@ -161,12 +167,10 @@ public class PurchaseOrderService {
       detail.setStatus("未入庫");
       detail.setRemarks(d.getRemarks());
       detail.setPurchaseOrder(header);
-      // ★エラー修正★ itemTypeを必ず設定する
-      detail.setItemType(d.getItemType());
 
-      // サービス関連カラムはNULL
+      // サービス関連カラムはNULL 在庫発注に不要
       detail.setServiceType(null);
-      detail.setRelatedAssetId(null);
+      detail.setRelatedAsset(null);
       detail.setLinkedId(null);
 
       purchaseOrderDetailRepository.save(detail);
@@ -177,7 +181,7 @@ public class PurchaseOrderService {
       // 4. 入庫トランザクション登録
       // 在庫品の場合のみ、InventoryTransactionを作成
       InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseOrder(
-          username, stock, header, d, transactionIdGenerator); // reqオブジェクトから直接アクセスできる情報に変更
+          username, stock, header, d, transactionIdGenerator, inventoryTransactionRepository);
       System.out.println(tx);
       inventoryTransactionRepository.save(tx);
     }
@@ -185,71 +189,52 @@ public class PurchaseOrderService {
   }
 
   /**
-   * 設備・校正発注明細の具体的な処理。ITEM（設備）とSERVICE（校正・修理）を処理。
+   * ITEM（設備）とSERVICE（校正・修理）発注明細の処理
    */
-  private BigDecimal processAssetCalibrationOrderDetails(
-      PurchaseOrder header, List<PurchaseOrderRequest.Detail> details, String username) {
+private BigDecimal processAssetOrderDetails(
+    PurchaseOrder header, List<PurchaseOrderRequest.Detail> details, String username) {
     BigDecimal currentTotal = BigDecimal.ZERO;
     for (PurchaseOrderRequest.Detail d : details) {
       System.out.println("▶ 設備/校正明細処理中: " + d.getItemName() + " (itemType: " + d.getItemType() + ")");
 
       PurchaseOrderDetail detail = new PurchaseOrderDetail();
       detail.setItemName(d.getItemName());
-      detail.setQuantity(d.getQuantity() != null ? d.getQuantity().intValue() : 0);
+      detail.setQuantity(d.getQuantity());
       detail.setPurchasePrice(d.getPurchasePrice());
       detail.setRemarks(d.getRemarks());
       detail.setStatus("未入庫");
-
-      // ★エラー修正★ itemTypeを必ず設定する
       detail.setItemType(d.getItemType());
 
       if ("ITEM".equalsIgnoreCase(d.getItemType())) {
-        // ---------- ITEMタイプの明細処理 (設備品) ----------
-        StockMaster stock;
-        if (d.getItemCode() != null && !d.getItemCode().isBlank()) {
-          stock = stockMasterRepository.findByItemCode(d.getItemCode())
-              .orElseThrow(() -> new ResourceNotFoundException("itemCodeが存在しません: " + d.getItemCode()));
-        } else {
-          stock = stockMasterRepository
-              .findByModelNumberAndItemName(d.getModelNumber(), d.getItemName())
-              .orElseGet(() -> {
-                StockMaster s = new StockMaster();
-                s.setItemName(d.getItemName());
-                s.setModelNumber(d.getModelNumber());
-                s.setCategory(d.getCategory());
-                s.setLocation(d.getLocation());
-                s.setCurrentStock(BigDecimal.ZERO);
-                StockMaster saved = stockMasterRepository.save(s);
-                String code = itemCodeGenerator.generateItemCode(saved.getId());
-                saved.setItemCode(code);
-                stockMasterRepository.save(saved); // itemCode更新を保存
-                stockMasterRepository.flush();
-                System.out.println("▶ 新規StockMaster (設備) itemCode: " + saved.getItemCode());
-                return saved;
-              });
-        }
-        detail.setItemCode(stock.getItemCode());
-        detail.setModelNumber(stock.getModelNumber());
-        detail.setCategory(stock.getCategory());
-        detail.setReceivedQuantity(BigDecimal.ZERO);
+        // ITEMタイプの明細処理 (設備品 - 発注情報として記録)
+        // ここではAssetMasterは作成しない。
+        detail.setItemCode(d.getItemCode());
+        detail.setModelNumber(d.getModelNumber());
+        detail.setCategory(d.getCategory());
+        detail.setReceivedQuantity(BigDecimal.ZERO); // 設備も受け取り数量を追跡
+
+        // AssetMaster.idは、納品後に別途登録される際に紐付けられるため、ここではnull
+        detail.setAssetId(null);
 
         // サービス関連カラムはNULL
         detail.setServiceType(null);
-        detail.setRelatedAssetId(null);
+        detail.setRelatedAsset(null);
         detail.setLinkedId(null);
 
-        // 設備品もStockMaster管理のため、入庫トランザクションを作成
-        InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseOrder(
-            username, stock, header, d, transactionIdGenerator);
-        System.out.println(tx);
-        inventoryTransactionRepository.save(tx);
+        // AssetTransactionでトランザクションレコード発行
 
       } else if ("SERVICE".equalsIgnoreCase(d.getItemType())) {
-        // ---------- SERVICEタイプの明細処理 (独立したサービス) ----------
+        // ---------- SERVICEタイプの明細処理 (独立したサービス または 既存資産へのサービス) ----------
         detail.setServiceType(d.getServiceType());
 
-        // 既存資産へのサービスの場合、relatedAssetIdを設定
-        detail.setRelatedAssetId(d.getRelatedAssetId()); // DTOにrelatedAssetIdが追加されていることを前提
+        // 既存資産へのサービスの場合、relatedAssetId (Long) を使ってAssetMasterオブジェクトを取得しセット
+        if (d.getRelatedAssetId() != null) { // DTOにrelatedAssetIdが提供されている場合
+            AssetMaster existingAsset = assetMasterRepository.findById(d.getRelatedAssetId())
+                                        .orElseThrow(() -> new ResourceNotFoundException("対象の既存設備が見つかりません。ID: " + d.getRelatedAssetId()));
+            detail.setRelatedAsset(existingAsset); // AssetMasterオブジェクトをセット
+        } else {
+            detail.setRelatedAsset(null);
+        }
 
         detail.setLinkedId(null); // 独立したサービスなのでlinkedIdはなし
 
@@ -258,6 +243,7 @@ public class PurchaseOrderService {
         detail.setModelNumber(null);
         detail.setCategory(null);
         detail.setReceivedQuantity(null);
+        detail.setAssetId(null); // サービスにはassetIdは不要
 
         // サービス明細の場合、InventoryTransactionは作成しない（在庫変動がないため）
       } else {
@@ -272,30 +258,27 @@ public class PurchaseOrderService {
 
       // ITEMタイプで、かつネストされたサービスがある場合、ここで処理
       if ("ITEM".equals(savedTopLevelDetail.getItemType()) && d.getServices() != null && !d.getServices().isEmpty()) {
-        System.out.println("▶ ネストされたサービス明細を処理中...");
+        System.out.println("ネストされたサービス明細を処理中...");
         for (PurchaseOrderRequest.ServiceRequest serviceReq : d.getServices()) {
           PurchaseOrderDetail serviceDetail = new PurchaseOrderDetail();
-          serviceDetail.setOrderNo(header.getOrderNo());
-          serviceDetail.setItemType("SERVICE"); // ネストされたものは常にSERVICEタイプ
+          serviceDetail.setItemType("SERVICE");
           serviceDetail.setServiceType(serviceReq.getServiceType());
           serviceDetail.setItemName(serviceReq.getItemName());
-          serviceDetail.setQuantity(serviceReq.getQuantity() != null ? serviceReq.getQuantity().intValue() : 0);
+          serviceDetail.setQuantity(serviceReq.getQuantity());
           serviceDetail.setPurchasePrice(serviceReq.getPurchasePrice() != null ? serviceReq.getPurchasePrice() : BigDecimal.ZERO);
-          serviceDetail.setRemarks(serviceReq.getRemarks());
 
           serviceDetail.setStatus("未入庫");
 
-          // linked_id: 親のITEM明細のIDを設定
           serviceDetail.setLinkedId(savedTopLevelDetail.getId());
-
-          // related_asset_id: 納品時に親ITEMのasset_idが確定した際に紐付けられるため、ここではNULL
-          serviceDetail.setRelatedAssetId(null);
+          // ネストされたサービスの場合、親のITEM (設備) のAssetIdはまだ確定していないため、関連付けは行わない
+          serviceDetail.setRelatedAsset(null); 
 
           // 物品関連カラムはNULL
           serviceDetail.setItemCode(null);
           serviceDetail.setModelNumber(null);
           serviceDetail.setCategory(null);
           serviceDetail.setReceivedQuantity(null);
+          serviceDetail.setAssetId(null);
 
           purchaseOrderDetailRepository.save(serviceDetail);
           System.out.println("  ▶ ネストされたサービス明細登録完了: ID=" + serviceDetail.getId());

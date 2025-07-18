@@ -202,7 +202,6 @@ public class InventoryTransaction {
       String operator,
       StockMaster stock,
       PurchaseOrder order,
-      PurchaseOrderRequest req,
       PurchaseOrderRequest.Detail detail,TransactionIdGenerator transactionIdGenerator,
       InventoryTransactionRepository inventoryTransactionRepository) {
 
