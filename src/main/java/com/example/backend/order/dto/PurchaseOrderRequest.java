@@ -21,27 +21,26 @@ public class PurchaseOrderRequest {
 
   @Data
   public static class Detail {
-    private String itemCode;
-    private String itemName;
-    private String itemType;  // 物品orサービスの分岐（ITEM, SERVICE）
-    private String serviceType; // 校正or修理の分岐 (CALIBRATION, REPAIR)
-    private String modelNumber;
-    private Long relatedAssetId;
-    private String category;
-    private BigDecimal quantity;
-    private BigDecimal purchasePrice;
-    private String location; // 保管場所（任意）
-    private String remarks;
-    // ITEMタイプの場合にネストされるサービス(=校正)明細
+    private String itemCode; // 在庫系
+    private String itemName; // 共通
+    private String itemType;  // 設備系 物品orサービスの分岐（ITEM, SERVICE）
+    private String serviceType; // 設備系 校正or修理の分岐 (CALIBRATION, REPAIR)
+    private String modelNumber; // 共通
+    private Long relatedAssetId; // 在庫系
+    private String category; // 共通
+    private BigDecimal quantity; // 共通
+    private BigDecimal purchasePrice; // 共通
+    private String location; // 在庫系 保管場所（任意）
+    private String remarks; // 共通
+    // 設備系 ITEMタイプの場合にネストされるサービス(=校正)明細
     private List<ServiceRequest> services;
   }
 
   @Data
   public static class ServiceRequest {
-    private String serviceType; // "SERVICE"固定
-    private BigDecimal servicePrice; // 校正料金
+    private String serviceType; // 設備系 校正or修理の分岐 (CALIBRATION, REPAIR)
+    private BigDecimal purchasePrice;
     private String itemName;
     private BigDecimal quantity;
-    private BigDecimal purchasePrice;
   }
 }

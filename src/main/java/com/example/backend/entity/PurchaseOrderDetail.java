@@ -24,7 +24,7 @@ public class PurchaseOrderDetail {
   @Column(name = "item_type", length = 50, nullable = false) // 物品かサービスか分岐（ITEM, SERVICE）
   private String itemType ="ITEM";
 
-  @Column(name = "service_type", length = 50, nullable = false) //校正or修理か分岐(CALIBRATION, REPAIR)
+  @Column(name = "service_type", nullable = true) //校正or修理か分岐(CALIBRATION, REPAIR)
   private String serviceType;
 
   @Column(name = "item_code", length = 64, nullable = true)
