@@ -1261,3 +1261,42 @@ The object is already closed [90007-224]
 2025-07-18 16:55:54.955041+09:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
 The object is already closed [90007-224]
+2025-07-22 09:26:19.976353+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-22 09:36:55.425980+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-22 09:36:55.437781+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-22 09:36:55.438793+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-22 09:36:55.448641+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
+2025-07-22 14:04:50.092676+09:00 jdbc[95]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: SQLステートメントに文法エラーがあります "ALTER TABLE asset_masterADD [*]COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-',\000d\000aADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00"; 期待されるステートメント "., ADD, SET, RENAME, DROP, ALTER"
+Syntax error in SQL statement "ALTER TABLE asset_masterADD [*]COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-',\000d\000aADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00"; expected "., ADD, SET, RENAME, DROP, ALTER"; SQL statement:
+ALTER TABLE asset_masterADD COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-',
+ADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00 [42001-224]
+2025-07-22 14:04:54.936141+09:00 jdbc[95]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: SQLステートメントに文法エラーがあります "ALTER TABLE asset_masterADD [*]COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-',\000d\000aADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00"; 期待されるステートメント "., ADD, SET, RENAME, DROP, ALTER"
+Syntax error in SQL statement "ALTER TABLE asset_masterADD [*]COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-',\000d\000aADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00"; expected "., ADD, SET, RENAME, DROP, ALTER"; SQL statement:
+ALTER TABLE asset_masterADD COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-',
+ADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00 [42001-224]
+2025-07-22 14:05:02.282691+09:00 jdbc[95]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: SQLステートメントに文法エラーがあります "ALTER TABLE asset_master\000d\000aADD COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-'[*],\000d\000aADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00"
+Syntax error in SQL statement "ALTER TABLE asset_master\000d\000aADD COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-'[*],\000d\000aADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00"; SQL statement:
+ALTER TABLE asset_master
+ADD COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-',
+ADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00 [42000-224]
+2025-07-22 14:05:25.827155+09:00 jdbc[95]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: SQLステートメントに文法エラーがあります "ALTER TABLE asset_master\000d\000a\000d\000aADD COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-'[*],\000d\000a\000d\000aADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00"
+Syntax error in SQL statement "ALTER TABLE asset_master\000d\000a\000d\000aADD COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-'[*],\000d\000a\000d\000aADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00"; SQL statement:
+ALTER TABLE asset_master
+
+ADD COLUMN supplier VARCHAR(64) NOT NULL DEFAULT '-',
+
+ADD COLUMN purchase_price DECIMAL(14, 2) NOT NULL DEFAULT 0.00 [42000-224]
