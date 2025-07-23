@@ -31,7 +31,7 @@ VALUES
     category,
     manufacturer,
     regist_date,
-    current_status,
+    status,
     remarks
     -- その他の必須カラムがあれば追加
 ) VALUES (
@@ -47,5 +47,25 @@ VALUES
 );
 
 -- 必要であれば、さらに別のレコードを追加
-INSERT INTO asset_master (item_code, item_name, model_number, category, manufacturer, acquisition_date, current_status, remarks)
-VALUES ('AM-0002', 'テスト設備B', 'Model-456-DEF', '校正器', 'DEF社', '2023-05-20', '稼働中', 'もう一つのテストデータ');
+
+  INSERT INTO asset_master (
+    asset_code,
+    asset_name,
+    model_number,
+    category,
+    manufacturer,
+    regist_date,
+    status,
+    remarks
+    -- その他の必須カラムがあれば追加
+) VALUES (
+    'AM-0002',             -- asset_code (ユニークな資産コード)
+    'テスト設備B',           -- asset_name
+    'Model-UUU',       -- model_number
+    'デジタルメーター',              -- category
+    'xyz社',                -- manufacturer
+    '2024-01-15',          -- acquisition_date (取得日)
+    '保留',                -- current_status (例: 稼働中, 保守中, 廃棄済み)
+    'テストデータ用設備2'     -- remarks
+    -- その他のカラムの値があれば追加
+);

@@ -17,6 +17,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.example.backend.asset.dto.AssetMasterRequest;
+import com.example.backend.asset.repository.AssetMasterRepository;
+
 @Entity
 @Table(name = "asset_master") 
 @Data
@@ -54,7 +57,7 @@ public class AssetMaster {
     private LocalDate registDate;
 
     @Column(name = "purchase_price", precision = 14, scale = 2, nullable = false) // 購入金額
-    private BigDecimal purchasePraie = BigDecimal.ZERO;
+    private BigDecimal purchasePrice = BigDecimal.ZERO;
     
     @Column(name = "status", length = 50, nullable = false) // ステータス 自動入力
     private String status = "発注済"; // 初期値を設定
@@ -101,4 +104,8 @@ public class AssetMaster {
     protected void onUpdate() {
         this.lastUpdated = LocalDateTime.now();
     }
+
+    public static AssetMaster creatAsset(AssetMasterRequest req, AssetMasterRepository repository){
+        
+    } 
 }

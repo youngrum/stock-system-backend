@@ -9,15 +9,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.asset.service.AssetService;
 import com.example.backend.entity.AssetMaster;
+import com.example.backend.entity.StockMaster;
+import com.example.backend.inventory.dto.StockMasterRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
@@ -31,7 +35,7 @@ public class AssetController {
         this.assetService = assetService;
     }
 
-    @Operation(summary = "在庫検索 全件取得時は ID, 品名, カテゴリー, 型番を空にする")
+    @Operation(summary = "設備品検索 全件取得時は 管理番号, 設備名, カテゴリー, 型番を空にする")
     @GetMapping("/asset/search")
       public ResponseEntity<?> searchInventory(
       @Parameter(description = "管理番号") @RequestParam(required = false) String assetCode,
@@ -54,4 +58,17 @@ public class AssetController {
             "data", results));
   }
 
+    @Operation(summary = "新規在庫ID発行・登録")
+    @PostMapping("/asset/new")
+    public ResponseEntity<?> createStock(@RequestBody StockMasterRequest req) {
+        StockMaster created = assetService.createAsset(req);
+        System.out.println(created);
+        System.out.println("Created: " + created);
+        
+        return ResponseEntity.ok(
+            Map.of(
+                "status",200, 
+                "message", "設備品を登録しました。未記載の項目は確定次第更新してください", 
+                "data", created));
+    }
 }
