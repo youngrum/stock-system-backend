@@ -74,6 +74,9 @@ public class AssetMaster {
     @Column(name = "monitored", nullable = false) // 監視対象フラグ 定期的な校正や点検通知のためのフラグ
     private Boolean monitored;
 
+    @Column(name = "calibration_required", nullable = false)
+    private Boolean calibrationRequired; // 校正の要否判定フラグ trueかつmonitored=trueで通知が走る 校正いらないならfalse
+
     @Column(name = "remarks", length = 255, nullable = true) // 備考 購入目的・所有者などを記載
     private String remarks; 
 
