@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.example.backend.asset.dto.AssetMasterRequest;
-import com.example.backend.asset.repository.AssetMasterRepository;
 
 @Entity
 @Table(name = "asset_master") 
@@ -105,7 +105,49 @@ public class AssetMaster {
         this.lastUpdated = LocalDateTime.now();
     }
 
-    public static AssetMaster creatAsset(AssetMasterRequest req, AssetMasterRepository repository){
-        
-    } 
+    /*
+     * AssetMasterRequest DTOから新しいAssetMasterインスタンスを生成するファクトリメソッド
+     * 
+     * @param req AssetMasterRequest DTO
+     * @return 生成されたAssetMasterインスタンス
+     */
+    @Transactional
+    public static AssetMaster createFromManualForm(AssetMasterRequest req) {
+        System.out.println("Creating Asset with request: " + req);
+
+        // asset_masterテーブルをインスタンス化
+        AssetMaster asset = new AssetMaster();
+
+        // 必須項目
+        asset.setAssetCode(req.getAssetCode());
+        asset.setAssetName(req.getAssetName());
+        asset.setCategory(req.getCategory());
+
+        // 任意項目
+        asset.setSerialNumber(req.getSerialNumber());
+        asset.setManufacturer(req.getManufacturer());
+        asset.setModelNumber(req.getModelNumber());
+        asset.setSupplier(req.getSupplier());
+        asset.setPurchasePrice(req.getPurchasePrice());
+        asset.setLocation(req.getLocation());
+        asset.setFixedAssetManageNo(req.getFixedAssetManageNo());
+        asset.setRemarks(req.getRemarks());
+
+        // boolean型フラグのデフォルト値設定 (リクエストでnullの場合にfalseを設定)
+        asset.setMonitored(Boolean.TRUE.equals(req.getMonitored())); // req.getMonitored()がnullならfalseが入る
+        asset.setCalibrationRequired(Boolean.TRUE.equals(req.getCalibrationRequired())); // req.getCalibrationRequired()がnullならfalseが入る
+
+        // 校正関連日付
+        asset.setLastCalibrationDate(req.getLastCalibrationDate());
+        asset.setNextCalibrationDueDate(req.getNextCalibrationDate());
+
+        // システムが自動設定する項目
+        asset.setRegistDate(LocalDate.now()); // 登録日を現在日付で自動設定
+        asset.setStatus("登録済"); // 運用ステータスを「登録済」に設定
+
+        // サービス層にインスタンスオブジェクトを返却
+        return asset;
+    }
+
+
 }

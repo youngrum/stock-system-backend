@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import com.example.backend.asset.dto.AssetMasterRequest;
 import com.example.backend.asset.service.AssetService;
 import com.example.backend.entity.AssetMaster;
-import com.example.backend.entity.StockMaster;
-import com.example.backend.inventory.dto.StockMasterRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/v1/api")
@@ -37,7 +37,7 @@ public class AssetController {
 
     @Operation(summary = "設備品検索 全件取得時は 管理番号, 設備名, カテゴリー, 型番を空にする")
     @GetMapping("/asset/search")
-      public ResponseEntity<?> searchInventory(
+      public ResponseEntity<?> searchAsset(
       @Parameter(description = "管理番号") @RequestParam(required = false) String assetCode,
       @Parameter(description = "設備名") @RequestParam(required = false) String assetName,
       @Parameter(description = "カテゴリー") @RequestParam(required = false) String category,
@@ -49,7 +49,7 @@ public class AssetController {
     System.out.println(category);
     System.out.println(modelNumber);
 
-    Page<AssetMaster> results = assetService.searchAsset(assetCode, assetName, category, modelNumber, pageable);
+    Page<AssetMaster> results = assetService.searchAssetTeble(assetCode, assetName, category, modelNumber, pageable);
 
     return ResponseEntity.ok(
         Map.of(
@@ -58,10 +58,11 @@ public class AssetController {
             "data", results));
   }
 
-    @Operation(summary = "新規在庫ID発行・登録")
+    @Operation(summary = "新規設備品登録")
     @PostMapping("/asset/new")
-    public ResponseEntity<?> createStock(@RequestBody StockMasterRequest req) {
-        StockMaster created = assetService.createAsset(req);
+    public ResponseEntity<?> createAsset(@Valid @RequestBody AssetMasterRequest req) {
+        System.out.println("constroller req: "+req);
+        AssetMaster created = assetService.createAssetTable(req);
         System.out.println(created);
         System.out.println("Created: " + created);
         
