@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.backend.asset.dto.AssetMasterRequest;
+import com.example.backend.asset.dto.AssetUpdateRequest;
 import com.example.backend.asset.service.AssetService;
 import com.example.backend.entity.AssetMaster;
+import com.example.backend.inventory.dto.InventoryReceiveRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -71,5 +73,18 @@ public class AssetController {
                 "status",200, 
                 "message", "設備品を登録しました。未記載の項目は確定次第更新してください", 
                 "data", created));
+    }
+
+    @Operation(summary = "入庫登録")
+    @PostMapping("/asset/receive/{itemCode}")
+    public ResponseEntity<?> updateAsset(@RequestBody AssetUpdateRequest request) {
+        String transactionId = assetService.updateAssetTable(request);
+        return ResponseEntity.ok(
+            Map.of(
+                "status", 200,
+                "message", "Stock received successfully.",
+                "transactionId", transactionId
+            )
+        );
     }
 }
