@@ -37,5 +37,10 @@ public interface AssetMasterRepository extends JpaRepository<AssetMaster, Long> 
      */
     Page<AssetMaster> findByAssetNameContainingAndCategoryContainingAndModelNumberContaining(String assetName, String category, String modelNumber, Pageable pageable);
 
+    /**
+     * 重複チェック用 更新時のリクエストと同じ設備番号を検索
+     * @param newAssetCode
+     * @return 該当するAssetMaster
+     */
     Optional<AssetMaster> findByAssetCode(String newAssetCode);
 }

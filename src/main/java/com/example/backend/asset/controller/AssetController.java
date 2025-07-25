@@ -20,7 +20,6 @@ import com.example.backend.asset.dto.AssetMasterRequest;
 import com.example.backend.asset.dto.AssetUpdateRequest;
 import com.example.backend.asset.service.AssetService;
 import com.example.backend.entity.AssetMaster;
-import com.example.backend.inventory.dto.InventoryReceiveRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

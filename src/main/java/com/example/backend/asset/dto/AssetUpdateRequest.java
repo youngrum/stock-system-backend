@@ -1,8 +1,6 @@
 // src/main/java/com/example/yourapp/dto/AssetUpdateRequest.java
 package com.example.backend.asset.dto;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.AssertTrue;
 
 import lombok.Data;
@@ -21,6 +19,7 @@ public class AssetUpdateRequest {
     private String fixedAssetManageNo;
     private LocalDate registDate;
     private String remarks;
+    private String status;
     private Boolean monitored;
     private Boolean calibrationRequired;
     private LocalDate lastCalibrationDate;

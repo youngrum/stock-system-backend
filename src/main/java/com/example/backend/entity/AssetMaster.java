@@ -95,9 +95,6 @@ public class AssetMaster {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.lastUpdated = LocalDateTime.now();
-        if (this.status == null) {
-            this.status = "-";
-        }
         if (this.monitored == null) {
             this.monitored = true;
         }
@@ -133,7 +130,7 @@ public class AssetMaster {
         asset.setPurchasePrice(req.getPurchasePrice());
         asset.setLocation(req.getLocation());
         asset.setFixedAssetManageNo(req.getFixedAssetManageNo());
-        asset.setRemarks(req.getRemarks());
+        asset.setRemarks(req.getRemarks());        
 
         // boolean型フラグのデフォルト値設定 (リクエストでnullの場合にfalseを設定)
         asset.setMonitored(Boolean.TRUE.equals(req.getMonitored())); // req.getMonitored()がnullならfalseが入る
@@ -163,6 +160,7 @@ public class AssetMaster {
         Optional.ofNullable(updateRequest.getFixedAssetManageNo()).ifPresent(this::setFixedAssetManageNo);
         Optional.ofNullable(updateRequest.getRegistDate()).ifPresent(this::setRegistDate);
         Optional.ofNullable(updateRequest.getRemarks()).ifPresent(this::setRemarks);
+        Optional.ofNullable(updateRequest.getStatus()).ifPresent(this::setStatus);
         Optional.ofNullable(updateRequest.getMonitored()).ifPresent(this::setMonitored);
         Optional.ofNullable(updateRequest.getCalibrationRequired()).ifPresent(this::setCalibrationRequired);
         Optional.ofNullable(updateRequest.getLastCalibrationDate()).ifPresent(this::setLastCalibrationDate);
