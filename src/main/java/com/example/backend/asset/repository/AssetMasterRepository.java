@@ -2,6 +2,8 @@ package com.example.backend.asset.repository;
 
 import com.example.backend.entity.AssetMaster; // AssetMasterエンティティのパスを適切にインポート
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,4 +36,6 @@ public interface AssetMasterRepository extends JpaRepository<AssetMaster, Long> 
      * @return 該当するAssetMaster（存在しない場合はOptional.empty()）
      */
     Page<AssetMaster> findByAssetNameContainingAndCategoryContainingAndModelNumberContaining(String assetName, String category, String modelNumber, Pageable pageable);
+
+    Optional<AssetMaster> findByAssetCode(String newAssetCode);
 }

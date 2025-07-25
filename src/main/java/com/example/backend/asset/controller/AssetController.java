@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -75,15 +76,17 @@ public class AssetController {
                 "data", created));
     }
 
-    @Operation(summary = "入庫登録")
-    @PostMapping("/asset/receive/{itemCode}")
-    public ResponseEntity<?> updateAsset(@RequestBody AssetUpdateRequest request) {
-        String transactionId = assetService.updateAssetTable(request);
+    @Operation(summary = "既存レコード更新")
+    @PostMapping("/asset/update/{id}")
+    public ResponseEntity<?> updateAsset(
+        @PathVariable Long id,
+        @Valid @RequestBody AssetUpdateRequest request) {
+        AssetMaster updated = assetService.updateAssetTable(id, request);
         return ResponseEntity.ok(
             Map.of(
                 "status", 200,
-                "message", "Stock received successfully.",
-                "transactionId", transactionId
+                "message", "asset updated successfully.",
+                "transactionId", updated
             )
         );
     }

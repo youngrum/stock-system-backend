@@ -7,8 +7,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.asset.dto.AssetMasterRequest;
+import com.example.backend.asset.dto.AssetUpdateRequest;
 import com.example.backend.asset.repository.AssetMasterRepository;
 import com.example.backend.entity.AssetMaster;
+import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.exception.DuplicateAssetCodeException;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional; 
 
 import jakarta.transaction.Transactional;
 
@@ -68,6 +75,29 @@ public class AssetService {
         // データベースに保存
         return assetMasterRepository.save(asset);
     }
+
+    @Transactional
+    public AssetMaster updateAssetTable(Long id, AssetUpdateRequest updateRequest) {
+        // 既存の設備品をIDに基づいて検索
+        AssetMaster existingAsset = assetMasterRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("不正なidへのリクエストです")); // 例外は適宜定義
+
+        // DTOのassetCodeがnullでなく、かつ既存のassetCodeと異なる場合にチェック
+        if (updateRequest.getAssetCode() != null && !existingAsset.getAssetCode().equals(updateRequest.getAssetCode())) {
+            if (assetMasterRepository.findByAssetCode(updateRequest.getAssetCode()).isPresent()) {
+                throw new DuplicateAssetCodeException("指定された設備コードは既に存在します: " + updateRequest.getAssetCode());
+            }
+        }
+
+        // エンティティの更新メソッドを呼び出す
+        existingAsset.updateFromManualForm(updateRequest);
+
+        // 更新を保存
+        return assetMasterRepository.save(existingAsset);
+    }
+
+
+
 
     /**
      * 文字列が空またはnullかどうかを判定

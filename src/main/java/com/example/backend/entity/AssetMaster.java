@@ -17,8 +17,10 @@ import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.example.backend.asset.dto.AssetMasterRequest;
+import com.example.backend.asset.dto.AssetUpdateRequest;
 
 @Entity
 @Table(name = "asset_master") 
@@ -68,8 +70,8 @@ public class AssetMaster {
     @Column(name = "last_calibration_date", nullable = true) // 前回校正日 仮登録後手動入力
     private LocalDate lastCalibrationDate;
 
-    @Column(name = "next_calibration_due_date", nullable = true) // 次回校正期限 仮登録後手動入力
-    private LocalDate nextCalibrationDueDate;
+    @Column(name = "next_calibration_date", nullable = true) // 次回校正期限 仮登録後手動入力
+    private LocalDate nextCalibrationDate;
 
     @Column(name = "fixed_asset_manage_no", length = 255, nullable = true) // 固定資産管理番号
     private String fixedAssetManageNo = "-"; // 初期値を設定;
@@ -94,7 +96,7 @@ public class AssetMaster {
         this.createdAt = LocalDateTime.now();
         this.lastUpdated = LocalDateTime.now();
         if (this.status == null) {
-            this.status = "ORDERED";
+            this.status = "-";
         }
         if (this.monitored == null) {
             this.monitored = true;
@@ -139,7 +141,7 @@ public class AssetMaster {
 
         // 校正関連日付
         asset.setLastCalibrationDate(req.getLastCalibrationDate());
-        asset.setNextCalibrationDueDate(req.getNextCalibrationDate());
+        asset.setNextCalibrationDate(req.getNextCalibrationDate());
 
         // システムが自動設定する項目
         asset.setRegistDate(LocalDate.now()); // 登録日を現在日付で自動設定
@@ -149,5 +151,23 @@ public class AssetMaster {
         return asset;
     }
 
+    /**
+     * 
+     * @param updateRequest
+     * @return 既存の AssetMaster オブジェクトの状態を更新して返す
+     */
+    @Transactional
+    public AssetMaster updateFromManualForm(AssetUpdateRequest updateRequest){
+        Optional.ofNullable(updateRequest.getSerialNumber()).ifPresent(this::setSerialNumber);
+        Optional.ofNullable(updateRequest.getLocation()).ifPresent(this::setLocation);
+        Optional.ofNullable(updateRequest.getFixedAssetManageNo()).ifPresent(this::setFixedAssetManageNo);
+        Optional.ofNullable(updateRequest.getRegistDate()).ifPresent(this::setRegistDate);
+        Optional.ofNullable(updateRequest.getRemarks()).ifPresent(this::setRemarks);
+        Optional.ofNullable(updateRequest.getMonitored()).ifPresent(this::setMonitored);
+        Optional.ofNullable(updateRequest.getCalibrationRequired()).ifPresent(this::setCalibrationRequired);
+        Optional.ofNullable(updateRequest.getLastCalibrationDate()).ifPresent(this::setLastCalibrationDate);
+        Optional.ofNullable(updateRequest.getNextCalibrationDate()).ifPresent(this::setNextCalibrationDate);
 
+        return this;
+    }
 }
