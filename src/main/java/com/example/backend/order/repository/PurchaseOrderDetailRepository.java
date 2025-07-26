@@ -1,5 +1,7 @@
 package com.example.backend.order.repository;
 
+import com.example.backend.entity.AssetMaster;
+import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrderDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -16,4 +18,6 @@ public interface PurchaseOrderDetailRepository
 
   // 発注番号 + 商品コードで1明細を取得（省略可、JpaRepositoryが自動生成）
   Optional<PurchaseOrderDetail> findByPurchaseOrder_OrderNoAndItemCode(String orderNo, String itemCode);
+
+  Optional<PurchaseOrderDetail> findByPurchaseOrderAndItemName(PurchaseOrder purchaseOrder, String itemName);
 }

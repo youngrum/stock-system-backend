@@ -34,9 +34,9 @@ public class PurchaseOrderService {
      */
     @Transactional
     public String registerOrder(PurchaseOrderRequest req) {
-       // orderTypeを含まないリクエストははじく
+        // orderTypeを含まないリクエストははじく
         validateOrderRequest(req);
-        
+
         // 実行者をセット
         String username = getCurrentUsername();
         req.setOperator(username);
@@ -51,7 +51,7 @@ public class PurchaseOrderService {
         // 発注ヘッダーの小計を更新
         header.setOrderSubtotal(totalAmount);
         purchaseOrderRepository.save(header);
-        
+
         System.out.println("発注登録が正常に完了しました。発注No: " + header.getOrderNo());
         return header.getOrderNo();
     }
@@ -68,7 +68,7 @@ public class PurchaseOrderService {
 
     private PurchaseOrder createOrderHeader(PurchaseOrderRequest req, String username) {
         PurchaseOrder header = new PurchaseOrder();
-        
+
         String orderNo = orderNumberGenerator.generateOrderNo();
         header.setOrderNo(orderNo);
         header.setSupplier(req.getSupplier());
@@ -84,7 +84,7 @@ public class PurchaseOrderService {
         purchaseOrderRepository.save(header);
         // トランザクション中にDB更新
         purchaseOrderRepository.flush();
-        
+
         System.out.println("発注ヘッダー登録完了: OrderNo=" + header.getOrderNo());
         return header;
     }

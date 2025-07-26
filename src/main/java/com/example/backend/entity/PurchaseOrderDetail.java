@@ -10,7 +10,7 @@ import lombok.Data;
 @Table(name = "purchase_order_detail")
 @Data
 public class PurchaseOrderDetail {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
@@ -22,17 +22,20 @@ public class PurchaseOrderDetail {
   private PurchaseOrder purchaseOrder;
 
   @Column(name = "item_type", length = 50, nullable = false) // 物品かサービスか分岐（ITEM, SERVICE）
-  private String itemType ="ITEM";
+  private String itemType = "ITEM";
 
-  @Column(name = "service_type", nullable = true) //校正or修理か分岐(CALIBRATION, REPAIR)
+  @Column(name = "service_type", nullable = true) // 校正or修理か分岐(CALIBRATION, REPAIR)
   private String serviceType;
+
+  @Column(name = "manufacturer", length = 64, nullable = true) // メーカー
+  private String manufacturer = "-";
 
   @Column(name = "item_code", length = 64, nullable = true)
   private String itemCode;
 
   @Column(name = "asset_id", nullable = true)
   private Long assetId; // 設備登録時に発行される管理ID 手動入力
-  
+
   @ManyToOne(fetch = FetchType.LAZY) // LAZYフェッチを推奨
   @JoinColumn(name = "related_asset_id", referencedColumnName = "id", nullable = true)
   private AssetMaster relatedAsset; // 既存購入設備のID (AssetMaster.id)を参照

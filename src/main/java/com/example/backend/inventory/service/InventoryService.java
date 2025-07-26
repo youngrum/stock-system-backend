@@ -76,8 +76,9 @@ public class InventoryService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // 3. トランザクション履歴登録
-        InventoryTransaction tx = InventoryTransaction.createReceiveTransaction(stock, req, username, transactionIdGenerator,
-        inventoryTransactionRepository );
+        InventoryTransaction tx = InventoryTransaction.createReceiveTransaction(stock, req, username,
+                transactionIdGenerator,
+                inventoryTransactionRepository);
         inventoryTransactionRepository.save(tx);
         System.out.println("Transaction saved with ID: " + tx.getTransactionId());
         return stock;
@@ -107,11 +108,11 @@ public class InventoryService {
         if (req.getQuantity().compareTo(BigDecimal.ZERO) != 0) {
             // 3-1. 発注ヘッダーを新規作成
             PurchaseOrder newOrder = new PurchaseOrder();
-            
+
             // 3-2. NUMBERING_MASTER テーブルベースで orderNo を直接採番
             String generatedOrderNo = orderNumberGenerator.generateOrderNo(); // generateOrderNo()は引数不要になった
             newOrder.setOrderNo(generatedOrderNo); // 採番されたOrderNoを直接セット
-            
+
             newOrder.setOrderDate(LocalDate.now());
             newOrder.setShippingFee(BigDecimal.ZERO);
             newOrder.setOperator(username);
@@ -192,7 +193,8 @@ public class InventoryService {
         }
 
         // 3. トランザクション履歴登録
-        InventoryTransaction transaction = InventoryTransaction.createTransactionforDispatch(stock, req, username, transactionIdGenerator, inventoryTransactionRepository);
+        InventoryTransaction transaction = InventoryTransaction.createTransactionforDispatch(stock, req, username,
+                transactionIdGenerator, inventoryTransactionRepository);
         inventoryTransactionRepository.save(transaction);
 
         // 4. 在庫数を更新
@@ -276,7 +278,8 @@ public class InventoryService {
 
             // トランザクション登録
             InventoryTransaction tx = InventoryTransaction.createTransactionForPurchaseReceive(
-                    stock, item, order, req, purchasePrice, username, transactionIdGenerator, inventoryTransactionRepository);
+                    stock, item, order, req, purchasePrice, username, transactionIdGenerator,
+                    inventoryTransactionRepository);
             inventoryTransactionRepository.save(tx);
         }
 
