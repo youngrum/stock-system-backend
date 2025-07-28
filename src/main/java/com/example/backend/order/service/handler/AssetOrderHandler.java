@@ -25,7 +25,7 @@ public class AssetOrderHandler {
     private final AssetMasterRepository assetMasterRepository;
 
     /**
-     * アセット発注明細の処理
+     * 設備系統の発注明細の処理
      */
     @Transactional
     public BigDecimal processOrderDetails(PurchaseOrder header, List<PurchaseOrderRequest.Detail> details, String username) {
@@ -75,7 +75,6 @@ public class AssetOrderHandler {
         orderDetail.setModelNumber(detail.getModelNumber());
         orderDetail.setCategory(detail.getCategory());
         orderDetail.setReceivedQuantity(BigDecimal.ZERO);
-        orderDetail.setAssetId(null);
         
         // サービス関連カラムはNULL
         orderDetail.setServiceType(null);
@@ -84,7 +83,6 @@ public class AssetOrderHandler {
     }
 
     private void configureServiceDetail(PurchaseOrderDetail orderDetail, PurchaseOrderRequest.Detail detail) {
-        orderDetail.setServiceType(detail.getServiceType());
         
         if (detail.getRelatedAssetId() != null) {
             AssetMaster existingAsset = assetMasterRepository.findById(detail.getRelatedAssetId())
@@ -101,7 +99,6 @@ public class AssetOrderHandler {
         orderDetail.setItemCode(null);
         orderDetail.setModelNumber(null);
         orderDetail.setReceivedQuantity(BigDecimal.ZERO);
-        orderDetail.setAssetId(null);
     }
 
     private String getServiceCategory(String serviceType) {
@@ -149,7 +146,6 @@ public class AssetOrderHandler {
         // 物品関連カラムはNULL
         serviceDetail.setItemCode(null);
         serviceDetail.setModelNumber(null);
-        serviceDetail.setAssetId(null);
         
         return serviceDetail;
     }

@@ -60,7 +60,10 @@ public class AssetMaster {
 
     @Column(name = "purchase_price", precision = 14, scale = 2, nullable = false) // 購入金額
     private BigDecimal purchasePrice = BigDecimal.ZERO;
-    
+
+    @Column(name = "quantity",  precision = 14, scale = 2, nullable = true) // 数量 設備マスタでは 0 or 1
+    private BigDecimal quantity = BigDecimal.ZERO;
+
     @Column(name = "status", length = 50, nullable = false) // ステータス 自動入力
     private String status = "発注済"; // 初期値を設定
 

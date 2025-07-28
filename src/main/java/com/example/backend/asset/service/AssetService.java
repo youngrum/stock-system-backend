@@ -9,8 +9,11 @@ import org.springframework.stereotype.Service;
 import com.example.backend.asset.dto.AssetMasterRequest;
 import com.example.backend.asset.dto.AssetUpdateRequest;
 import com.example.backend.asset.repository.AssetMasterRepository;
+import com.example.backend.asset.service.handler.AssetMasterRegistrationService;
+import com.example.backend.asset.service.handler.AssetServiceHandlingService;
 import com.example.backend.entity.AssetMaster;
 import com.example.backend.entity.PurchaseOrder;
+import com.example.backend.entity.PurchaseOrder.OrderType;
 import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.order.dto.AssetReceiveFromOrderRequest;
@@ -19,27 +22,32 @@ import com.example.backend.order.repository.PurchaseOrderDetailRepository;
 import com.example.backend.exception.DuplicateAssetCodeException;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.ValidationException;
 
 @Service
 public class AssetService {
+
+    private final AssetMasterRegistrationService assetMasterRegistrationService;
     private final AssetMasterRepository assetMasterRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
+    private final AssetServiceHandlingService assetServiceHandlingService;
 
     @Autowired
     public AssetService(AssetMasterRepository assetMasterRepository,
             PurchaseOrderRepository purchaseOrderRepository,
-            PurchaseOrderDetailRepository purchaseOrderDetailRepository) {
+            PurchaseOrderDetailRepository purchaseOrderDetailRepository,
+            AssetMasterRegistrationService assetMasterRegistrationService,
+            AssetServiceHandlingService assetServiceHandlingService) {
         this.assetMasterRepository = assetMasterRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.purchaseOrderDetailRepository = purchaseOrderDetailRepository;
+        this.assetMasterRegistrationService = assetMasterRegistrationService;
+        this.assetServiceHandlingService = assetServiceHandlingService;
     }
 
     /**
@@ -123,53 +131,69 @@ public class AssetService {
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findByOrderNo(req.getOrderNo())
                 .orElseThrow(() -> new ResourceNotFoundException("発注書が見つかりません: No. " + req.getOrderNo()));
 
-        // 発注区分が設備品向けであることを確認（ケースAの前提に基づくバリデーション）
-        if (!"ASSET".equals(purchaseOrder.getOrderType())) {
+        // 発注区分が設備品向け(order_type="ASSET")であることを確認（ケースAの前提に基づくバリデーション）
+         if (purchaseOrder.getOrderType() != OrderType.ASSET) {
             throw new IllegalArgumentException("この発注書は設備品向けではありません。");
         }
 
+        // 複数明細同時処理用 ※未実装
         List<AssetMaster> createdAssets = new ArrayList<>();
+        
+        String supplier  = purchaseOrder.getSupplier();
 
         // 納品される各品目（AssetItem）を処理
         for (AssetReceiveFromOrderRequest.Item deliveredAsset : req.getItems()) {
-            // 2. 発注明細をitemNameとpurchaseOrderで検索
-            PurchaseOrderDetail itemToDeliver = purchaseOrderDetailRepository
-                    .findByPurchaseOrderAndItemName(purchaseOrder, deliveredAsset.getItemName())
+
+            // 発注明細をitemNameとpurchaseOrderで検索
+            // detail = 発注明細レコード
+            PurchaseOrderDetail detail = purchaseOrderDetailRepository
+                    .findById(deliveredAsset.getId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            String.format("発注番号 '%s' の品目コード '%s' に対応する明細が見つかりません。",
-                                    req.getOrderNo(), deliveredAsset.getItemName())));
+                           String.format("指定された発注明細 (ID: %d) が見つかりません。", deliveredAsset.getId())));
+            String itemType = detail.getItemType();
+            
+            // 納品数量の検証 (Assetの場合、通常は1)
+            // currentTotalReceived = データベースに登録されている明細の累計受領数量
+            BigDecimal currentTotalReceived = detail.getReceivedQuantity();
+            // orderQuantity = 発注登録された購入数
+            BigDecimal orderQuantity = detail.getQuantity();
+            // receivingNow = 本リクエストで入力された数量 (deliveredAsset から取得)
+            BigDecimal receivingNow = deliveredAsset.getQuantity();
 
-            // 3. 納品数量の検証 (Assetの場合、通常は1)
-            BigDecimal currentReceivedQuantity = itemToDeliver.getReceivedQuantity();
-            BigDecimal orderedQuantity = itemToDeliver.getQuantity();
-            // AssetItemのreceivedQuantityはBigDecimalなのでintに変換または比較方法を調整
-
-            BigDecimal quantityInThisDelivery = deliveredAsset.getReceivedQuantity();
-            if (currentReceivedQuantity.add(quantityInThisDelivery).compareTo(orderedQuantity) > 0) {
-                throw new IllegalArgumentException(
-                        String.format("納品数量が発注数量を超過しています。品名: %s, 発注数: %d, 既に納品済み: %d, 今回納品: %d",
-                                deliveredAsset.getItemName(), orderedQuantity, currentReceivedQuantity,
-                                quantityInThisDelivery));
+            // すでに全数が完了しているかのチェック
+            // (累計受領数量 が 発注数量以上の場合)
+            if (currentTotalReceived.compareTo(orderQuantity) >= 0) {
+                throw new ValidationException("すでに全数が入庫済みのため、これ以上受け入れできません(品名: " + detail.getItemName() + "）");
             }
 
-            // 4. AssetMaster オブジェクトの生成とプロパティ設定
-            AssetMaster newAsset = new AssetMaster();
-            newAsset.setSerialNumber(deliveredAsset.getSerialNumber());
-            newAsset.setAssetName(itemToDeliver.getItemName()); // 発注明細から名称をコピー
-            newAsset.setCategory(itemToDeliver.getCategory());
-            newAsset.setManufacturer(itemToDeliver.getManufacturer());
-            newAsset.setModelNumber(itemToDeliver.getModelNumber());
-            newAsset.setSupplier(purchaseOrder.getSupplier());
-            newAsset.setPurchasePrice(itemToDeliver.getPurchasePrice()); // 発注明細の単価を使用
-            newAsset.setRegistDate(itemToDeliver.getPurchaseOrder().getOrderDate()); // 発注日を登録日とするか、reqから納品日を取得
-            newAsset.setStatus("納品済");
-            newAsset.setCreatedAt(LocalDateTime.now());
-            newAsset.setLastUpdated(LocalDateTime.now());
-            assetMasterRepository.save(newAsset);
+            // 今回の受領で発注数を超過しないかのチェック
+            // (累計受領数量 + 今回の受領数量 が 発注数量を超過する場合)
+            if (currentTotalReceived.add(receivingNow).compareTo(orderQuantity) > 0) {
+                throw new ValidationException("受け入れ数が発注数を超えています（itemCode: " + detail.getItemName() + "）");
+            }
 
-            // 6. 発注明細の納品済み数量を更新
-            itemToDeliver.setQuantity(currentReceivedQuantity.add(quantityInThisDelivery));
-            purchaseOrderDetailRepository.save(itemToDeliver);
+            // 入庫数チェック
+            BigDecimal totalReceived = detail.getReceivedQuantity().add(deliveredAsset.getQuantity());
+
+            if (totalReceived.compareTo(detail.getQuantity()) > 0) {
+                throw new IllegalArgumentException("受領数が発注数を超えています: " + detail.getItemName());
+            }
+
+            // 物品とサービス(修理・校正)で処理を分岐
+            if ("ITEM".equals(itemType)) {
+                // 物理的な設備品の登録処理
+                // バリデーションもassetMasterRegistrationService内で行うか、ここで一部行う
+                AssetMaster newAsset = assetMasterRegistrationService.registerAsset(deliveredAsset, detail, supplier, totalReceived);
+                createdAssets.add(newAsset);
+
+            } else if ("SERVICE".equals(itemType)) {
+                // サービス（修理・校正など）の受領処理
+                assetServiceHandlingService.handleServiceReceipt(deliveredAsset, detail, totalReceived);
+            } else {
+                throw new IllegalArgumentException("不明な品目タイプです: " + itemType);
+            }
+
+            purchaseOrderDetailRepository.save(detail);
         }
 
         // 7. 発注書全体のステータスを更新 (全ての明細が納品完了したかチェック)

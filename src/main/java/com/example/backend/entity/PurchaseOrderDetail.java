@@ -33,10 +33,7 @@ public class PurchaseOrderDetail {
   @Column(name = "item_code", length = 64, nullable = true)
   private String itemCode;
 
-  @Column(name = "asset_id", nullable = true)
-  private Long assetId; // 設備登録時に発行される管理ID 手動入力
-
-  @ManyToOne(fetch = FetchType.LAZY) // LAZYフェッチを推奨
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "related_asset_id", referencedColumnName = "id", nullable = true)
   private AssetMaster relatedAsset; // 既存購入設備のID (AssetMaster.id)を参照
 
@@ -52,13 +49,13 @@ public class PurchaseOrderDetail {
   @Column(name = "category", length = 64, nullable = false)
   private String category;
 
-  @Column(name = "quantity", precision = 10, scale = 2, nullable = true)
+  @Column(name = "quantity", precision = 10, scale = 2, nullable = true) // 発注数
   private java.math.BigDecimal quantity = java.math.BigDecimal.ZERO;;
 
   @Column(name = "purchase_price", precision = 14, scale = 2, nullable = false)
   private java.math.BigDecimal purchasePrice = java.math.BigDecimal.ZERO;;
 
-  @Column(name = "received_quantity", length = 20, nullable = true)
+  @Column(name = "received_quantity", length = 20, nullable = true) // 受領数
   private java.math.BigDecimal receivedQuantity = java.math.BigDecimal.ZERO;
 
   @Column(name = "status", length = 20, nullable = true)

@@ -74,13 +74,12 @@ public class OrderController {
 
   @Operation(summary = "設備品 入庫登録・発注進捗更新")
   @PostMapping("/receive-asset-from-order") // ★新しいエンドポイントを追加
-  public ResponseEntity<Map<String, Object>> receiveAssetFromOrder(
-      @RequestBody AssetReceiveFromOrderRequest req) {
+  public ResponseEntity<Map<String, Object>> receiveAssetFromOrder(@RequestBody AssetReceiveFromOrderRequest req) {
     assetService.receiveFromOrder(req); // 新しいサービス関数を呼び出す
 
     return ResponseEntity.ok(
         Map.of(
             "status", 200,
-            "message", "発注登録設備の入庫（設備登録）処理が完了しました"));
+            "message", "設備関連(校正・修理含む)納品処理が完了しました"));
   }
 }
