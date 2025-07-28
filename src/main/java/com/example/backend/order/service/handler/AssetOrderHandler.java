@@ -25,7 +25,11 @@ public class AssetOrderHandler {
     private final AssetMasterRepository assetMasterRepository;
 
     /**
-     * 設備系統の発注明細の処理
+     * 設備系統の発注明細処理
+     * @param header
+     * @param details
+     * @param username
+     * @return 小計
      */
     @Transactional
     public BigDecimal processOrderDetails(PurchaseOrder header, List<PurchaseOrderRequest.Detail> details, String username) {
@@ -82,6 +86,11 @@ public class AssetOrderHandler {
         orderDetail.setLinkedId(null);
     }
 
+    /**
+     *  サービス系の受領処理
+     * @param orderDetail
+     * @param detail
+     */
     private void configureServiceDetail(PurchaseOrderDetail orderDetail, PurchaseOrderRequest.Detail detail) {
         
         if (detail.getRelatedAssetId() != null) {
@@ -94,6 +103,10 @@ public class AssetOrderHandler {
         
         orderDetail.setCategory(getServiceCategory(detail.getServiceType()));
         orderDetail.setLinkedId(null);
+
+        // 
+        // existingAsset.setStatus("校正中"); // 削除
+        // assetMasterRepository.save(existingAsset); // 削除
         
         // 物品関連カラムはNULL or 0
         orderDetail.setItemCode(null);

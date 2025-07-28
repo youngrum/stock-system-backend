@@ -38,6 +38,7 @@ public class AssetMasterRegistrationService {
 
         newAsset.setCalibrationRequired(deliveredAsset.getCalibrationRequired()); // 校正要否をリクエストから取得
         newAsset.setQuantity(totalReceived);    // 数量を演算結果から取得
+        newAsset.setStatus("納品済"); // ステータスを「納品済」に更新
         assetMasterRepository.save(newAsset);
 
         // 6. 発注明細テーブルの納品済み数量を更新
