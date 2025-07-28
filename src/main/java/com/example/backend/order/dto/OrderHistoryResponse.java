@@ -41,6 +41,7 @@ public class OrderHistoryResponse {
         private String assetCode;
         private String itemType;
         private String modelNumber;
+        private String selialNumber;
         private String category;
         private BigDecimal quantity;
         private BigDecimal purchasePrice;
@@ -66,10 +67,12 @@ public class OrderHistoryResponse {
                 details.stream()
                     .map(d -> {
                         String managementNumber = null;
+                        String managementSelialNumber = null;
                         // SERVICEタイプで、かつ関連設備（relatedAsset）が存在する場合に管理番号を取得
                         if ("SERVICE".equalsIgnoreCase(d.getItemType()) && d.getRelatedAsset() != null) {
                             // PurchaseOrderDetailのrelatedAssetオブジェクトからAssetMasterのassetCode（管理番号）を取得
                             managementNumber = d.getRelatedAsset().getAssetCode();
+                            managementSelialNumber = d.getRelatedAsset().getSerialNumber();
                         }
                         return OrderDetailResponse.builder()
                             .id(d.getId())
@@ -85,6 +88,7 @@ public class OrderHistoryResponse {
                             .status(d.getStatus())
                             .remarks(d.getRemarks())
                             .assetCode(managementNumber)
+                            .selialNumber(managementSelialNumber)
                             .build();
                     })
                     .collect(Collectors.toList())
