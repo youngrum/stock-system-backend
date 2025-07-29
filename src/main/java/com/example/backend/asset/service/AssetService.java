@@ -15,15 +15,17 @@ import com.example.backend.entity.AssetMaster;
 import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrder.OrderType;
 import com.example.backend.entity.PurchaseOrderDetail;
-import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.order.dto.AssetReceiveFromOrderRequest;
 import com.example.backend.order.repository.PurchaseOrderRepository;
 import com.example.backend.order.repository.PurchaseOrderDetailRepository;
 import com.example.backend.exception.DuplicateAssetCodeException;
+import com.example.backend.exception.ResourceNotFoundException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.springframework.util.StringUtils;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
@@ -104,8 +106,8 @@ public class AssetService {
                 .orElseThrow(() -> new ResourceNotFoundException("不正なidへのリクエストです")); // 例外は適宜定義
 
         // DTOのassetCodeがnullでなく、かつ既存のassetCodeと異なる場合にチェック
-        if (updateRequest.getAssetCode() != null
-                && !existingAsset.getAssetCode().equals(updateRequest.getAssetCode())) {
+        if (StringUtils.hasText(updateRequest.getAssetCode())
+                && !Objects.equals(existingAsset.getAssetCode(), updateRequest.getAssetCode())) {
             if (assetMasterRepository.findByAssetCode(updateRequest.getAssetCode()).isPresent()) {
                 throw new DuplicateAssetCodeException("指定された設備コードは既に存在します: " + updateRequest.getAssetCode());
             }

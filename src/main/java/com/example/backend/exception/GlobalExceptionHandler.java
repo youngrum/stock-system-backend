@@ -126,10 +126,15 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
   }
 
-  @ResponseStatus(HttpStatus.CONFLICT)
-  public class DuplicateAssetCodeException extends RuntimeException {
-      public DuplicateAssetCodeException(String message) {
-          super(message);
-      }
+  // DuplicateAssetCodeException の処理
+  @ExceptionHandler(DuplicateAssetCodeException.class)
+  public ResponseEntity<Map<String, Object>> handleDuplicateAssetCodeException(DuplicateAssetCodeException ex) {
+      Map<String, Object> body = new HashMap<>();
+      body.put("status", HttpStatus.BAD_REQUEST.value());
+      body.put("message", ex.getMessage());
+      body.put("error", "Duplicate Asset Code");
+      body.put("timestamp", LocalDateTime.now().toString());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
+
 }
