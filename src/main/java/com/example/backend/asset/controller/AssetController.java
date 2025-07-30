@@ -20,6 +20,7 @@ import com.example.backend.asset.dto.AssetMasterRequest;
 import com.example.backend.asset.dto.AssetUpdateRequest;
 import com.example.backend.asset.service.AssetService;
 import com.example.backend.entity.AssetMaster;
+import com.example.backend.entity.StockMaster;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -88,5 +89,16 @@ public class AssetController {
                 "transactionId", updated
             )
         );
+    }
+
+    @Operation(summary = "単一既存在庫情報取得")
+    @GetMapping("/asset/{itemCode}")
+    public ResponseEntity<?> getStockByItemCode(@PathVariable String itemCode) {
+        StockMaster asset = AssetService.getStockByItemCode(itemCode);
+        return ResponseEntity.ok(
+            Map.of(
+                "status", 200,
+                "message", "asset fetched successfully.",
+                "data", asset));
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.entity.PurchaseOrder;
+import com.example.backend.entity.PurchaseOrder.OrderType;
 import com.example.backend.order.dto.PurchaseOrderRequest;
 import com.example.backend.order.repository.PurchaseOrderRepository;
 import com.example.backend.common.service.OrderNumberGenerator;
@@ -57,7 +58,7 @@ public class PurchaseOrderService {
     }
 
     private void validateOrderRequest(PurchaseOrderRequest req) {
-        if (req.getOrderType() == null || req.getOrderType().isBlank()) {
+        if (req.getOrderType() == null) {
             throw new IllegalArgumentException("orderTypeは必須です。");
         }
     }
@@ -79,7 +80,7 @@ public class PurchaseOrderService {
         header.setOrderSubtotal(BigDecimal.ZERO);
         header.setCalibrationCert(req.getCalibrationCert());
         header.setTraceabilityCert(req.getTraceabilityCert());
-        header.setOrderType(PurchaseOrder.OrderType.valueOf(req.getOrderType()));
+        header.setOrderType(req.getOrderType());
 
         purchaseOrderRepository.save(header);
         // トランザクション中にDB更新
@@ -90,12 +91,12 @@ public class PurchaseOrderService {
     }
 
     private BigDecimal processOrderDetails(PurchaseOrder header, PurchaseOrderRequest req, String username) {
-        return switch (req.getOrderType().toUpperCase()) {
-            case "INVENTORY" -> {
+        return switch (req.getOrderType()) {
+            case OrderType.INVENTORY -> {
                 System.out.println("在庫発注として処理を開始");
                 yield inventoryOrderHandler.processOrderDetails(header, req.getDetails(), username);
             }
-            case "ASSET" -> {
+            case OrderType.ASSET -> {
                 System.out.println("設備/校正発注として処理を開始");
                 yield assetOrderHandler.processOrderDetails(header, req.getDetails(), username);
             }

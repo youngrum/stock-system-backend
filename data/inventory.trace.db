@@ -1459,3 +1459,6 @@ The object is already closed [90007-224]
 org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "PURCHASE_ORDEASSET_MASTER" が見つかりません
 Table "PURCHASE_ORDEASSET_MASTER" not found; SQL statement:
 SELECT * FROM PURCHASE_ORDEASSET_MASTER R_DETAIL [42102-224]
+2025-07-30 08:56:39.215240+09:00 jdbc[23]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: オブジェクトはすでに閉じられています
+The object is already closed [90007-224]
