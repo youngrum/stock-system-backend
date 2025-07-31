@@ -15,6 +15,7 @@ import com.example.backend.entity.AssetMaster;
 import com.example.backend.entity.PurchaseOrder;
 import com.example.backend.entity.PurchaseOrder.OrderType;
 import com.example.backend.entity.PurchaseOrderDetail;
+import com.example.backend.entity.StockMaster;
 import com.example.backend.order.dto.AssetReceiveFromOrderRequest;
 import com.example.backend.order.repository.PurchaseOrderRepository;
 import com.example.backend.order.repository.PurchaseOrderDetailRepository;
@@ -38,6 +39,7 @@ public class AssetService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final PurchaseOrderDetailRepository purchaseOrderDetailRepository;
     private final AssetServiceHandlingService assetServiceHandlingService;
+    
 
     @Autowired
     public AssetService(AssetMasterRepository assetMasterRepository,
@@ -212,6 +214,12 @@ public class AssetService {
         purchaseOrderRepository.save(purchaseOrder);
 
         return createdAssets;
+    }
+
+    // 校正・修理依頼フォームで管理番号から検索する機能
+    public AssetMaster getAssetByItemCode(String assetCode) {
+        return assetMasterRepository.findByAssetCode(assetCode)
+            .orElseThrow(() -> new ResourceNotFoundException("asset not found: " + assetCode));
     }
 
     /**

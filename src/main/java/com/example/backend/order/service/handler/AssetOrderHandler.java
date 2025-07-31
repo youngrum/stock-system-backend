@@ -101,7 +101,7 @@ public class AssetOrderHandler {
             throw new ResourceNotFoundException("サービスは既存設備との連携が必須です");
         }
         
-        orderDetail.setCategory(getServiceCategory(detail.getServiceType()));
+        orderDetail.setServiceType(getServiceCategory(detail.getServiceType()));
         orderDetail.setLinkedId(null);
 
         // 
@@ -154,7 +154,6 @@ public class AssetOrderHandler {
         serviceDetail.setReceivedQuantity(BigDecimal.ZERO);
         serviceDetail.setLinkedId(parentDetail.getId());
         serviceDetail.setRelatedAsset(null);
-        serviceDetail.setCategory(getServiceCategory(serviceReq.getServiceType()));
         
         // 物品関連カラムはNULL
         serviceDetail.setItemCode(null);

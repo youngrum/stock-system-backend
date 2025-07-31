@@ -92,9 +92,9 @@ public class AssetController {
     }
 
     @Operation(summary = "単一既存在庫情報取得")
-    @GetMapping("/asset/{itemCode}")
-    public ResponseEntity<?> getStockByItemCode(@PathVariable String itemCode) {
-        StockMaster asset = AssetService.getStockByItemCode(itemCode);
+    @GetMapping("/asset/{assetCode}")
+    public ResponseEntity<?> getAssetByItemCode(@PathVariable String assetCode) {
+        AssetMaster asset = assetService.getAssetByItemCode(assetCode);
         return ResponseEntity.ok(
             Map.of(
                 "status", 200,
