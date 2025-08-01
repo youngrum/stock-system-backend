@@ -68,20 +68,11 @@ public class PurchaseOrderService {
     }
 
     private PurchaseOrder createOrderHeader(PurchaseOrderRequest req, String username) {
-        PurchaseOrder header = new PurchaseOrder();
 
         String orderNo = orderNumberGenerator.generateOrderNo();
-        header.setOrderNo(orderNo);
-        header.setSupplier(req.getSupplier());
-        header.setShippingFee(req.getShippingFee());
-        header.setOperator(username);
-        header.setRemarks(req.getRemarks());
-        header.setOrderDate(LocalDate.now());
-        header.setOrderSubtotal(BigDecimal.ZERO);
-        header.setCalibrationCert(req.getCalibrationCert());
-        header.setTraceabilityCert(req.getTraceabilityCert());
-        header.setOrderType(req.getOrderType());
-
+    
+        PurchaseOrder header = PurchaseOrder.createOrderHeader(req, orderNo, username);
+        
         purchaseOrderRepository.save(header);
         // トランザクション中にDB更新
         purchaseOrderRepository.flush();

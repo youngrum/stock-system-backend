@@ -57,7 +57,7 @@ public class AssetController {
     return ResponseEntity.ok(
         Map.of(
             "status", 200,
-            "message", "Inventory search successful.",
+            "message", "asset search successful.",
             "data", results));
   }
 

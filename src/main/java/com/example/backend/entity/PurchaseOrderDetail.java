@@ -1,6 +1,9 @@
 // PurchaseOrderDetail.java
 package com.example.backend.entity;
 
+import java.math.BigDecimal;
+
+import com.example.backend.order.dto.PurchaseOrderRequest;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
@@ -63,5 +66,50 @@ public class PurchaseOrderDetail {
 
   @Column(name = "remarks", length = 20, nullable = true)
   private String remarks;
+
+  /**
+   * 発注明細の基本情報を登録
+   * @param header
+   * @param detail
+   * @return
+   */
+  public static PurchaseOrderDetail createBaseOrderDetail(PurchaseOrder header, PurchaseOrderRequest.Detail detail) {
+      PurchaseOrderDetail orderDetail = new PurchaseOrderDetail();
+      orderDetail.setPurchaseOrder(header);
+      orderDetail.setItemName(detail.getItemName());
+      orderDetail.setQuantity(detail.getQuantity());
+      orderDetail.setPurchasePrice(detail.getPurchasePrice());
+      orderDetail.setRemarks(detail.getRemarks());
+      orderDetail.setStatus("未入庫");
+      orderDetail.setItemType(detail.getItemType());
+      return orderDetail;
+  }
+
+  /**
+   * ネストされたservicesオブジェクトを発注明細オブジェクト用に加工して登録
+   * @param header
+   * @param serviceReq
+   * @param parentDetail
+   * @return
+   */
+  public static PurchaseOrderDetail createNestedServiceDetail(PurchaseOrder header, PurchaseOrderRequest.ServiceRequest serviceReq, PurchaseOrderDetail parentDetail) {
+      PurchaseOrderDetail serviceDetail = new PurchaseOrderDetail();
+      serviceDetail.setPurchaseOrder(header);
+      serviceDetail.setItemType("SERVICE");
+      serviceDetail.setServiceType(serviceReq.getServiceType());
+      serviceDetail.setItemName(serviceReq.getItemName());
+      serviceDetail.setQuantity(serviceReq.getQuantity());
+      serviceDetail.setPurchasePrice(serviceReq.getPurchasePrice() != null ? serviceReq.getPurchasePrice() : BigDecimal.ZERO);
+      serviceDetail.setStatus("未入庫");
+      serviceDetail.setReceivedQuantity(BigDecimal.ZERO);
+      serviceDetail.setLinkedId(parentDetail.getId());
+      serviceDetail.setRelatedAsset(null);
+      
+      // 物品関連カラムはNULL
+      serviceDetail.setItemCode(null);
+      serviceDetail.setModelNumber(null);
+      
+      return serviceDetail;
+  }
 
 }

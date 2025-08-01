@@ -40,9 +40,9 @@ public class PurchaseOrderRequest {
 
   @Data
   public static class ServiceRequest {
+    private String itemName;
     private String serviceType; // 設備系 校正or修理の分岐 (CALIBRATION, REPAIR)
     private BigDecimal purchasePrice; // 校正単価
-    private String itemName;
     private BigDecimal quantity;
   }
 }

@@ -3,6 +3,8 @@ package com.example.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.example.backend.order.dto.PurchaseOrderRequest;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.List;
@@ -68,4 +70,19 @@ public class PurchaseOrder {
     INVENTORY, // 在庫系統
     ASSET // 設備・設備に対するサービス系統
   }
+
+  public static PurchaseOrder createOrderHeader(PurchaseOrderRequest req, String orderNo, String username) {
+    PurchaseOrder header = new PurchaseOrder();
+    header.setOrderNo(orderNo);
+    header.setSupplier(req.getSupplier());
+    header.setShippingFee(req.getShippingFee());
+    header.setOperator(username);
+    header.setRemarks(req.getRemarks());
+    header.setOrderDate(LocalDate.now());
+    header.setOrderSubtotal(BigDecimal.ZERO);
+    header.setCalibrationCert(req.getCalibrationCert());
+    header.setTraceabilityCert(req.getTraceabilityCert());
+    header.setOrderType(req.getOrderType());
+    return header;
+}
 }

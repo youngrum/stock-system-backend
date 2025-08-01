@@ -38,7 +38,7 @@ public class AssetOrderHandler {
         for (PurchaseOrderRequest.Detail detail : details) {
             System.out.println("▶ 設備/校正明細処理中: " + detail.getItemName() + " (itemType: " + detail.getItemType() + ")");
             
-            PurchaseOrderDetail orderDetail = createBaseOrderDetail(header, detail);
+            PurchaseOrderDetail orderDetail = PurchaseOrderDetail.createBaseOrderDetail(header, detail);
             
             if ("ITEM".equalsIgnoreCase(detail.getItemType())) {
                 configureItemDetail(orderDetail, detail);
@@ -62,21 +62,15 @@ public class AssetOrderHandler {
         return totalAmount;
     }
 
-    private PurchaseOrderDetail createBaseOrderDetail(PurchaseOrder header, PurchaseOrderRequest.Detail detail) {
-        PurchaseOrderDetail orderDetail = new PurchaseOrderDetail();
-        orderDetail.setPurchaseOrder(header);
-        orderDetail.setItemName(detail.getItemName());
-        orderDetail.setQuantity(detail.getQuantity());
-        orderDetail.setPurchasePrice(detail.getPurchasePrice());
-        orderDetail.setRemarks(detail.getRemarks());
-        orderDetail.setStatus("未入庫");
-        orderDetail.setItemType(detail.getItemType());
-        return orderDetail;
-    }
-
+    /**
+     * 設備品の発注登録処理
+     * @param orderDetail
+     * @param detail
+     */
     private void configureItemDetail(PurchaseOrderDetail orderDetail, PurchaseOrderRequest.Detail detail) {
         orderDetail.setItemCode(detail.getItemCode());
         orderDetail.setModelNumber(detail.getModelNumber());
+        orderDetail.setManufacturer(detail.getManufacturer());
         orderDetail.setCategory(detail.getCategory());
         orderDetail.setReceivedQuantity(BigDecimal.ZERO);
         
@@ -87,7 +81,7 @@ public class AssetOrderHandler {
     }
 
     /**
-     *  サービス系の受領処理
+     *  設備品に対するサービス(校正・修理)の発注登録処理
      * @param orderDetail
      * @param detail
      */
@@ -100,8 +94,8 @@ public class AssetOrderHandler {
         } else {
             throw new ResourceNotFoundException("サービスは既存設備との連携が必須です");
         }
-        
-        orderDetail.setServiceType(getServiceCategory(detail.getServiceType()));
+        orderDetail.setCategory(getServiceCategory(detail.getServiceType()));
+        orderDetail.setServiceType(detail.getServiceType());
         orderDetail.setLinkedId(null);
 
         // 
@@ -114,6 +108,12 @@ public class AssetOrderHandler {
         orderDetail.setReceivedQuantity(BigDecimal.ZERO);
     }
 
+    /**
+     * 発注サービスのカテゴリ名称をserviceTypeから取得
+     * @param serviceType
+     * @return カテゴリ名称
+     */
+
     private String getServiceCategory(String serviceType) {
         return switch (serviceType.toUpperCase()) {
             case "CALIBRATION" -> "校正依頼";
@@ -122,17 +122,31 @@ public class AssetOrderHandler {
         };
     }
 
+    /**
+     *  発注明細オブジェクトがservicesオブジェクトを持っているか判定
+     * @param detail
+     * @return
+     */
     private boolean hasNestedServices(PurchaseOrderRequest.Detail detail) {
         return detail.getServices() != null && !detail.getServices().isEmpty();
     }
 
+    /**
+     * ネストされたservicesオブジェクトを発注明細オブジェクト用に加工して登録
+     * @param header
+     * @param detail
+     * @param parentDetail
+     * @return
+     */
     private BigDecimal processNestedServices(PurchaseOrder header, PurchaseOrderRequest.Detail detail, PurchaseOrderDetail parentDetail) {
         System.out.println("ネストされたサービス明細を処理中...");
         BigDecimal nestedServiceAmount = BigDecimal.ZERO;
         
         for (PurchaseOrderRequest.ServiceRequest serviceReq : detail.getServices()) {
-            PurchaseOrderDetail serviceDetail = createNestedServiceDetail(header, serviceReq, parentDetail);
+            PurchaseOrderDetail serviceDetail = PurchaseOrderDetail.createNestedServiceDetail(header, serviceReq, parentDetail);
             
+            serviceDetail.setCategory(getServiceCategory(serviceReq.getServiceType()));
+
             purchaseOrderDetailRepository.save(serviceDetail);
             System.out.println("  ▶ ネストされたサービス明細登録完了: ID=" + serviceDetail.getId());
             
@@ -142,23 +156,4 @@ public class AssetOrderHandler {
         return nestedServiceAmount;
     }
 
-    private PurchaseOrderDetail createNestedServiceDetail(PurchaseOrder header, PurchaseOrderRequest.ServiceRequest serviceReq, PurchaseOrderDetail parentDetail) {
-        PurchaseOrderDetail serviceDetail = new PurchaseOrderDetail();
-        serviceDetail.setPurchaseOrder(header);
-        serviceDetail.setItemType("SERVICE");
-        serviceDetail.setServiceType(serviceReq.getServiceType());
-        serviceDetail.setItemName(serviceReq.getItemName());
-        serviceDetail.setQuantity(serviceReq.getQuantity());
-        serviceDetail.setPurchasePrice(serviceReq.getPurchasePrice() != null ? serviceReq.getPurchasePrice() : BigDecimal.ZERO);
-        serviceDetail.setStatus("未入庫");
-        serviceDetail.setReceivedQuantity(BigDecimal.ZERO);
-        serviceDetail.setLinkedId(parentDetail.getId());
-        serviceDetail.setRelatedAsset(null);
-        
-        // 物品関連カラムはNULL
-        serviceDetail.setItemCode(null);
-        serviceDetail.setModelNumber(null);
-        
-        return serviceDetail;
-    }
 }
