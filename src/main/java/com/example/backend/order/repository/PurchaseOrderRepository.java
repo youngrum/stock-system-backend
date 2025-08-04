@@ -13,20 +13,23 @@ import java.util.Optional;
 
 @Repository
 public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Long> {
-  // 発注日付順で一覧取得なども可
-  List<PurchaseOrder> findAllByOrderByOrderDateDesc();
 
-  // 過去の発注履歴一覧取得
-  Optional<PurchaseOrder> findByOrderNo(String orderNo);
+  Optional<PurchaseOrder> findByOrderNoAndOrderType(String oderNo, String oderType);
+
+  // 発注日付順で一覧取得なども可
+  Page<PurchaseOrder> findByOrderTypeByOrderDateDesc(String oderType, Pageable pageable);
+
+  // 過去の発注履歴一覧取得を発注タイプごとに表示
+  Optional<PurchaseOrder> findByOrderTypeOrderOrderNoAndOrderType(String orderNo, String oderType);
 
   // 特定期間内全件取得
-  Page<PurchaseOrder> findByCreatedAtBetween(LocalDate fromDate, LocalDate toDate, Pageable pageable);
+  Page<PurchaseOrder> findByOrderTypeOrderByCreatedAtBetween(LocalDate fromDate, LocalDate toDate, String oderType, Pageable pageable);
 
   // 特定期日以降全件取得
-  Page<PurchaseOrder> findByCreatedAtAfter(LocalDate fromDate, Pageable pageable);
+  Page<PurchaseOrder> findByOrderTypeOrderByCreatedAtAfter(LocalDate fromDate, String oderType, Pageable pageable);
 
   // 特定期日以前全件取得
-  Page<PurchaseOrder> findByCreatedAtBefore(LocalDate toDate, Pageable pageable);
+  Page<PurchaseOrder> findByOrderTypeOrderByCreatedAtBefore(LocalDate toDate, String oderType, Pageable pageable);
   
 
 }

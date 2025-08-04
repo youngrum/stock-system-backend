@@ -36,13 +36,13 @@ public class OrderHistoryService {
      * @param toDate   終了日付（nullの場合は指定なし）
      * @return 発注履歴のページ
      */
-    public Page<OrderHistoryResponse> getOrderHistory(String orderNo, int page, int size, LocalDate fromDate,
+    public Page<OrderHistoryResponse> getOrderHistory(String orderNo, String orderType, int page, int size, LocalDate fromDate,
             LocalDate toDate) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         // 条件: orderNo指定あり
         if (orderNo != null && !orderNo.isBlank()) {
-            PurchaseOrder order = purchaseOrderRepository.findByOrderNo(orderNo)
+            PurchaseOrder order = purchaseOrderRepository.findByOrderNoAndOrderType(orderNo, orderType)
                     .orElseThrow(() -> new ResourceNotFoundException("発注が見つかりません（orderNo: " + orderNo + "）"));
             List<PurchaseOrderDetail> details = purchaseOrderDetailRepository.findByPurchaseOrder_OrderNo(orderNo);
             OrderHistoryResponse response = OrderHistoryResponse.from(order, details);
@@ -59,13 +59,13 @@ public class OrderHistoryService {
         //     ordersPage = purchaseOrderRepository.findAll(pageable);
         // }
         if (fromDate != null && toDate != null) {
-            ordersPage = purchaseOrderRepository.findByCreatedAtBetween(fromDate, toDate, pageable);
+            ordersPage = purchaseOrderRepository.findByOrderTypeOrderByCreatedAtBetween(fromDate, toDate, orderType, pageable);
         } else if (fromDate != null) {
-            ordersPage = purchaseOrderRepository.findByCreatedAtAfter(fromDate.minusDays(1), pageable);
+            ordersPage = purchaseOrderRepository.findByOrderTypeOrderByCreatedAtAfter(fromDate.minusDays(1), orderType, pageable);
         } else if (toDate != null) {
-            ordersPage = purchaseOrderRepository.findByCreatedAtBefore(toDate.plusDays(1), pageable);
+            ordersPage = purchaseOrderRepository.findByOrderTypeOrderByCreatedAtBefore(toDate.plusDays(1), orderType, pageable);
         } else {
-            ordersPage = purchaseOrderRepository.findAll(pageable);
+            ordersPage = purchaseOrderRepository.findByOrderTypeByOrderDateDesc(orderType, pageable);
         }
         
 
