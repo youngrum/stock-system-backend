@@ -2,6 +2,7 @@ package com.example.backend.order.contoroller;
 
 import com.example.backend.inventory.service.InventoryService;
 import com.example.backend.asset.service.AssetService;
+import com.example.backend.entity.PurchaseOrder.OrderType;
 import com.example.backend.order.dto.AssetReceiveFromOrderRequest;
 import com.example.backend.order.dto.InventoryReceiveFromOrderRequest;
 import com.example.backend.order.dto.OrderHistoryResponse;
@@ -40,12 +41,13 @@ public class OrderController {
   @GetMapping("/order-history")
   public ResponseEntity<Page<OrderHistoryResponse>> getOrderHistory(
       @RequestParam(required = false) String orderNo,
+      @RequestParam(required = false) OrderType orderType,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
       @PageableDefault(size = 100, direction = Sort.Direction.ASC) Pageable pageable) {
-    Page<OrderHistoryResponse> result = orderHistoryService.getOrderHistory(orderNo, page, size, fromDate, toDate);
+    Page<OrderHistoryResponse> result = orderHistoryService.getOrderHistory(orderNo, orderType, page, size, fromDate, toDate);
     return ResponseEntity.ok(result);
   }
 

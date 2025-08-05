@@ -1,6 +1,7 @@
 package com.example.backend.order.service;
 
 import com.example.backend.entity.PurchaseOrder;
+import com.example.backend.entity.PurchaseOrder.OrderType;
 import com.example.backend.entity.PurchaseOrderDetail;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.order.dto.OrderHistoryResponse;
@@ -36,7 +37,7 @@ public class OrderHistoryService {
      * @param toDate   終了日付（nullの場合は指定なし）
      * @return 発注履歴のページ
      */
-    public Page<OrderHistoryResponse> getOrderHistory(String orderNo, String orderType, int page, int size, LocalDate fromDate,
+    public Page<OrderHistoryResponse> getOrderHistory(String orderNo, OrderType orderType, int page, int size, LocalDate fromDate,
             LocalDate toDate) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
@@ -58,14 +59,18 @@ public class OrderHistoryService {
         // } else {
         //     ordersPage = purchaseOrderRepository.findAll(pageable);
         // }
+        // 発注タイプごとに特定期間取得
         if (fromDate != null && toDate != null) {
-            ordersPage = purchaseOrderRepository.findByOrderTypeOrderByCreatedAtBetween(fromDate, toDate, orderType, pageable);
+            ordersPage = purchaseOrderRepository.findByOrderTypeAndCreatedAtBetweenOrderByCreatedAtDesc(orderType, fromDate, toDate, pageable);
+        // 発注タイプごとに特定期日以降取得
         } else if (fromDate != null) {
-            ordersPage = purchaseOrderRepository.findByOrderTypeOrderByCreatedAtAfter(fromDate.minusDays(1), orderType, pageable);
+            ordersPage = purchaseOrderRepository.findByOrderTypeAndCreatedAtAfterOrderByCreatedAtDesc(orderType, fromDate.minusDays(1), pageable);
+        // 発注タイプごとに特定期日以前取得
         } else if (toDate != null) {
-            ordersPage = purchaseOrderRepository.findByOrderTypeOrderByCreatedAtBefore(toDate.plusDays(1), orderType, pageable);
+            ordersPage = purchaseOrderRepository.findByOrderTypeAndCreatedAtBeforeOrderByCreatedAtDesc(orderType, toDate.plusDays(1), pageable);
+        // 発注タイプごとに全件取得
         } else {
-            ordersPage = purchaseOrderRepository.findByOrderTypeByOrderDateDesc(orderType, pageable);
+            ordersPage = purchaseOrderRepository.findByOrderTypeOrderByOrderDateDesc(orderType, pageable);
         }
         
 
