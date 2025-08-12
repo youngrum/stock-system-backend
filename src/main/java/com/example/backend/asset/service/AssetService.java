@@ -132,8 +132,14 @@ public class AssetService {
     // 引数をAssetReceiveFromOrderRequestに変更
     public List<AssetMaster> receiveFromOrder(AssetReceiveFromOrderRequest req) {
         // 1. 発注書をorderNoで検索 (purchaseOrderIdではなくorderNoを使用)
-        PurchaseOrder purchaseOrder = purchaseOrderRepository.findByOrderNo(req.getOrderNo())
-                .orElseThrow(() -> new ResourceNotFoundException("発注書が見つかりません: No. " + req.getOrderNo()));
+        PurchaseOrder.OrderType orderType;
+        try {
+            orderType = PurchaseOrder.OrderType.valueOf(req.getOrderType());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new ValidationException("無効な発注区分です: " + req.getOrderType());
+        }
+        PurchaseOrder purchaseOrder = purchaseOrderRepository.findByOrderNoAndOrderType(req.getOrderNo(), orderType)
+                .orElseThrow(() -> new ResourceNotFoundException("発注情報が見つかりません: No. " + req.getOrderNo()));
 
         // 発注区分が設備品向け(order_type="ASSET")であることを確認（ケースAの前提に基づくバリデーション）
          if (purchaseOrder.getOrderType() != OrderType.ASSET) {
