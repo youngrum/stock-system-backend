@@ -212,12 +212,19 @@ public class InventoryService {
      */
     @Transactional
     public void receiveFromOrder(InventoryReceiveFromOrderRequest req) {
+        PurchaseOrder.OrderType orderType;
+        try {
+            orderType = PurchaseOrder.OrderType.valueOf(req.getOrderType());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new ValidationException("無効な発注区分です: " + req.getOrderType());
+        }
+        
         String orderNo = req.getOrderNo();
         System.out.println(orderNo);
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         req.setOperator(username);
 
-        PurchaseOrder order = purchaseOrderRepository.findByOrderNo(req.getOrderNo())
+        PurchaseOrder order = purchaseOrderRepository.findByOrderNoAndOrderType(req.getOrderNo(), orderType)
                 .orElseThrow(() -> new ResourceNotFoundException("対象の発注番号が見つかりません"));
 
         for (InventoryReceiveFromOrderRequest.Item item : req.getItems()) {

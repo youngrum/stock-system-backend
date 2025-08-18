@@ -10,6 +10,7 @@ import java.math.BigDecimal;
  */
 public class InventoryReceiveFromOrderRequest {
   private String orderNo;
+  private String orderType; // 発注区分（INVENT / ASSET）
   private String operator;
   private List<Item> items;
 
