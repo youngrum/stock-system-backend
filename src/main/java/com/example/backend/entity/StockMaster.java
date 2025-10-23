@@ -19,7 +19,6 @@ public class StockMaster {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // サロゲートキー
 
-
     @Column(name = "item_code", length = 32, unique = true, nullable = true)
     private String itemCode;
 

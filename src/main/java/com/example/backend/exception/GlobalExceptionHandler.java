@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException; // 追加
 import org.springframework.web.bind.MissingServletRequestParameterException; // 追加
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException; // 追加
 
@@ -123,5 +124,12 @@ public class GlobalExceptionHandler {
     body.put("error", ex.getClass().getSimpleName());
     body.put("timestamp", LocalDateTime.now().toString());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+  }
+
+  @ResponseStatus(HttpStatus.CONFLICT)
+  public class DuplicateAssetCodeException extends RuntimeException {
+      public DuplicateAssetCodeException(String message) {
+          super(message);
+      }
   }
 }
