@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.12</version> <!-- ✅ ここが 3.x であること -->
+    <version>3.5.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
@@ -28,6 +28,11 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<!-- Note: Upgraded Spring Boot to 3.5.0. Review the following dependencies after build:
+		  - springdoc-openapi-starter-webmvc-ui (2.5.0) should be compatible with Spring Boot 3.5; update if necessary.
+		  - H2 2.2.224, jjwt 0.11.5, cglib 3.3.0 and other libs should generally work with Java 21 + Spring Boot 3.5.
+		  If build/test failures appear, adjust dependency versions or apply code fixes as recommended by Spring team.
+		-->
 	</properties>
 	<dependencies>
 		<dependency>
@@ -48,7 +53,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.5.0</version> <!-- ★これ最新。古かったら2.x系ならOK -->
+			<version>2.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
